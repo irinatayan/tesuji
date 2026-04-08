@@ -58,6 +58,23 @@ final readonly class Board
         return true;
     }
 
+    /** @return Position[] */
+    public function neighbours(Position $position): array
+    {
+        $result = [];
+
+        foreach ([[-1, 0], [1, 0], [0, -1], [0, 1]] as [$dx, $dy]) {
+            $x = $position->x + $dx;
+            $y = $position->y + $dy;
+
+            if ($x >= 0 && $y >= 0 && $x < $this->size && $y < $this->size) {
+                $result[] = new Position($x, $y);
+            }
+        }
+
+        return $result;
+    }
+
     public function isInBounds(Position $position): bool
     {
         return $position->x >= 0
