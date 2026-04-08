@@ -28,11 +28,24 @@ backend/Homestead.yaml
 # =====================
 frontend/node_modules/
 frontend/dist/
+frontend/dist-ssr/
 frontend/.vite/
 frontend/*.local
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
 
 # =====================
 # OS / IDE
 # =====================
 .DS_Store
 Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
