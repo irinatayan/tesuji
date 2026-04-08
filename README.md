@@ -42,7 +42,7 @@ The Laravel app will be available at `https://tesuji.ddev.site`.
 
 ### Frontend
 
-Requires Node.js 20+.
+Requires Node.js 24+.
 
 ```bash
 cd frontend
@@ -88,7 +88,7 @@ go-game/
 
 ## Architecture notes
 
-Key decisions are documented in [`CLAUDE.md`](CLAUDE.md):
+Key decisions are documented in [`CLAUDE.md`](CLAUDE.md) (intended for AI assistants working on this project):
 
 - **Event sourcing** — game state is never stored, it is derived from the `moves` table. Each move stores a `board_state` snapshot so the current position is always a single `SELECT` away.
 - **Pure PHP game layer** — `app/Game/` has zero `Illuminate\*` imports. Unit tests boot in milliseconds.
