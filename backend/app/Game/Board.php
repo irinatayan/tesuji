@@ -83,6 +83,32 @@ final readonly class Board
             && $position->y < $this->size;
     }
 
+    public function isLegalMove(Position $position, Stone $stone, Rules\Ruleset $ruleset, ?string $lastHash = null): bool
+    {
+        if (! $this->isInBounds($position)) {
+            return false;
+        }
+
+        if ($this->get($position) !== null) {
+            return false;
+        }
+
+        $result = $this->placeStone($position, $stone);
+        $newBoard = $result->board;
+
+        // Suicide check: placed stone has no liberties after capture
+        if (! $ruleset->isSuicideAllowed() && $newBoard->liberties($position) === []) {
+            return false;
+        }
+
+        // Ko check: new position must not repeat the position from two moves ago
+        if ($lastHash !== null && $newBoard->hash() === $lastHash) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function hash(): string
     {
         $state = '';
