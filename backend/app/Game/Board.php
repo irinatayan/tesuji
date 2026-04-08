@@ -83,6 +83,60 @@ final readonly class Board
             && $position->y < $this->size;
     }
 
+    /** @return Position[] */
+    public function group(Position $position): array
+    {
+        $stone = $this->get($position);
+
+        if ($stone === null) {
+            return [];
+        }
+
+        $visited = [];
+        $queue = new \SplQueue();
+        $queue->enqueue($position);
+        $visited["{$position->x},{$position->y}"] = $position;
+
+        while (! $queue->isEmpty()) {
+            $current = $queue->dequeue();
+
+            foreach ($this->neighbours($current) as $neighbour) {
+                $key = "{$neighbour->x},{$neighbour->y}";
+
+                if (! isset($visited[$key]) && $this->get($neighbour) === $stone) {
+                    $visited[$key] = $neighbour;
+                    $queue->enqueue($neighbour);
+                }
+            }
+        }
+
+        return array_values($visited);
+    }
+
+    /** @return Position[] */
+    public function liberties(Position $position): array
+    {
+        $group = $this->group($position);
+
+        if ($group === []) {
+            return [];
+        }
+
+        $liberties = [];
+
+        foreach ($group as $pos) {
+            foreach ($this->neighbours($pos) as $neighbour) {
+                $key = "{$neighbour->x},{$neighbour->y}";
+
+                if (! isset($liberties[$key]) && $this->get($neighbour) === null) {
+                    $liberties[$key] = $neighbour;
+                }
+            }
+        }
+
+        return array_values($liberties);
+    }
+
     private function assertInBounds(Position $position): void
     {
         if (! $this->isInBounds($position)) {
