@@ -10,6 +10,7 @@ use App\Game\Rules\Ruleset;
 final readonly class Game
 {
     /** @param Move[] $history */
+    /** @param Position[] $proposedDeadStones */
     private function __construct(
         public Board $board,
         public Stone $currentTurn,
@@ -18,6 +19,9 @@ final readonly class Game
         public array $history,
         public int $consecutivePasses,
         public ?string $koHash,
+        public ?array $proposedDeadStones,
+        public ?Stone $proposedBy,
+        public ?Score $score,
     ) {}
 
     public static function start(int $boardSize, Ruleset $ruleset): self
@@ -30,6 +34,9 @@ final readonly class Game
             history: [],
             consecutivePasses: 0,
             koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
         );
     }
 
@@ -51,6 +58,73 @@ final readonly class Game
             MoveType::Pass => $this->applyPass($move),
             MoveType::Resign => $this->applyResign($move),
         };
+    }
+
+    /** @param Position[] $stones */
+    public function markDead(array $stones, Stone $by): self
+    {
+        if ($this->phase !== GamePhase::MarkingDead) {
+            throw new \RuntimeException('Game is not in marking dead phase');
+        }
+
+        return new self(
+            board: $this->board,
+            currentTurn: $this->currentTurn,
+            phase: $this->phase,
+            ruleset: $this->ruleset,
+            history: $this->history,
+            consecutivePasses: $this->consecutivePasses,
+            koHash: $this->koHash,
+            proposedDeadStones: $stones,
+            proposedBy: $by,
+            score: null,
+        );
+    }
+
+    public function confirmDead(Stone $by): self
+    {
+        if ($this->phase !== GamePhase::MarkingDead || $this->proposedDeadStones === null) {
+            throw new \RuntimeException('No dead stones proposal to confirm');
+        }
+
+        if ($by === $this->proposedBy) {
+            throw new \RuntimeException('Cannot confirm your own proposal');
+        }
+
+        $score = $this->ruleset->score($this->board, $this->proposedDeadStones);
+
+        return new self(
+            board: $this->board,
+            currentTurn: $this->currentTurn,
+            phase: GamePhase::Finished,
+            ruleset: $this->ruleset,
+            history: $this->history,
+            consecutivePasses: $this->consecutivePasses,
+            koHash: $this->koHash,
+            proposedDeadStones: $this->proposedDeadStones,
+            proposedBy: $this->proposedBy,
+            score: $score,
+        );
+    }
+
+    public function disputeDead(Stone $by): self
+    {
+        if ($this->phase !== GamePhase::MarkingDead) {
+            throw new \RuntimeException('Game is not in marking dead phase');
+        }
+
+        return new self(
+            board: $this->board,
+            currentTurn: $by,
+            phase: GamePhase::Playing,
+            ruleset: $this->ruleset,
+            history: $this->history,
+            consecutivePasses: 0,
+            koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
+        );
     }
 
     private function applyPlay(Move $move): self
@@ -81,6 +155,9 @@ final readonly class Game
             history: [...$this->history, $move],
             consecutivePasses: 0,
             koHash: $previousHash,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
         );
     }
 
@@ -97,6 +174,9 @@ final readonly class Game
             history: [...$this->history, $move],
             consecutivePasses: $newPasses,
             koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
         );
     }
 
@@ -110,6 +190,9 @@ final readonly class Game
             history: [...$this->history, $move],
             consecutivePasses: 0,
             koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
         );
     }
 }
