@@ -83,6 +83,39 @@ final readonly class Board
             && $position->y < $this->size;
     }
 
+    public function removeCaptured(Stone $color): CaptureResult
+    {
+        $board = $this;
+        $allCaptured = [];
+        $visited = [];
+
+        foreach ($this->grid as $y => $row) {
+            foreach ($row as $x => $stone) {
+                $key = "{$x},{$y}";
+
+                if ($stone !== $color || isset($visited[$key])) {
+                    continue;
+                }
+
+                $position = new Position($x, $y);
+                $group = $this->group($position);
+
+                foreach ($group as $pos) {
+                    $visited["{$pos->x},{$pos->y}"] = true;
+                }
+
+                if ($this->liberties($position) === []) {
+                    foreach ($group as $pos) {
+                        $board = $board->remove($pos);
+                        $allCaptured[] = $pos;
+                    }
+                }
+            }
+        }
+
+        return new CaptureResult($board, $allCaptured);
+    }
+
     /** @return Position[] */
     public function group(Position $position): array
     {
@@ -135,6 +168,14 @@ final readonly class Board
         }
 
         return array_values($liberties);
+    }
+
+    private function remove(Position $position): self
+    {
+        $grid = $this->grid;
+        $grid[$position->y][$position->x] = null;
+
+        return new self($this->size, $grid);
     }
 
     private function assertInBounds(Position $position): void
