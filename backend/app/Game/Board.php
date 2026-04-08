@@ -83,6 +83,13 @@ final readonly class Board
             && $position->y < $this->size;
     }
 
+    public function placeStone(Position $position, Stone $stone): CaptureResult
+    {
+        $board = $this->place($position, $stone);
+
+        return $board->removeCaptured($stone->opposite());
+    }
+
     public function removeCaptured(Stone $color): CaptureResult
     {
         $board = $this;
