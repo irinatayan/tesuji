@@ -176,7 +176,7 @@ final readonly class Board
         }
 
         $visited = [];
-        $queue = new \SplQueue();
+        $queue = new \SplQueue;
         $queue->enqueue($position);
         $visited["{$position->x},{$position->y}"] = $position;
 

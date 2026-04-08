@@ -81,7 +81,7 @@ class BoardCaptureTest extends TestCase
         $this->assertCount(2, $result->captured);
     }
 
-    public function test_placeStone_captures_opponent(): void
+    public function test_place_stone_captures_opponent(): void
     {
         // White at (1,1) surrounded, Black completes the capture
         $board = Board::empty(9)

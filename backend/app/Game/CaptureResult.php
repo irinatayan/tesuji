@@ -7,7 +7,7 @@ namespace App\Game;
 final readonly class CaptureResult
 {
     /**
-     * @param Position[] $captured
+     * @param  Position[]  $captured
      */
     public function __construct(
         public Board $board,
