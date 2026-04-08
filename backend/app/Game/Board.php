@@ -220,6 +220,71 @@ final readonly class Board
         return array_values($liberties);
     }
 
+    /** @param Position[] $positions */
+    public function withoutStones(array $positions): self
+    {
+        $board = $this;
+
+        foreach ($positions as $position) {
+            $board = $board->remove($position);
+        }
+
+        return $board;
+    }
+
+    /**
+     * Returns territory map: key is "x,y", value is the owning Stone or null (dame).
+     *
+     * @return array<string, Stone|null>
+     */
+    public function territory(): array
+    {
+        $result = [];
+        $visited = [];
+
+        foreach ($this->grid as $y => $row) {
+            foreach ($row as $x => $cell) {
+                $key = "{$x},{$y}";
+
+                if ($cell !== null || isset($visited[$key])) {
+                    continue;
+                }
+
+                // BFS to collect connected empty region
+                $region = [];
+                $borderColors = [];
+                $queue = new \SplQueue;
+                $queue->enqueue(new Position($x, $y));
+                $visited[$key] = true;
+
+                while (! $queue->isEmpty()) {
+                    $current = $queue->dequeue();
+                    $region[] = $current;
+
+                    foreach ($this->neighbours($current) as $neighbour) {
+                        $nKey = "{$neighbour->x},{$neighbour->y}";
+                        $nCell = $this->get($neighbour);
+
+                        if ($nCell !== null) {
+                            $borderColors[$nCell->name] = $nCell;
+                        } elseif (! isset($visited[$nKey])) {
+                            $visited[$nKey] = true;
+                            $queue->enqueue($neighbour);
+                        }
+                    }
+                }
+
+                $owner = count($borderColors) === 1 ? reset($borderColors) : null;
+
+                foreach ($region as $pos) {
+                    $result["{$pos->x},{$pos->y}"] = $owner;
+                }
+            }
+        }
+
+        return $result;
+    }
+
     private function remove(Position $position): self
     {
         $grid = $this->grid;
