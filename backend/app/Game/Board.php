@@ -83,6 +83,23 @@ final readonly class Board
             && $position->y < $this->size;
     }
 
+    public function hash(): string
+    {
+        $state = '';
+
+        foreach ($this->grid as $row) {
+            foreach ($row as $cell) {
+                $state .= match ($cell) {
+                    Stone::Black => 'B',
+                    Stone::White => 'W',
+                    null => '.',
+                };
+            }
+        }
+
+        return hash('sha256', $state);
+    }
+
     public function placeStone(Position $position, Stone $stone): CaptureResult
     {
         $board = $this->place($position, $stone);
