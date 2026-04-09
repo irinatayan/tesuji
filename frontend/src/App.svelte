@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { api } from '$lib/api';
-  import { auth, clearAuth } from '$lib/stores/auth';
+  import { auth, clearAuth } from '$lib/stores/auth.svelte';
   import { resetEcho } from '$lib/echo';
   import LoginView from '$lib/auth/LoginView.svelte';
   import RegisterView from '$lib/auth/RegisterView.svelte';

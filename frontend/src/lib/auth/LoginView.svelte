@@ -1,6 +1,6 @@
 <script lang="ts">
   import { api, ApiError } from '$lib/api';
-  import { setToken } from '$lib/stores/auth';
+  import { setToken } from '$lib/stores/auth.svelte';
 
   let { onSuccess }: { onSuccess: () => void } = $props();
 

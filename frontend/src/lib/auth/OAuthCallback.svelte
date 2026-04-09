@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { setToken } from '$lib/stores/auth';
+  import { setToken } from '$lib/stores/auth.svelte';
 
   let { onSuccess, onFail }: { onSuccess: () => void; onFail: () => void } = $props();
 

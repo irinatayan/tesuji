@@ -1,6 +1,6 @@
 <script lang="ts">
   import { api, type GameResponse } from '$lib/api';
-  import { auth } from '$lib/stores/auth';
+  import { auth } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
 
   let { onSelect }: { onSelect: (gameId: number) => void } = $props();

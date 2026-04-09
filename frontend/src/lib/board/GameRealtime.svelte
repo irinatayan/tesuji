@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { api, ApiError, type GameResponse } from '$lib/api';
-  import { auth } from '$lib/stores/auth';
+  import { auth } from '$lib/stores/auth.svelte';
   import { getEcho } from '$lib/echo';
   import { Board } from '$lib/game/Board';
   import { applyMovePlayed, type MovePlayed } from '$lib/game/events';
