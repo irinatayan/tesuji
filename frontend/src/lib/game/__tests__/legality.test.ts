@@ -24,9 +24,7 @@ describe('isLegal', () => {
   });
 
   it('corner with both neighbors filled is illegal', () => {
-    const board = Board.empty(9)
-      .set({ x: 1, y: 0 }, 'white')
-      .set({ x: 0, y: 1 }, 'white');
+    const board = Board.empty(9).set({ x: 1, y: 0 }, 'white').set({ x: 0, y: 1 }, 'white');
     expect(isLegal(board, { x: 0, y: 0 }, 'black')).toBe(false);
   });
 

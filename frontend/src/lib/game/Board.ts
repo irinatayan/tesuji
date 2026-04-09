@@ -10,9 +10,7 @@ export class Board {
   }
 
   static empty(size: number): Board {
-    const cells = Array.from({ length: size }, () =>
-      Array.from<Cell>({ length: size }).fill(null),
-    );
+    const cells = Array.from({ length: size }, () => Array.from<Cell>({ length: size }).fill(null));
     return new Board(size, cells);
   }
 

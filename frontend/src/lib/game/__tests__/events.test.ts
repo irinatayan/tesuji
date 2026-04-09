@@ -24,9 +24,7 @@ describe('applyMovePlayed', () => {
   });
 
   it('removes captured stones', () => {
-    const board = Board.empty(9)
-      .set({ x: 1, y: 0 }, 'white')
-      .set({ x: 0, y: 1 }, 'white');
+    const board = Board.empty(9).set({ x: 1, y: 0 }, 'white').set({ x: 0, y: 1 }, 'white');
 
     const event = makeEvent({
       x: 0,
