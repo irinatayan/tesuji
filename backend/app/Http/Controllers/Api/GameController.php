@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Services\GameService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GameController extends Controller
 {
@@ -28,6 +29,20 @@ class GameController extends Controller
         private readonly GameService $gameService,
         private readonly GameMapper $mapper,
     ) {}
+
+    public function index(Request $request): AnonymousResourceCollection
+    {
+        $userId = $request->user()->id;
+
+        $games = Game::where('black_player_id', $userId)
+            ->orWhere('white_player_id', $userId)
+            ->where('status', 'playing')
+            ->with(['blackPlayer', 'whitePlayer', 'moves'])
+            ->latest()
+            ->get();
+
+        return GameResource::collection($games);
+    }
 
     public function store(CreateGameRequest $request): JsonResponse
     {

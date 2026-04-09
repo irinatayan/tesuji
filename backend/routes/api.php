@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $r) => $r->user());
 
+    Route::get('games', [GameController::class, 'index']);
     Route::post('games', [GameController::class, 'store']);
     Route::get('games/{game}', [GameController::class, 'show']);
     Route::post('games/{game}/moves', [GameController::class, 'move']);
