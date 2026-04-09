@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { Board } from '$lib/game/Board';
+
   const STAR_POINTS: Record<number, [number, number][]> = {
     9: [
       [2, 2],
@@ -27,7 +29,7 @@
     ],
   };
 
-  let { size = 9 }: { size: number } = $props();
+  let { size = 9, board }: { size: number; board: Board } = $props();
 
   const SVG_SIZE = 540;
   const MARGIN = 40;
@@ -51,5 +53,21 @@
 
   {#each starPoints as [x, y]}
     <circle cx={px(x)} cy={px(y)} r="4" fill="#8B6914" />
+  {/each}
+
+  {#each lines as y}
+    {#each lines as x}
+      {@const cell = board.get({ x, y })}
+      {#if cell !== null}
+        <circle
+          cx={px(x)}
+          cy={px(y)}
+          r={cellSize * 0.47}
+          fill={cell === 'black' ? '#1a1a1a' : '#f5f5f5'}
+          stroke={cell === 'black' ? '#000' : '#ccc'}
+          stroke-width="1"
+        />
+      {/if}
+    {/each}
   {/each}
 </svg>
