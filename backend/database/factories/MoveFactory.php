@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Game\Board;
+use App\Game\Persistence\BoardSerializer;
 use App\Models\Game;
 use App\Models\Move;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +26,7 @@ class MoveFactory extends Factory
             'y' => null,
             'captures' => [],
             'position_hash' => str_repeat('0', 64),
-            'board_state' => str_repeat("\x00", 81),
+            'board_state' => BoardSerializer::serialize(Board::empty(9)),
             'played_at' => now(),
         ];
     }

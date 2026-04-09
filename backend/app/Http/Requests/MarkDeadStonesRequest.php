@@ -11,7 +11,7 @@ class MarkDeadStonesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'stones' => ['required', 'array'],
+            'stones' => ['present', 'array'],
             'stones.*.x' => ['required', 'integer', 'min:0'],
             'stones.*.y' => ['required', 'integer', 'min:0'],
         ];

@@ -16,6 +16,10 @@ final class BoardSerializer
 
     private const WHITE = 0x02;
 
+    /**
+     * Serialize a Board to a hex-encoded string suitable for PostgreSQL BYTEA storage.
+     * Format: '\x' followed by hex digits, e.g. '\x000102...'.
+     */
     public static function serialize(Board $board): string
     {
         $size = $board->size();
@@ -32,11 +36,24 @@ final class BoardSerializer
             }
         }
 
-        return $bytes;
+        return '\\x'.bin2hex($bytes);
     }
 
-    public static function deserialize(string $bytes, int $size): Board
+    /**
+     * Deserialize a Board from a PostgreSQL BYTEA value.
+     * Accepts either a PHP stream resource (PDO pgsql returns LOB streams)
+     * or a raw binary string (unit tests / SQLite).
+     */
+    public static function deserialize(mixed $bytes, int $size): Board
     {
+        if (is_resource($bytes)) {
+            $raw = '';
+            while (! feof($bytes)) {
+                $raw .= fread($bytes, 8192);
+            }
+            $bytes = $raw;
+        }
+
         $board = Board::empty($size);
 
         for ($i = 0; $i < strlen($bytes); $i++) {
