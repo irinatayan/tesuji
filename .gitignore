@@ -16,6 +16,8 @@ backend/bootstrap/cache/
 backend/.env
 backend/.env.backup
 backend/.env.production
+frontend/.env
+frontend/.env.local
 backend/.phpunit.result.cache
 backend/.phpunit.cache/
 backend/auth.json
