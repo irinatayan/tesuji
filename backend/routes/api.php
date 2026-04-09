@@ -2,4 +2,8 @@
 
 declare(strict_types=1);
 
-// Auth routes will be added in subsequent commits
+use App\Http\Controllers\Api\Auth\AuthController;
+
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+});
