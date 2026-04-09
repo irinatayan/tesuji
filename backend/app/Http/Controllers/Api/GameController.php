@@ -80,6 +80,44 @@ class GameController extends Controller
         return new GameResource($game);
     }
 
+    public function pass(Request $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        try {
+            $game = $this->gameService->applyMove($game, DomainMove::pass($stone));
+        } catch (IllegalMoveException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
+    public function resign(Request $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        try {
+            $game = $this->gameService->applyMove($game, DomainMove::resign($stone));
+        } catch (IllegalMoveException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
     private function resolvePlayerStone(Request $request, Game $game): ?Stone
     {
         $userId = $request->user()->id;
