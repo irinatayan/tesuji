@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Game\DeadStonesMarked;
+use App\Events\Game\GameFinished;
 use App\Game\Exceptions\IllegalMoveException;
 use App\Game\Move as DomainMove;
 use App\Game\Persistence\GameMapper;
@@ -145,6 +147,13 @@ class GameController extends Controller
 
         $deadStones = array_map(fn (Position $p) => ['x' => $p->x, 'y' => $p->y], $positions);
         $game->update(['dead_stones' => $deadStones, 'status' => 'scoring']);
+
+        event(new DeadStonesMarked(
+            gameId: $game->id,
+            by: strtolower($stone->name),
+            stones: $deadStones,
+        ));
+
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
         return new GameResource($game);
@@ -165,11 +174,22 @@ class GameController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
+        $result = $domainGame->score?->result();
+
         $game->update([
             'status' => 'finished',
-            'result' => $domainGame->score?->result(),
+            'result' => $result,
             'finished_at' => now(),
         ]);
+
+        event(new GameFinished(
+            gameId: $game->id,
+            result: $result ?? '',
+            score: $domainGame->score !== null ? [
+                'black' => $domainGame->score->black,
+                'white' => $domainGame->score->white,
+            ] : null,
+        ));
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 

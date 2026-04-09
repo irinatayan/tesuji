@@ -82,7 +82,7 @@ final class GameMapper
             'played_at' => now(),
         ]);
 
-        $model->update([
+        $update = [
             'current_turn' => $game->currentTurn === Stone::Black ? 'black' : 'white',
             'status' => match ($game->phase) {
                 GamePhase::Playing => 'playing',
@@ -90,7 +90,15 @@ final class GameMapper
                 GamePhase::Finished => 'finished',
             },
             'last_move_at' => now(),
-        ]);
+        ];
+
+        if ($game->phase === GamePhase::Finished && $move->type === MoveType::Resign) {
+            $winner = $move->color === Stone::Black ? 'W' : 'B';
+            $update['result'] = $winner.'+R';
+            $update['finished_at'] = now();
+        }
+
+        $model->update($update);
     }
 
     private function toDomainMove(MoveModel $model): DomainMove
