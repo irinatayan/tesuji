@@ -55,6 +55,8 @@
     return MARGIN + coord * cellSize;
   }
 
+  const cells = $derived(board.toArray());
+
   let hoveredPos = $state<Position | null>(null);
 </script>
 
@@ -79,9 +81,8 @@
     <circle cx={px(x)} cy={px(y)} r="4" fill="#8B6914" />
   {/each}
 
-  {#each lines as y}
-    {#each lines as x}
-      {@const cell = board.get({ x, y })}
+  {#each cells as row, y}
+    {#each row as cell, x}
       {#if cell !== null}
         <circle
           cx={px(x)}

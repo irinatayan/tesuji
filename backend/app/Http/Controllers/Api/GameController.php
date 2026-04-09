@@ -34,8 +34,10 @@ class GameController extends Controller
     {
         $userId = $request->user()->id;
 
-        $games = Game::where('black_player_id', $userId)
-            ->orWhere('white_player_id', $userId)
+        $games = Game::where(function ($query) use ($userId): void {
+            $query->where('black_player_id', $userId)
+                ->orWhere('white_player_id', $userId);
+        })
             ->where('status', 'playing')
             ->with(['blackPlayer', 'whitePlayer', 'moves'])
             ->latest()

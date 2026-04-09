@@ -24,7 +24,9 @@ export function getEcho(): Echo {
       authEndpoint: `${import.meta.env.VITE_API_URL}/broadcasting/auth`,
       auth: {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          get Authorization() {
+            return `Bearer ${localStorage.getItem('token')}`;
+          },
         },
       },
     });

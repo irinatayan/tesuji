@@ -21,7 +21,7 @@ final class GameMapper
     public function restore(GameModel $model): DomainGame
     {
         $ruleset = $this->resolveRuleset($model->ruleset);
-        $lastMove = $model->moves()->orderByDesc('move_number')->first();
+        $lastMove = $model->moves()->reorder()->orderByDesc('move_number')->first();
 
         $board = $lastMove !== null
             ? BoardSerializer::deserialize($lastMove->board_state, $model->board_size)
