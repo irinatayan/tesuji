@@ -35,6 +35,31 @@ export class Board {
     return result;
   }
 
+  group(pos: Position): Position[] {
+    const stone = this.get(pos);
+    if (!stone) return [];
+
+    const visited = new Set<string>();
+    const queue: Position[] = [pos];
+    const result: Position[] = [];
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      const key = `${current.x},${current.y}`;
+      if (visited.has(key)) continue;
+      visited.add(key);
+      result.push(current);
+
+      for (const neighbor of this.neighbors(current)) {
+        if (this.get(neighbor) === stone && !visited.has(`${neighbor.x},${neighbor.y}`)) {
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    return result;
+  }
+
   toArray(): Cell[][] {
     return this.cells.map((row) => [...row]);
   }

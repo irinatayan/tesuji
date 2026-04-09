@@ -36,12 +36,16 @@
     board,
     currentTurn = 'black',
     onmove,
+    deadStones = [],
   }: {
     size: number;
     board: Board;
     currentTurn?: Stone;
     onmove?: (pos: Position) => void;
+    deadStones?: Position[];
   } = $props();
+
+  const deadSet = $derived(new Set(deadStones.map((p) => `${p.x},${p.y}`)));
 
   const SVG_SIZE = 540;
   const MARGIN = 40;
@@ -84,6 +88,7 @@
   {#each cells as row, y}
     {#each row as cell, x}
       {#if cell !== null}
+        {@const dead = deadSet.has(`${x},${y}`)}
         <circle
           cx={px(x)}
           cy={px(y)}
@@ -91,7 +96,13 @@
           fill={cell === 'black' ? '#1a1a1a' : '#f5f5f5'}
           stroke={cell === 'black' ? '#000' : '#ccc'}
           stroke-width="1"
+          opacity={dead ? 0.35 : 1}
         />
+        {#if dead}
+          {@const r = stoneRadius * 0.5}
+          <line x1={px(x) - r} y1={px(y) - r} x2={px(x) + r} y2={px(y) + r} stroke="#c00" stroke-width="2" pointer-events="none" />
+          <line x1={px(x) + r} y1={px(y) - r} x2={px(x) - r} y2={px(y) + r} stroke="#c00" stroke-width="2" pointer-events="none" />
+        {/if}
       {/if}
     {/each}
   {/each}
