@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Game\Exceptions\IllegalMoveException;
+use App\Game\Move as DomainMove;
+use App\Game\Position;
+use App\Game\Stone;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\PlayMoveRequest;
 use App\Http\Resources\GameResource;
 use App\Models\Game;
 use App\Models\User;
+use App\Services\GameService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
+    public function __construct(private readonly GameService $gameService) {}
+
     public function store(CreateGameRequest $request): JsonResponse
     {
         $color = $request->color === 'random'
@@ -49,5 +57,41 @@ class GameController extends Controller
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
         return new GameResource($game);
+    }
+
+    public function move(PlayMoveRequest $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        $move = DomainMove::play($stone, new Position($request->x, $request->y));
+
+        try {
+            $game = $this->gameService->applyMove($game, $move);
+        } catch (IllegalMoveException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
+    private function resolvePlayerStone(Request $request, Game $game): ?Stone
+    {
+        $userId = $request->user()->id;
+
+        if ($userId === $game->black_player_id) {
+            return Stone::Black;
+        }
+
+        if ($userId === $game->white_player_id) {
+            return Stone::White;
+        }
+
+        return null;
     }
 }
