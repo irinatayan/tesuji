@@ -1,0 +1,100 @@
+{
+  "scenarios": [
+    {
+      "name": "basic move",
+      "size": 9,
+      "steps": [
+        {
+          "move": { "type": "play", "color": "black", "x": 0, "y": 0 },
+          "event": {
+            "x": 0,
+            "y": 0,
+            "color": "black",
+            "captures": [],
+            "position_hash": "03a0338ebfe06524a3a3aa15a80413bda0ecbc32b9188af37f22bfcdef3faa7e"
+          },
+          "board": [
+            ["black", null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "capture",
+      "size": 9,
+      "steps": [
+        {
+          "move": { "type": "play", "color": "black", "x": 1, "y": 0 },
+          "event": {
+            "x": 1,
+            "y": 0,
+            "color": "black",
+            "captures": [],
+            "position_hash": "c54cfddca957abbedf3264247b7bf24bbc8f7d1f210ad9b668d4db0c23568d40"
+          },
+          "board": [
+            [null, "black", null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null]
+          ]
+        },
+        {
+          "move": { "type": "play", "color": "white", "x": 0, "y": 0 },
+          "event": {
+            "x": 0,
+            "y": 0,
+            "color": "white",
+            "captures": [],
+            "position_hash": "03908d6d2fe68f859a65d5ebfbd3df71ea45941f7559b676dbc71e7637b521e0"
+          },
+          "board": [
+            ["white", "black", null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null]
+          ]
+        },
+        {
+          "move": { "type": "play", "color": "black", "x": 0, "y": 1 },
+          "event": {
+            "x": 0,
+            "y": 1,
+            "color": "black",
+            "captures": [{ "x": 0, "y": 0 }],
+            "position_hash": "be84880ee5c30b4574b9c8019d138a248b6939a59a7f620e115972639ced5a81"
+          },
+          "board": [
+            [null, "black", null, null, null, null, null, null, null],
+            ["black", null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null, null]
+          ]
+        }
+      ]
+    }
+  ]
+}
