@@ -14,6 +14,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('games/{game}/moves', [GameController::class, 'move']);
     Route::post('games/{game}/pass', [GameController::class, 'pass']);
     Route::post('games/{game}/resign', [GameController::class, 'resign']);
+    Route::post('games/{game}/dead-stones', [GameController::class, 'markDead']);
+    Route::post('games/{game}/dead-stones/confirm', [GameController::class, 'confirmDead']);
+    Route::post('games/{game}/dead-stones/dispute', [GameController::class, 'disputeDead']);
 });
 
 Route::prefix('auth')->group(function () {

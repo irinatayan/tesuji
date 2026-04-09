@@ -6,10 +6,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Game\Exceptions\IllegalMoveException;
 use App\Game\Move as DomainMove;
+use App\Game\Persistence\GameMapper;
 use App\Game\Position;
 use App\Game\Stone;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\MarkDeadStonesRequest;
 use App\Http\Requests\PlayMoveRequest;
 use App\Http\Resources\GameResource;
 use App\Models\Game;
@@ -20,7 +22,10 @@ use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    public function __construct(private readonly GameService $gameService) {}
+    public function __construct(
+        private readonly GameService $gameService,
+        private readonly GameMapper $mapper,
+    ) {}
 
     public function store(CreateGameRequest $request): JsonResponse
     {
@@ -112,6 +117,85 @@ class GameController extends Controller
         } catch (IllegalMoveException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
+    public function markDead(MarkDeadStonesRequest $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        $positions = array_map(
+            fn (array $p) => new Position($p['x'], $p['y']),
+            $request->stones
+        );
+
+        try {
+            $domainGame = $this->mapper->restore($game);
+            $domainGame = $domainGame->markDead($positions, $stone);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $deadStones = array_map(fn (Position $p) => ['x' => $p->x, 'y' => $p->y], $positions);
+        $game->update(['dead_stones' => $deadStones, 'status' => 'scoring']);
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
+    public function confirmDead(Request $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        try {
+            $domainGame = $this->mapper->restore($game);
+            $domainGame = $domainGame->confirmDead($stone);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $game->update([
+            'status' => 'finished',
+            'result' => $domainGame->score?->result(),
+            'finished_at' => now(),
+        ]);
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return new GameResource($game);
+    }
+
+    public function disputeDead(Request $request, Game $game): GameResource|JsonResponse
+    {
+        $stone = $this->resolvePlayerStone($request, $game);
+
+        if ($stone === null) {
+            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+        }
+
+        try {
+            $domainGame = $this->mapper->restore($game);
+            $domainGame->disputeDead($stone);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $game->update([
+            'status' => 'playing',
+            'current_turn' => strtolower($stone->name),
+            'dead_stones' => null,
+        ]);
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
