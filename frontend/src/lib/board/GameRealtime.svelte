@@ -9,6 +9,11 @@
   import type { Position, Stone } from '$lib/game/types';
   import GoBoard from './GoBoard.svelte';
 
+  interface DeadStonesMarked {
+    by: Stone;
+    stones: Position[];
+  }
+
   let { gameId, onLeave }: { gameId: number; onLeave: () => void } = $props();
 
   let game = $state<GameResponse | null>(null);
@@ -16,6 +21,7 @@
   let loading = $state(true);
   let error = $state('');
   let moveError = $state('');
+  let selectedDead = $state<Position[]>([]);
 
   const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
@@ -45,7 +51,7 @@
       game = res.data;
       board = boardFromGame(res.data);
     } catch {
-      error = 'Не удалось загрузить партию';
+      error = 'Failed to load game';
     } finally {
       loading = false;
     }
@@ -66,7 +72,7 @@
       moveError =
         err instanceof ApiError && err.status === 422
           ? (err.body as { message: string }).message
-          : 'Недопустимый ход';
+          : 'Illegal move';
     }
   }
 
@@ -76,17 +82,58 @@
     try {
       await api.pass(gameId);
     } catch {
-      moveError = 'Ошибка';
+      moveError = 'Error';
     }
   }
 
   async function handleResign() {
     if (!game || game.status !== 'playing') return;
-    if (!confirm('Сдаться?')) return;
+    if (!confirm('Resign?')) return;
     try {
       await api.resign(gameId);
     } catch {
-      moveError = 'Ошибка';
+      moveError = 'Error';
+    }
+  }
+
+  function handleToggleDead(pos: Position) {
+    if (!board.get(pos)) return;
+    const group = board.group(pos);
+    const alreadySelected = selectedDead.some((p) => p.x === pos.x && p.y === pos.y);
+    if (alreadySelected) {
+      selectedDead = selectedDead.filter((p) => !group.some((g) => g.x === p.x && g.y === p.y));
+    } else {
+      selectedDead = [...selectedDead, ...group];
+    }
+  }
+
+  async function submitDeadStones() {
+    if (selectedDead.length === 0) return;
+    moveError = '';
+    try {
+      await api.markDead(gameId, selectedDead);
+      selectedDead = [];
+    } catch {
+      moveError = 'Failed to submit';
+    }
+  }
+
+  async function handleConfirmDead() {
+    moveError = '';
+    try {
+      await api.confirmDead(gameId);
+    } catch {
+      moveError = 'Error';
+    }
+  }
+
+  async function handleDisputeDead() {
+    moveError = '';
+    try {
+      await api.disputeDead(gameId);
+      selectedDead = [];
+    } catch {
+      moveError = 'Error';
     }
   }
 
@@ -120,9 +167,15 @@
           game = { ...game, status: 'finished', result: `${winner[0].toUpperCase()}+R` };
         }
       })
+      .listen('.game.dead.marked', (event: DeadStonesMarked) => {
+        if (game) {
+          game = { ...game, status: 'scoring', dead_stones: event.stones };
+        }
+      })
       .listen('.game.finished', (event: { result: string }) => {
         if (game) {
           game = { ...game, status: 'finished', result: event.result };
+          selectedDead = [];
         }
       });
   });
@@ -133,7 +186,7 @@
 </script>
 
 {#if loading}
-  <p>Загрузка...</p>
+  <p>Loading...</p>
 {:else if error}
   <p class="error">{error}</p>
 {:else if game}
@@ -142,18 +195,18 @@
       <span>⚫ {game.black_player.name}</span>
       <span class="vs">vs</span>
       <span>⚪ {game.white_player.name}</span>
-      <button onclick={onLeave} class="leave">← Назад</button>
+      <button onclick={onLeave} class="leave">← Back</button>
     </div>
 
     <div class="status">
       {#if game.status === 'playing'}
         {#if isMyTurn}
-          <strong>Ваш ход</strong>
+          <strong>Your turn</strong>
         {:else}
-          Ход соперника...
+          Opponent's turn...
         {/if}
       {:else if game.status === 'finished'}
-        Партия завершена: <strong>{game.result}</strong>
+        Game over: <strong>{game.result}</strong>
       {:else}
         {game.status}
       {/if}
@@ -167,13 +220,26 @@
       {board}
       size={game.board_size}
       currentTurn={myColor ?? 'black'}
-      onmove={isMyTurn ? handleMove : undefined}
+      onmove={game.status === 'playing' && isMyTurn
+        ? handleMove
+        : game.status === 'scoring'
+          ? handleToggleDead
+          : undefined}
+      deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
     />
 
     {#if game.status === 'playing'}
       <div class="actions">
-        <button onclick={handlePass} disabled={!isMyTurn}>Пас</button>
-        <button onclick={handleResign} class="resign">Сдаться</button>
+        <button onclick={handlePass} disabled={!isMyTurn}>Pass</button>
+        <button onclick={handleResign} class="resign">Resign</button>
+      </div>
+    {:else if game.status === 'scoring'}
+      <div class="actions">
+        <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
+          Mark dead ({selectedDead.length})
+        </button>
+        <button onclick={handleConfirmDead} disabled={game.dead_stones === null}>Confirm</button>
+        <button onclick={handleDisputeDead} class="resign">Dispute</button>
       </div>
     {/if}
   </div>

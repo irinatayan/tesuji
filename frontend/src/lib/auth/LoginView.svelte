@@ -22,8 +22,8 @@
     } catch (err) {
       error =
         err instanceof ApiError && err.status === 422
-          ? 'Неверный email или пароль'
-          : 'Ошибка входа';
+          ? 'Invalid email or password'
+          : 'Login failed';
     } finally {
       loading = false;
     }
@@ -31,7 +31,7 @@
 </script>
 
 <div class="auth-form">
-  <h2>Войти</h2>
+  <h2>Sign in</h2>
 
   <form onsubmit={handleSubmit}>
     <label>
@@ -39,16 +39,16 @@
       <input type="email" bind:value={email} required />
     </label>
     <label>
-      Пароль
+      Password
       <input type="password" bind:value={password} required />
     </label>
     {#if error}<p class="error">{error}</p>{/if}
     <button type="submit" disabled={loading}>
-      {loading ? 'Входим...' : 'Войти'}
+      {loading ? 'Signing in...' : 'Sign in'}
     </button>
   </form>
 
-  <a href={GOOGLE_URL} class="google-btn">Войти через Google</a>
+  <a href={GOOGLE_URL} class="google-btn">Sign in with Google</a>
 </div>
 
 <style>

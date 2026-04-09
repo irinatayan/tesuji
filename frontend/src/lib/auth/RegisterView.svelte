@@ -21,8 +21,8 @@
     } catch (err) {
       error =
         err instanceof ApiError && err.status === 422
-          ? 'Проверьте данные формы'
-          : 'Ошибка регистрации';
+          ? 'Please check the form fields'
+          : 'Registration failed';
     } finally {
       loading = false;
     }
@@ -30,11 +30,11 @@
 </script>
 
 <div class="auth-form">
-  <h2>Регистрация</h2>
+  <h2>Register</h2>
 
   <form onsubmit={handleSubmit}>
     <label>
-      Имя
+      Name
       <input type="text" bind:value={name} required />
     </label>
     <label>
@@ -42,12 +42,12 @@
       <input type="email" bind:value={email} required />
     </label>
     <label>
-      Пароль
+      Password
       <input type="password" bind:value={password} minlength="8" required />
     </label>
     {#if error}<p class="error">{error}</p>{/if}
     <button type="submit" disabled={loading}>
-      {loading ? 'Регистрируем...' : 'Зарегистрироваться'}
+      {loading ? 'Registering...' : 'Register'}
     </button>
   </form>
 </div>

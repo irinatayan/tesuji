@@ -29,11 +29,11 @@
 </script>
 
 <div class="game-list">
-  <h3>Активные партии</h3>
+  <h3>Active games</h3>
   {#if loading}
-    <p>Загрузка...</p>
+    <p>Loading...</p>
   {:else if games.length === 0}
-    <p>Нет активных партий</p>
+    <p>No active games</p>
   {:else}
     <ul>
       {#each games as game}

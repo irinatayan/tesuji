@@ -44,14 +44,15 @@
   <div class="controls">
     {#if phase === 'playing'}
       <span class="turn">
-        {currentTurn === 'black' ? '⚫' : '⚪'} ход {currentTurn === 'black' ? 'чёрных' : 'белых'}
+        {currentTurn === 'black' ? '⚫' : '⚪'}
+        {currentTurn}'s turn
       </span>
-      <button onclick={handlePass}>Пас</button>
+      <button onclick={handlePass}>Pass</button>
     {:else}
-      <span class="finished">Партия завершена</span>
+      <span class="finished">Game over</span>
     {/if}
-    <button onclick={handleReset}>Новая партия</button>
-    <span class="count">Ходов: {moveCount}</span>
+    <button onclick={handleReset}>New game</button>
+    <span class="count">Moves: {moveCount}</span>
   </div>
 
   <GoBoard {board} {size} {currentTurn} onmove={handleMove} />

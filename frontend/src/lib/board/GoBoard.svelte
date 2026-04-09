@@ -100,8 +100,24 @@
         />
         {#if dead}
           {@const r = stoneRadius * 0.5}
-          <line x1={px(x) - r} y1={px(y) - r} x2={px(x) + r} y2={px(y) + r} stroke="#c00" stroke-width="2" pointer-events="none" />
-          <line x1={px(x) + r} y1={px(y) - r} x2={px(x) - r} y2={px(y) + r} stroke="#c00" stroke-width="2" pointer-events="none" />
+          <line
+            x1={px(x) - r}
+            y1={px(y) - r}
+            x2={px(x) + r}
+            y2={px(y) + r}
+            stroke="#c00"
+            stroke-width="2"
+            pointer-events="none"
+          />
+          <line
+            x1={px(x) + r}
+            y1={px(y) - r}
+            x2={px(x) - r}
+            y2={px(y) + r}
+            stroke="#c00"
+            stroke-width="2"
+            pointer-events="none"
+          />
         {/if}
       {/if}
     {/each}

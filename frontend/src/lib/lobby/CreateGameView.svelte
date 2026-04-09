@@ -24,7 +24,7 @@
       });
       onCreated(res.data.id);
     } catch (err) {
-      error = err instanceof ApiError ? `Ошибка: ${err.status}` : 'Не удалось создать партию';
+      error = err instanceof ApiError ? `Error: ${err.status}` : 'Failed to create game';
     } finally {
       loading = false;
     }
@@ -32,14 +32,14 @@
 </script>
 
 <div class="create-game">
-  <h3>Новая партия</h3>
+  <h3>New game</h3>
   <form onsubmit={handleSubmit}>
     <label>
-      ID соперника
+      Opponent ID
       <input type="number" bind:value={opponentId} required min="1" />
     </label>
     <label>
-      Размер доски
+      Board size
       <select bind:value={boardSize}>
         <option value={9}>9×9</option>
         <option value={13}>13×13</option>
@@ -47,16 +47,16 @@
       </select>
     </label>
     <label>
-      Цвет
+      Color
       <select bind:value={color}>
-        <option value="black">Чёрные</option>
-        <option value="white">Белые</option>
-        <option value="random">Случайный</option>
+        <option value="black">Black</option>
+        <option value="white">White</option>
+        <option value="random">Random</option>
       </select>
     </label>
     {#if error}<p class="error">{error}</p>{/if}
     <button type="submit" disabled={loading}>
-      {loading ? 'Создаём...' : 'Создать'}
+      {loading ? 'Creating...' : 'Create'}
     </button>
   </form>
 </div>

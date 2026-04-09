@@ -58,7 +58,7 @@
   <h1>Tesuji</h1>
 
   {#if view === 'loading'}
-    <p>Загрузка...</p>
+    <p>Loading...</p>
   {:else if view === 'oauth-callback'}
     <OAuthCallback onSuccess={afterLogin} onFail={() => (view = 'auth')} />
   {:else if view === 'auth'}
@@ -70,7 +70,7 @@
   {:else if view === 'lobby'}
     <div class="lobby-header">
       <span>👤 {auth.user?.name}</span>
-      <button onclick={logout}>Выйти</button>
+      <button onclick={logout}>Sign out</button>
     </div>
 
     <div class="lobby">
