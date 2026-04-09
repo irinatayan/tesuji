@@ -45,24 +45,27 @@
 
   const SVG_SIZE = 540;
   const MARGIN = 40;
-  const cellSize = (SVG_SIZE - 2 * MARGIN) / (size - 1);
-  const stoneRadius = cellSize * 0.47;
+
+  const cellSize = $derived((SVG_SIZE - 2 * MARGIN) / (size - 1));
+  const stoneRadius = $derived(cellSize * 0.47);
+  const lines = $derived(Array.from({ length: size }, (_, i) => i));
+  const starPoints = $derived(STAR_POINTS[size] ?? []);
 
   function px(coord: number): number {
     return MARGIN + coord * cellSize;
   }
 
-  const lines = Array.from({ length: size }, (_, i) => i);
-  const starPoints = STAR_POINTS[size] ?? [];
-
   let hoveredPos = $state<Position | null>(null);
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <svg
   width={SVG_SIZE}
   height={SVG_SIZE}
   viewBox="0 0 {SVG_SIZE} {SVG_SIZE}"
   style="display:block"
+  role="img"
+  aria-label="Go board"
   onmouseleave={() => (hoveredPos = null)}
 >
   <rect width={SVG_SIZE} height={SVG_SIZE} fill="#DCB167" />
@@ -105,6 +108,7 @@
 
   {#each lines as y}
     {#each lines as x}
+      <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
       <rect
         x={px(x) - cellSize / 2}
         y={px(y) - cellSize / 2}
