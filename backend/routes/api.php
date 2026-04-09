@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use Illuminate\Http\Request;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('user', fn (Request $r) => $r->user());
+});
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
