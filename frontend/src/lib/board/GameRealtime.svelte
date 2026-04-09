@@ -17,7 +17,7 @@
   let error = $state('');
   let moveError = $state('');
 
-  const myColor = $derived<Stone | null>(() => {
+  const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
     if (game.black_player.id === auth.user.id) return 'black';
     if (game.white_player.id === auth.user.id) return 'white';
