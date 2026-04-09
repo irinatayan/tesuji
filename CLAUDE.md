@@ -138,11 +138,13 @@ The `games` table has an `expires_at TIMESTAMPTZ` column with a partial index (`
 ### 6c. Bot foundation
 `users` has an `is_bot BOOLEAN DEFAULT false` column. Not used in v1, but added immediately: a bot is simply a user whose moves are generated not by an HTTP request but from a subprocess (GnuGo/KataGo). No migration needed later.
 
-### 7. Broadcasting — Redis pub/sub only
-Broadcasts go **exclusively via Redis pub/sub** (`BROADCAST_CONNECTION=redis`). Controllers/jobs **never** make synchronous HTTP calls to Reverb — they publish an event to Redis and respond immediately. Reverb is subscribed asynchronously and fans out events to clients. This:
-- Decouples the API and WebSocket layers (Reverb can restart without affecting the API)
-- Prepares for moving Reverb to a separate process/instance without refactoring
-- Removes Reverb from the critical path of move handling
+### 7. Broadcasting — Reverb + queued events
+Broadcasts use `BROADCAST_CONNECTION=reverb` (standard Laravel Reverb setup). Events implement `ShouldQueue` + `ShouldDispatchAfterCommit` — they are dispatched to the queue only after the DB transaction commits, and the queue worker delivers to Reverb asynchronously. This:
+- Decouples the API and WebSocket layers (Reverb can restart without affecting the API or queue)
+- Removes Reverb from the critical path of move handling (API returns before delivery)
+- Ensures no broadcast for rolled-back transactions
+
+Note: the original `BROADCAST_CONNECTION=redis` approach was revised — Laravel Reverb does not natively subscribe to Redis pub/sub channels. Redis is used by Reverb only for horizontal scaling (`REVERB_SCALING_ENABLED=true`), not as a broadcast transport.
 
 We broadcast **events**, not positions:
 - `MovePlayed { game_id, move_number, x, y, color, captures[], position_hash }`
@@ -260,8 +262,8 @@ Step 8  — REST API: create game, move, pass, resign
           updates games.expires_at
 
 Step 9  — Reverb + Broadcasting events
-          BROADCAST_CONNECTION=redis, events published to
-          Redis pub/sub, no synchronous Reverb calls
+          BROADCAST_CONNECTION=reverb, events implement ShouldQueue
+          + ShouldDispatchAfterCommit, no blocking on delivery
 
 Step 10 — Google OAuth
 
