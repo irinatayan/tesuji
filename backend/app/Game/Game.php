@@ -40,6 +40,34 @@ final readonly class Game
         );
     }
 
+    /** @param Move[] $history */
+    /** @param Position[] $proposedDeadStones */
+    public static function restore(
+        Board $board,
+        Stone $currentTurn,
+        GamePhase $phase,
+        Ruleset $ruleset,
+        array $history,
+        int $consecutivePasses,
+        ?string $koHash,
+        ?array $proposedDeadStones,
+        ?Stone $proposedBy,
+        ?Score $score,
+    ): self {
+        return new self(
+            board: $board,
+            currentTurn: $currentTurn,
+            phase: $phase,
+            ruleset: $ruleset,
+            history: $history,
+            consecutivePasses: $consecutivePasses,
+            koHash: $koHash,
+            proposedDeadStones: $proposedDeadStones,
+            proposedBy: $proposedBy,
+            score: $score,
+        );
+    }
+
     public function apply(Move $move): self
     {
         if ($this->phase !== GamePhase::Playing) {
