@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Invitation\InvitationAccepted;
+use App\Events\Invitation\InvitationDeclined;
+use App\Events\Invitation\InvitationReceived;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateInvitationRequest;
 use App\Models\Game;
@@ -37,6 +40,14 @@ class InvitationController extends Controller
             'status' => 'pending',
             'expires_at' => now()->addDays(3),
         ]);
+
+        event(new InvitationReceived(
+            invitationId: $invitation->id,
+            toUserId: $invitation->to_user_id,
+            from: ['id' => $request->user()->id, 'name' => $request->user()->name],
+            boardSize: $invitation->board_size,
+            mode: $invitation->mode,
+        ));
 
         return response()->json($invitation->load(['fromUser:id,name', 'toUser:id,name']), 201);
     }
@@ -105,6 +116,13 @@ class InvitationController extends Controller
             return $game;
         });
 
+        event(new InvitationAccepted(
+            invitationId: $invitation->id,
+            fromUserId: $invitation->from_user_id,
+            toUserId: $invitation->to_user_id,
+            gameId: $game->id,
+        ));
+
         return response()->json(['game_id' => $game->id]);
     }
 
@@ -119,6 +137,11 @@ class InvitationController extends Controller
         }
 
         $invitation->update(['status' => 'declined']);
+
+        event(new InvitationDeclined(
+            invitationId: $invitation->id,
+            fromUserId: $invitation->from_user_id,
+        ));
 
         return response()->json(['message' => 'Invitation declined.']);
     }
