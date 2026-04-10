@@ -34,7 +34,7 @@
 </script>
 
 <div class="create-game">
-  <h3>New game</h3>
+  <h3>New Game</h3>
   <form onsubmit={handleSubmit}>
     <label>
       Opponent
@@ -65,39 +65,79 @@
 
 <style>
   .create-game {
-    max-width: 300px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card2) 100%);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  h3 {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-dim);
+    padding-bottom: 10px;
   }
   form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
   }
   label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    font-size: 14px;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.5px;
   }
   select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 15px;
-  }
-  button {
-    padding: 10px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  button:disabled {
-    opacity: 0.6;
-  }
-  .error {
-    color: #c00;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border: 2px solid var(--border-dim);
+    border-radius: 6px;
+    color: var(--cream);
+    font-family: var(--font-serif);
     font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  select option {
+    background: #2c1810;
+    color: var(--cream);
+  }
+  button[type="submit"] {
+    padding: 12px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: var(--bg-dark);
+    border: 2px solid var(--cream);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  button[type="submit"]:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    transform: translateY(-1px);
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .error {
+    color: #ffcccc;
+    font-size: 13px;
     margin: 0;
   }
 </style>

@@ -195,108 +195,190 @@
   <p class="error">{error}</p>
 {:else if game}
   <div class="game-realtime">
-    <div class="header">
-      <span>⚫ {game.black_player.name}</span>
-      <span class="vs">vs</span>
-      <span>⚪ {game.white_player.name}</span>
+    <div class="game-header">
+      <div class="players">
+        <span>⚫ {game.black_player.name}</span>
+        <span class="vs">vs</span>
+        <span>⚪ {game.white_player.name}</span>
+      </div>
       <button onclick={onLeave} class="leave">← Back</button>
     </div>
 
-    <div class="status">
-      {#if game.status === 'playing'}
-        {#if isMyTurn}
-          <strong>Your turn</strong>
-        {:else}
-          Opponent's turn...
+    <div class="game-body">
+      <div class="status-bar">
+        {#if game.status === 'playing'}
+          {#if isMyTurn}
+            <strong>Your turn</strong>
+          {:else}
+            Opponent's turn…
+          {/if}
+        {:else if game.status === 'scoring'}
+          <strong>Scoring</strong> — mark dead stones
+        {:else if game.status === 'finished'}
+          Game over — <strong>{game.result}</strong>
         {/if}
-      {:else if game.status === 'finished'}
-        Game over: <strong>{game.result}</strong>
-      {:else}
-        {game.status}
+      </div>
+
+      {#if moveError}
+        <p class="error">{moveError}</p>
+      {/if}
+
+      <GoBoard
+        {board}
+        size={game.board_size}
+        currentTurn={myColor ?? 'black'}
+        onmove={game.status === 'playing' && isMyTurn
+          ? handleMove
+          : game.status === 'scoring'
+            ? handleToggleDead
+            : undefined}
+        deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
+      />
+
+      {#if game.status === 'playing'}
+        <div class="actions">
+          <button onclick={handlePass} disabled={!isMyTurn}>Pass</button>
+          <button onclick={handleResign} class="resign">Resign</button>
+        </div>
+      {:else if game.status === 'scoring'}
+        <div class="actions">
+          <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
+            Mark dead ({selectedDead.length})
+          </button>
+          <button onclick={handleConfirmDead} class="btn-confirm">Confirm</button>
+          <button onclick={handleDisputeDead} class="resign">Dispute</button>
+        </div>
       {/if}
     </div>
-
-    {#if moveError}
-      <p class="error">{moveError}</p>
-    {/if}
-
-    <GoBoard
-      {board}
-      size={game.board_size}
-      currentTurn={myColor ?? 'black'}
-      onmove={game.status === 'playing' && isMyTurn
-        ? handleMove
-        : game.status === 'scoring'
-          ? handleToggleDead
-          : undefined}
-      deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
-    />
-
-    {#if game.status === 'playing'}
-      <div class="actions">
-        <button onclick={handlePass} disabled={!isMyTurn}>Pass</button>
-        <button onclick={handleResign} class="resign">Resign</button>
-      </div>
-    {:else if game.status === 'scoring'}
-      <div class="actions">
-        <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
-          Mark dead ({selectedDead.length})
-        </button>
-        <button onclick={handleConfirmDead}>Confirm</button>
-        <button onclick={handleDisputeDead} class="resign">Dispute</button>
-      </div>
-    {/if}
   </div>
 {/if}
 
 <style>
   .game-realtime {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 32px;
   }
-  .header {
+
+  .game-header {
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 15px;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: linear-gradient(180deg, rgba(20,12,8,0.95) 0%, rgba(30,18,10,0.9) 100%);
+    border-bottom: 2px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-sizing: border-box;
   }
+
+  .players {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream);
+  }
+
   .vs {
-    color: #999;
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 13px;
   }
+
   .leave {
-    margin-left: auto;
-    background: none;
-    border: 1px solid #ccc;
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--gold);
+    border: 2px solid var(--border);
     border-radius: 4px;
-    padding: 4px 10px;
     cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
   }
-  .status {
+  .leave:hover {
+    background: rgba(139,90,43,0.2);
+    border-color: var(--gold);
+  }
+
+  .game-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 16px 0;
+  }
+
+  .status-bar {
+    font-family: var(--font-serif);
     font-size: 15px;
-    min-height: 24px;
+    color: var(--muted);
+    min-height: 22px;
+    letter-spacing: 0.5px;
   }
+  .status-bar strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
   .actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
+
   .actions button {
-    padding: 8px 16px;
-    border: 1px solid #ccc;
+    padding: 10px 22px;
+    background: transparent;
+    color: var(--cream);
+    border: 2px solid var(--border-dim);
     border-radius: 4px;
     cursor: pointer;
-    background: #fff;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
   }
-  .actions button:disabled {
-    opacity: 0.4;
+  .actions button:hover:not(:disabled) {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(139,90,43,0.1);
   }
+  .actions button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .actions button.btn-confirm {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: var(--bg-dark);
+    border-color: var(--cream);
+    font-weight: 700;
+  }
+  .actions button.btn-confirm:hover {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    transform: translateY(-1px);
+  }
+
   .resign {
-    color: #c00;
-    border-color: #fcc !important;
+    color: #e07070 !important;
+    border-color: rgba(200,100,100,0.4) !important;
   }
+  .resign:hover {
+    border-color: #e07070 !important;
+    background: rgba(200,100,100,0.1) !important;
+    color: #e07070 !important;
+  }
+
   .error {
-    color: #c00;
-    font-size: 14px;
+    color: #ffaaaa;
+    font-size: 13px;
     margin: 0;
   }
 </style>

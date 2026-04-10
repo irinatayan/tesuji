@@ -48,43 +48,50 @@
 </div>
 
 <style>
-  .user-search {
-    position: relative;
-  }
+  .user-search { position: relative; }
   input {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 15px;
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border: 2px solid var(--border-dim);
+    border-radius: 6px;
+    color: var(--cream);
+    font-family: var(--font-serif);
+    font-size: 14px;
     box-sizing: border-box;
+    transition: border-color 0.2s;
   }
+  input::placeholder { color: var(--subtle); }
+  input:focus { outline: none; border-color: var(--gold); }
   .results {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 2px);
     left: 0;
     right: 0;
     margin: 0;
     padding: 0;
     list-style: none;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    background: #fff;
-    z-index: 10;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card2) 100%);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    z-index: 20;
     max-height: 200px;
     overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   }
   .results li button {
     width: 100%;
     text-align: left;
-    padding: 8px 12px;
+    padding: 10px 14px;
     background: none;
     border: none;
+    border-bottom: 1px solid rgba(139,90,43,0.2);
     cursor: pointer;
+    font-family: var(--font-serif);
     font-size: 14px;
+    color: var(--cream);
+    transition: background 0.15s;
   }
-  .results li button:hover {
-    background: #f5f5f5;
-  }
+  .results li:last-child button { border-bottom: none; }
+  .results li button:hover { background: rgba(139,90,43,0.2); color: var(--gold-light); }
 </style>

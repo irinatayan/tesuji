@@ -74,42 +74,59 @@
 
 <style>
   .invitations {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card2) 100%);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
   }
   h3 {
-    margin: 0 0 12px;
+    margin: 0 0 16px;
+    font-family: var(--font-display);
     font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-dim);
+    padding-bottom: 10px;
   }
   .invitation {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
-    border-top: 1px solid #f0f0f0;
+    padding: 10px 0;
+    border-top: 1px solid rgba(139,90,43,0.2);
     font-size: 14px;
+    color: var(--cream);
   }
-  .actions {
-    display: flex;
-    gap: 8px;
-  }
+  .invitation strong { color: var(--gold); }
+  .actions { display: flex; gap: 8px; }
   .accept {
-    padding: 4px 12px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    color: var(--bg-dark);
+    border: 1px solid var(--cream);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
   }
+  .accept:hover { background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%); }
   .decline {
-    padding: 4px 12px;
-    background: #fff;
-    color: #c00;
-    border: 1px solid #c00;
+    padding: 6px 16px;
+    background: transparent;
+    color: #e07070;
+    border: 1px solid rgba(200,100,100,0.4);
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-family: var(--font-serif);
+    font-size: 12px;
+    transition: all 0.2s;
   }
+  .decline:hover { border-color: #e07070; background: rgba(200,100,100,0.1); }
 </style>
