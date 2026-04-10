@@ -8,13 +8,16 @@
   import OAuthCallback from '$lib/auth/OAuthCallback.svelte';
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
+  import InvitationList from '$lib/lobby/InvitationList.svelte';
   import GameRealtime from '$lib/board/GameRealtime.svelte';
+  import { getEcho } from '$lib/echo';
 
   type View = 'loading' | 'oauth-callback' | 'auth' | 'register' | 'lobby' | 'game';
 
   let view = $state<View>('loading');
   let activeGameId = $state<number | null>(null);
   let showCreateForm = $state(false);
+  let invitationRefresh = $state(0);
 
   const isOAuthCallback = window.location.search.includes('token=');
 
@@ -52,6 +55,24 @@
     resetEcho();
     view = 'auth';
   }
+
+  $effect(() => {
+    if (view !== 'lobby' || !auth.user) return;
+
+    const channel = getEcho().private(`user.${auth.user.id}`);
+
+    channel
+      .listen('.invitation.received', () => {
+        invitationRefresh++;
+      })
+      .listen('.invitation.accepted', (e: { game_id: number }) => {
+        openGame(e.game_id);
+      });
+
+    return () => {
+      getEcho().leave(`user.${auth.user!.id}`);
+    };
+  });
 </script>
 
 <main>
@@ -74,6 +95,7 @@
     </div>
 
     <div class="lobby">
+      <InvitationList onAccepted={openGame} bind:refresh={invitationRefresh} />
       <GameList onSelect={openGame} />
 
       <div>

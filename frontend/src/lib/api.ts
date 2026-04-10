@@ -58,6 +58,12 @@ export const api = {
   searchUsers: (query: string) =>
     request<{ id: number; name: string }[]>('GET', `/users?search=${encodeURIComponent(query)}`),
 
+  getInvitations: () => request<any[]>('GET', '/invitations/incoming'),
+
+  acceptInvitation: (id: number) => request<{ game_id: number }>('POST', `/invitations/${id}/accept`),
+
+  declineInvitation: (id: number) => request<void>('POST', `/invitations/${id}/decline`),
+
   createGame: (params: {
     opponent_id: number;
     board_size: number;
