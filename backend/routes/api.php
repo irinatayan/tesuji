@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $r) => $r->user());
 
     Route::get('users', [UserController::class, 'index']);
+
+    Route::post('invitations', [InvitationController::class, 'store']);
+    Route::get('invitations/incoming', [InvitationController::class, 'incoming']);
+    Route::get('invitations/outgoing', [InvitationController::class, 'outgoing']);
+    Route::post('invitations/{invitation}/accept', [InvitationController::class, 'accept']);
+    Route::post('invitations/{invitation}/decline', [InvitationController::class, 'decline']);
 
     Route::get('games', [GameController::class, 'index']);
     Route::post('games', [GameController::class, 'store']);

@@ -1,0 +1,125 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateInvitationRequest;
+use App\Models\Game;
+use App\Models\GameInvitation;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class InvitationController extends Controller
+{
+    public function store(CreateInvitationRequest $request): JsonResponse
+    {
+        $existing = GameInvitation::where('from_user_id', $request->user()->id)
+            ->where('to_user_id', $request->to_user_id)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($existing) {
+            return response()->json(['message' => 'You already have a pending invitation to this player.'], 422);
+        }
+
+        $invitation = GameInvitation::create([
+            'from_user_id' => $request->user()->id,
+            'to_user_id' => $request->to_user_id,
+            'board_size' => $request->board_size,
+            'mode' => $request->mode,
+            'ruleset' => 'chinese',
+            'time_control_type' => $request->time_control_type,
+            'time_control_config' => $request->time_control_config,
+            'proposed_color' => $request->proposed_color,
+            'status' => 'pending',
+            'expires_at' => now()->addDays(3),
+        ]);
+
+        return response()->json($invitation->load(['fromUser:id,name', 'toUser:id,name']), 201);
+    }
+
+    public function incoming(Request $request): JsonResponse
+    {
+        $invitations = GameInvitation::where('to_user_id', $request->user()->id)
+            ->where('status', 'pending')
+            ->with(['fromUser:id,name'])
+            ->latest()
+            ->get();
+
+        return response()->json($invitations);
+    }
+
+    public function outgoing(Request $request): JsonResponse
+    {
+        $invitations = GameInvitation::where('from_user_id', $request->user()->id)
+            ->where('status', 'pending')
+            ->with(['toUser:id,name'])
+            ->latest()
+            ->get();
+
+        return response()->json($invitations);
+    }
+
+    public function accept(Request $request, GameInvitation $invitation): JsonResponse
+    {
+        if ($invitation->to_user_id !== $request->user()->id) {
+            return response()->json(['message' => 'This invitation is not addressed to you.'], 403);
+        }
+
+        if ($invitation->status !== 'pending') {
+            return response()->json(['message' => 'This invitation is no longer pending.'], 422);
+        }
+
+        $game = DB::transaction(function () use ($invitation, $request): Game {
+            $color = $invitation->proposed_color === 'random'
+                ? (rand(0, 1) === 0 ? 'black' : 'white')
+                : $invitation->proposed_color;
+
+            [$blackId, $whiteId] = $color === 'black'
+                ? [$invitation->from_user_id, $invitation->to_user_id]
+                : [$invitation->to_user_id, $invitation->from_user_id];
+
+            $expiresAt = $invitation->time_control_type === 'correspondence'
+                ? now()->addDays($invitation->time_control_config['days_per_move'] ?? 3)
+                : null;
+
+            $game = Game::create([
+                'black_player_id' => $blackId,
+                'white_player_id' => $whiteId,
+                'mode' => $invitation->mode,
+                'ruleset' => $invitation->ruleset,
+                'board_size' => $invitation->board_size,
+                'status' => 'playing',
+                'current_turn' => 'black',
+                'time_control_type' => $invitation->time_control_type,
+                'time_control_config' => $invitation->time_control_config,
+                'started_at' => now(),
+                'expires_at' => $expiresAt,
+            ]);
+
+            $invitation->update(['status' => 'accepted', 'game_id' => $game->id]);
+
+            return $game;
+        });
+
+        return response()->json(['game_id' => $game->id]);
+    }
+
+    public function decline(Request $request, GameInvitation $invitation): JsonResponse
+    {
+        if ($invitation->to_user_id !== $request->user()->id) {
+            return response()->json(['message' => 'This invitation is not addressed to you.'], 403);
+        }
+
+        if ($invitation->status !== 'pending') {
+            return response()->json(['message' => 'This invitation is no longer pending.'], 422);
+        }
+
+        $invitation->update(['status' => 'declined']);
+
+        return response()->json(['message' => 'Invitation declined.']);
+    }
+}
