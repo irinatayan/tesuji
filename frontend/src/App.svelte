@@ -9,15 +9,17 @@
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
   import InvitationList from '$lib/lobby/InvitationList.svelte';
+  import ProfileView from '$lib/profile/ProfileView.svelte';
   import GameRealtime from '$lib/board/GameRealtime.svelte';
   import { getEcho } from '$lib/echo';
 
-  type View = 'loading' | 'oauth-callback' | 'auth' | 'register' | 'lobby' | 'game';
+  type View = 'loading' | 'oauth-callback' | 'auth' | 'register' | 'lobby' | 'game' | 'profile';
 
   let view = $state<View>('loading');
   let activeGameId = $state<number | null>(null);
   let showCreateForm = $state(false);
   let invitationRefresh = $state(0);
+  let profileUserId = $state<number | null>(null);
 
   const isOAuthCallback = window.location.search.includes('token=');
 
@@ -48,6 +50,11 @@
     activeGameId = gameId;
     showCreateForm = false;
     view = 'game';
+  }
+
+  function openProfile(userId: number) {
+    profileUserId = userId;
+    view = 'profile';
   }
 
   function logout() {
@@ -90,7 +97,9 @@
     <button onclick={() => (view = 'auth')} style="margin-top:8px">Уже есть аккаунт</button>
   {:else if view === 'lobby'}
     <div class="lobby-header">
-      <span>👤 {auth.user?.name}</span>
+      <button class="name-btn" onclick={() => auth.user && openProfile(auth.user.id)}>
+        👤 {auth.user?.name}
+      </button>
       <button onclick={logout}>Sign out</button>
     </div>
 
@@ -116,6 +125,8 @@
     </div>
   {:else if view === 'game' && activeGameId !== null}
     <GameRealtime gameId={activeGameId} onLeave={() => (view = 'lobby')} />
+  {:else if view === 'profile' && profileUserId !== null}
+    <ProfileView userId={profileUserId} onBack={() => (view = 'lobby')} />
   {/if}
 </main>
 
@@ -137,6 +148,18 @@
     border-radius: 4px;
     cursor: pointer;
     background: #fff;
+  }
+  .name-btn {
+    border: none;
+    background: none;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+  }
+  .name-btn:hover {
+    text-decoration-color: currentColor;
   }
   .lobby {
     display: flex;

@@ -58,6 +58,11 @@ export const api = {
   searchUsers: (query: string) =>
     request<{ id: number; name: string }[]>('GET', `/users?search=${encodeURIComponent(query)}`),
 
+  getUserProfile: (id: number) => request<any>('GET', `/users/${id}`),
+
+  getUserGames: (id: number, page = 1) =>
+    request<any>('GET', `/users/${id}/games?page=${page}`),
+
   getInvitations: () => request<any[]>('GET', '/invitations/incoming'),
 
   acceptInvitation: (id: number) => request<{ game_id: number }>('POST', `/invitations/${id}/accept`),
