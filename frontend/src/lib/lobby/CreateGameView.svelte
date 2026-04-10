@@ -1,9 +1,10 @@
 <script lang="ts">
   import { api, ApiError } from '$lib/api';
+  import UserSearch from './UserSearch.svelte';
 
   let { onCreated }: { onCreated: (gameId: number) => void } = $props();
 
-  let opponentId = $state('');
+  let opponentId = $state<number | null>(null);
   let boardSize = $state(9);
   let color = $state('black');
   let error = $state('');
@@ -11,11 +12,12 @@
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
+    if (opponentId === null) return;
     error = '';
     loading = true;
     try {
       const res = await api.createGame({
-        opponent_id: Number(opponentId),
+        opponent_id: opponentId,
         board_size: boardSize,
         mode: 'realtime',
         time_control_type: 'absolute',
@@ -35,8 +37,8 @@
   <h3>New game</h3>
   <form onsubmit={handleSubmit}>
     <label>
-      Opponent ID
-      <input type="number" bind:value={opponentId} required min="1" />
+      Opponent
+      <UserSearch onSelect={(user) => (opponentId = user.id)} />
     </label>
     <label>
       Board size
@@ -76,7 +78,6 @@
     gap: 4px;
     font-size: 14px;
   }
-  input,
   select {
     padding: 8px;
     border: 1px solid #ccc;

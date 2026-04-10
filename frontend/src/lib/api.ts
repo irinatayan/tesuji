@@ -55,6 +55,9 @@ export const api = {
 
   me: () => request<User>('GET', '/user'),
 
+  searchUsers: (query: string) =>
+    request<{ id: number; name: string }[]>('GET', `/users?search=${encodeURIComponent(query)}`),
+
   createGame: (params: {
     opponent_id: number;
     board_size: number;
