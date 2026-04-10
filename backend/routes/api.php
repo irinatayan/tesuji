@@ -12,6 +12,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $r) => $r->user());
 
     Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{user}', [UserController::class, 'show']);
+    Route::get('profile', [UserController::class, 'profile']);
 
     Route::post('invitations', [InvitationController::class, 'store']);
     Route::get('invitations/incoming', [InvitationController::class, 'incoming']);
