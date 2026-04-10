@@ -111,15 +111,16 @@ final readonly class Game
 
     public function confirmDead(Stone $by): self
     {
-        if ($this->phase !== GamePhase::MarkingDead || $this->proposedDeadStones === null) {
+        if ($this->phase !== GamePhase::MarkingDead) {
             throw new \RuntimeException('No dead stones proposal to confirm');
         }
 
-        if ($by === $this->proposedBy) {
+        if ($this->proposedDeadStones !== null && $by === $this->proposedBy) {
             throw new \RuntimeException('Cannot confirm your own proposal');
         }
 
-        $score = $this->ruleset->score($this->board, $this->proposedDeadStones);
+        $deadStones = $this->proposedDeadStones ?? [];
+        $score = $this->ruleset->score($this->board, $deadStones);
 
         return new self(
             board: $this->board,
@@ -129,7 +130,7 @@ final readonly class Game
             history: $this->history,
             consecutivePasses: $this->consecutivePasses,
             koHash: $this->koHash,
-            proposedDeadStones: $this->proposedDeadStones,
+            proposedDeadStones: $deadStones,
             proposedBy: $this->proposedBy,
             score: $score,
         );

@@ -73,6 +73,7 @@ final class GameService
                 gameId: $model->id,
                 moveNumber: $moveNumber,
                 color: $color,
+                status: $model->status,
             )),
             MoveType::Resign => $this->dispatchResignEvents($model, $color),
         };

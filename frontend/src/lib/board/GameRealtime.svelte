@@ -156,9 +156,13 @@
           };
         }
       })
-      .listen('.game.move.passed', (event: { color: Stone }) => {
+      .listen('.game.move.passed', (event: { color: Stone; status: string }) => {
         if (game) {
-          game = { ...game, current_turn: event.color === 'black' ? 'white' : 'black' };
+          game = {
+            ...game,
+            current_turn: event.color === 'black' ? 'white' : 'black',
+            status: event.status as GameResponse['status'],
+          };
         }
       })
       .listen('.game.player.resigned', (event: { color: Stone }) => {
@@ -238,7 +242,7 @@
         <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
           Mark dead ({selectedDead.length})
         </button>
-        <button onclick={handleConfirmDead} disabled={game.dead_stones === null}>Confirm</button>
+        <button onclick={handleConfirmDead}>Confirm</button>
         <button onclick={handleDisputeDead} class="resign">Dispute</button>
       </div>
     {/if}

@@ -19,6 +19,7 @@ final class MovePassed implements ShouldBroadcast, ShouldQueue
         public readonly int $gameId,
         public readonly int $moveNumber,
         public readonly string $color,
+        public readonly string $status,
     ) {}
 
     public function broadcastOn(): PrivateChannel
