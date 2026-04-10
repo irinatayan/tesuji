@@ -9,10 +9,15 @@ use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
+    protected function authorization(): void
+    {
+        if (! app()->environment('local')) {
+            parent::authorization();
+        }
+    }
+
     protected function gate(): void
     {
-        Gate::define('viewHorizon', function ($user): bool {
-            return app()->environment('local');
-        });
+        Gate::define('viewHorizon', fn (): bool => app()->environment('local'));
     }
 }
