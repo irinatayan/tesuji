@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $r) => $r->user());
+
+    Route::get('users', [UserController::class, 'index']);
 
     Route::get('games', [GameController::class, 'index']);
     Route::post('games', [GameController::class, 'store']);
