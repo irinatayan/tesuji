@@ -82,15 +82,23 @@ final class GameMapper
             'played_at' => now(),
         ]);
 
+        $newStatus = match ($game->phase) {
+            GamePhase::Playing => 'playing',
+            GamePhase::MarkingDead => 'scoring',
+            GamePhase::Finished => 'finished',
+        };
+
         $update = [
             'current_turn' => $game->currentTurn === Stone::Black ? 'black' : 'white',
-            'status' => match ($game->phase) {
-                GamePhase::Playing => 'playing',
-                GamePhase::MarkingDead => 'scoring',
-                GamePhase::Finished => 'finished',
-            },
+            'status' => $newStatus,
             'last_move_at' => now(),
         ];
+
+        if ($model->time_control_type === 'correspondence') {
+            $update['expires_at'] = $newStatus === 'playing'
+                ? now()->addDays($model->time_control_config['days_per_move'] ?? 3)
+                : null;
+        }
 
         if ($game->phase === GamePhase::Finished && $move->type === MoveType::Resign) {
             $winner = $move->color === Stone::Black ? 'W' : 'B';

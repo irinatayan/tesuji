@@ -58,6 +58,10 @@ class GameController extends Controller
             ? [$request->user()->id, $opponent->id]
             : [$opponent->id, $request->user()->id];
 
+        $expiresAt = $request->time_control_type === 'correspondence'
+            ? now()->addDays($request->time_control_config['days_per_move'] ?? 3)
+            : null;
+
         $game = Game::create([
             'black_player_id' => $blackId,
             'white_player_id' => $whiteId,
@@ -69,6 +73,7 @@ class GameController extends Controller
             'time_control_type' => $request->time_control_type,
             'time_control_config' => $request->time_control_config,
             'started_at' => now(),
+            'expires_at' => $expiresAt,
         ]);
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
