@@ -70,4 +70,19 @@ class UserController extends Controller
     {
         return $this->show($request, $request->user());
     }
+
+    public function games(Request $request, User $user): JsonResponse
+    {
+        $games = Game::where('status', 'finished')
+            ->where(fn ($q) => $q
+                ->where('black_player_id', $user->id)
+                ->orWhere('white_player_id', $user->id)
+            )
+            ->with(['blackPlayer:id,name', 'whitePlayer:id,name'])
+            ->select('id', 'mode', 'board_size', 'result', 'started_at', 'finished_at', 'black_player_id', 'white_player_id')
+            ->orderByDesc('finished_at')
+            ->paginate(20);
+
+        return response()->json($games);
+    }
 }
