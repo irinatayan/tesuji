@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Events\Game\GameFinished;
+use App\Mail\GameTimedOutMail;
 use App\Models\Game;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Mail;
 
 final class CheckGameTimeouts implements ShouldQueue
 {
@@ -35,6 +37,10 @@ final class CheckGameTimeouts implements ShouldQueue
                     result: $result,
                     score: null,
                 ));
+
+                $game->load(['blackPlayer', 'whitePlayer']);
+                Mail::to($game->blackPlayer)->queue(new GameTimedOutMail($game, $game->blackPlayer));
+                Mail::to($game->whitePlayer)->queue(new GameTimedOutMail($game, $game->whitePlayer));
             });
     }
 }

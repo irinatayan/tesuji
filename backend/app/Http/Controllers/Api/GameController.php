@@ -16,12 +16,14 @@ use App\Http\Requests\CreateGameRequest;
 use App\Http\Requests\MarkDeadStonesRequest;
 use App\Http\Requests\PlayMoveRequest;
 use App\Http\Resources\GameResource;
+use App\Mail\GameFinishedMail;
 use App\Models\Game;
 use App\Models\User;
 use App\Services\GameService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Mail;
 
 class GameController extends Controller
 {
@@ -214,6 +216,11 @@ class GameController extends Controller
         ));
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        if ($game->time_control_type === 'correspondence') {
+            Mail::to($game->blackPlayer)->queue(new GameFinishedMail($game, $game->blackPlayer));
+            Mail::to($game->whitePlayer)->queue(new GameFinishedMail($game, $game->whitePlayer));
+        }
 
         return new GameResource($game);
     }

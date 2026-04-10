@@ -13,8 +13,11 @@ use App\Game\Game as DomainGame;
 use App\Game\Move as DomainMove;
 use App\Game\MoveType;
 use App\Game\Persistence\GameMapper;
+use App\Mail\GameFinishedMail;
+use App\Mail\YourTurnMail;
 use App\Models\Game;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 final class GameService
 {
@@ -43,6 +46,10 @@ final class GameService
         $model->refresh();
 
         $this->dispatchMoveEvent($model, $domainGame, $move, $moveNumber);
+
+        if ($model->time_control_type === 'correspondence') {
+            $this->sendCorrespondenceMail($model);
+        }
 
         return $model;
     }
@@ -79,5 +86,20 @@ final class GameService
             result: $model->result,
             score: null,
         ));
+    }
+
+    private function sendCorrespondenceMail(Game $model): void
+    {
+        $model->loadMissing(['blackPlayer', 'whitePlayer']);
+
+        if ($model->status === 'playing') {
+            $recipient = $model->current_turn === 'black'
+                ? $model->blackPlayer
+                : $model->whitePlayer;
+            Mail::to($recipient)->queue(new YourTurnMail($model, $recipient));
+        } elseif ($model->status === 'finished') {
+            Mail::to($model->blackPlayer)->queue(new GameFinishedMail($model, $model->blackPlayer));
+            Mail::to($model->whitePlayer)->queue(new GameFinishedMail($model, $model->whitePlayer));
+        }
     }
 }
