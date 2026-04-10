@@ -4,7 +4,6 @@
   import { auth, clearAuth } from '$lib/stores/auth.svelte';
   import { resetEcho } from '$lib/echo';
   import LoginView from '$lib/auth/LoginView.svelte';
-  import RegisterView from '$lib/auth/RegisterView.svelte';
   import OAuthCallback from '$lib/auth/OAuthCallback.svelte';
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
@@ -13,7 +12,7 @@
   import GameRealtime from '$lib/board/GameRealtime.svelte';
   import { getEcho } from '$lib/echo';
 
-  type View = 'loading' | 'oauth-callback' | 'auth' | 'register' | 'lobby' | 'game' | 'profile';
+  type View = 'loading' | 'oauth-callback' | 'auth' | 'lobby' | 'game' | 'profile';
 
   let view = $state<View>('loading');
   let activeGameId = $state<number | null>(null);
@@ -91,26 +90,14 @@
   {:else if view === 'oauth-callback'}
     <OAuthCallback onSuccess={afterLogin} onFail={() => (view = 'auth')} />
 
-  {:else if view === 'auth' || view === 'register'}
+  {:else if view === 'auth'}
     <div class="auth-wrap">
       <div class="board-pattern"></div>
       <div class="auth-brand">
         <span class="brand-title">TESUJI</span>
         <span class="brand-sub">The Game of Go</span>
       </div>
-      {#if view === 'auth'}
-        <LoginView onSuccess={afterLogin} />
-        <p class="auth-switch">
-          No account?
-          <button class="link-btn" onclick={() => (view = 'register')}>Register</button>
-        </p>
-      {:else}
-        <RegisterView onSuccess={afterLogin} />
-        <p class="auth-switch">
-          Already registered?
-          <button class="link-btn" onclick={() => (view = 'auth')}>Sign in</button>
-        </p>
-      {/if}
+      <LoginView onSuccess={afterLogin} />
     </div>
 
   {:else if view === 'lobby'}
@@ -235,30 +222,6 @@
     color: var(--muted);
     letter-spacing: 4px;
     text-transform: uppercase;
-  }
-
-  .auth-switch {
-    color: var(--muted);
-    font-size: 14px;
-    margin: 4px 0 0;
-    text-align: center;
-  }
-
-  .link-btn {
-    background: none;
-    border: none;
-    color: var(--gold);
-    cursor: pointer;
-    font-size: 14px;
-    font-family: var(--font-serif);
-    font-weight: 600;
-    padding: 0;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    transition: text-decoration-color 0.2s;
-  }
-  .link-btn:hover {
-    text-decoration-color: var(--gold);
   }
 
   /* ── Splash ──────────────────────────────────── */
