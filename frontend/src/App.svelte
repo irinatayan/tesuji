@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { api } from '$lib/api';
+  import { api, ApiError } from '$lib/api';
   import { auth, clearAuth } from '$lib/stores/auth.svelte';
   import { resetEcho } from '$lib/echo';
   import LoginView from '$lib/auth/LoginView.svelte';
@@ -8,8 +8,12 @@
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
   import InvitationList from '$lib/lobby/InvitationList.svelte';
+  import OutgoingInvitations from '$lib/lobby/OutgoingInvitations.svelte';
   import ProfileView from '$lib/profile/ProfileView.svelte';
   import GameRealtime from '$lib/board/GameRealtime.svelte';
+  import ToastContainer from '$lib/notifications/ToastContainer.svelte';
+  import { addToast } from '$lib/notifications/toasts.svelte';
+  import { invitationStore, loadIncoming, removeIncoming } from '$lib/notifications/invitations.svelte';
   import { getEcho } from '$lib/echo';
 
   type View = 'loading' | 'oauth-callback' | 'auth' | 'lobby' | 'game' | 'profile';
@@ -62,21 +66,58 @@
     view = 'auth';
   }
 
-  $effect(() => {
-    if (view !== 'lobby' || !auth.user) return;
+  async function handleAcceptFromToast(invId: number) {
+    try {
+      const res = await api.acceptInvitation(invId);
+      removeIncoming(invId);
+      invitationRefresh++;
+      openGame(res.game_id);
+    } catch (err) {
+      const msg = err instanceof ApiError ? (err.body as any)?.message ?? 'Error' : 'Error';
+      addToast({ type: 'info', message: msg });
+    }
+  }
 
-    const channel = getEcho().private(`user.${auth.user.id}`);
+  async function handleDeclineFromToast(invId: number) {
+    try {
+      await api.declineInvitation(invId);
+      removeIncoming(invId);
+      invitationRefresh++;
+    } catch {
+      // ignore
+    }
+  }
+
+  $effect(() => {
+    const user = auth.user;
+    if (!user) return;
+
+    loadIncoming();
+
+    const channel = getEcho().private(`user.${user.id}`);
 
     channel
-      .listen('.invitation.received', () => {
+      .listen('.invitation.received', (e: any) => {
+        loadIncoming();
         invitationRefresh++;
+        const from = e.from?.name ?? 'Someone';
+        const size = e.boardSize ?? '?';
+        const invId = e.invitationId;
+        addToast({
+          type: 'invite',
+          message: `${from} invites you to a ${size}×${size} game`,
+          actions: [
+            { label: 'Accept', style: 'primary', handler: () => handleAcceptFromToast(invId) },
+            { label: 'Decline', style: 'danger', handler: () => handleDeclineFromToast(invId) },
+          ],
+        });
       })
       .listen('.invitation.accepted', (e: { game_id: number }) => {
         openGame(e.game_id);
       });
 
     return () => {
-      getEcho().leave(`user.${auth.user!.id}`);
+      getEcho().leave(`user.${user.id}`);
     };
   });
 </script>
@@ -113,6 +154,7 @@
 
     <main class="lobby">
       <InvitationList onAccepted={openGame} bind:refresh={invitationRefresh} />
+      <OutgoingInvitations />
       <GameList onSelect={openGame} />
 
       <div class="create-section">
@@ -121,19 +163,35 @@
             + New game
           </button>
         {:else}
-          <CreateGameView onCreated={(id) => { showCreateForm = false; openGame(id); }} />
+          <CreateGameView onInvited={() => { showCreateForm = false; }} />
           <button class="btn-ghost" onclick={() => (showCreateForm = false)}>Cancel</button>
         {/if}
       </div>
     </main>
 
   {:else if view === 'game' && activeGameId !== null}
+    <header class="site-header">
+      <span class="site-title">TESUJI</span>
+      <nav>
+        {#if invitationStore.incoming.length > 0}
+          <button class="badge-btn" onclick={() => (view = 'lobby')}>
+            ✉ <span class="badge">{invitationStore.incoming.length}</span>
+          </button>
+        {/if}
+        <button class="btn-outline" onclick={() => (view = 'lobby')}>← Lobby</button>
+      </nav>
+    </header>
     <GameRealtime gameId={activeGameId} onLeave={() => (view = 'lobby')} />
 
   {:else if view === 'profile' && profileUserId !== null}
     <header class="site-header">
       <span class="site-title">TESUJI</span>
       <nav>
+        {#if invitationStore.incoming.length > 0}
+          <button class="badge-btn" onclick={() => (view = 'lobby')}>
+            ✉ <span class="badge">{invitationStore.incoming.length}</span>
+          </button>
+        {/if}
         <button class="btn-outline" onclick={() => (view = 'lobby')}>← Lobby</button>
         <button class="btn-outline" onclick={logout}>Sign out</button>
       </nav>
@@ -143,6 +201,8 @@
     </main>
   {/if}
 </div>
+
+<ToastContainer />
 
 <style>
   .app {
@@ -266,6 +326,34 @@
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+
+  .badge-btn {
+    position: relative;
+    background: none;
+    border: 2px solid var(--gold);
+    border-radius: 4px;
+    color: var(--gold);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px 12px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .badge-btn:hover {
+    background: rgba(139, 90, 43, 0.2);
+  }
+  .badge {
+    background: #c0392b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    line-height: 1.4;
   }
 
   .user-btn {

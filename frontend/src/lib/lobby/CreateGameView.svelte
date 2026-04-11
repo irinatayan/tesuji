@@ -2,31 +2,38 @@
   import { api, ApiError } from '$lib/api';
   import UserSearch from './UserSearch.svelte';
 
-  let { onCreated }: { onCreated: (gameId: number) => void } = $props();
+  let { onInvited }: { onInvited: () => void } = $props();
 
   let opponentId = $state<number | null>(null);
   let boardSize = $state(9);
   let color = $state('black');
   let error = $state('');
+  let success = $state('');
   let loading = $state(false);
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
     if (opponentId === null) return;
     error = '';
+    success = '';
     loading = true;
     try {
-      const res = await api.createGame({
-        opponent_id: opponentId,
+      await api.sendInvitation({
+        to_user_id: opponentId,
         board_size: boardSize,
         mode: 'realtime',
         time_control_type: 'absolute',
         time_control_config: { seconds: 600 },
-        color,
+        proposed_color: color,
       });
-      onCreated(res.data.id);
+      success = 'Invitation sent!';
+      onInvited();
     } catch (err) {
-      error = err instanceof ApiError ? `Error: ${err.status}` : 'Failed to create game';
+      if (err instanceof ApiError) {
+        error = (err.body as any)?.message ?? `Error: ${err.status}`;
+      } else {
+        error = 'Failed to send invitation';
+      }
     } finally {
       loading = false;
     }
@@ -57,8 +64,9 @@
       </select>
     </label>
     {#if error}<p class="error">{error}</p>{/if}
+    {#if success}<p class="success">{success}</p>{/if}
     <button type="submit" disabled={loading}>
-      {loading ? 'Creating...' : 'Create'}
+      {loading ? 'Sending...' : 'Send Invitation'}
     </button>
   </form>
 </div>
@@ -137,6 +145,11 @@
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   .error {
     color: #ffcccc;
+    font-size: 13px;
+    margin: 0;
+  }
+  .success {
+    color: #a8d5a2;
     font-size: 13px;
     margin: 0;
   }

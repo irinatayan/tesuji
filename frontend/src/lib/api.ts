@@ -65,6 +65,17 @@ export const api = {
 
   getInvitations: () => request<any[]>('GET', '/invitations/incoming'),
 
+  getOutgoingInvitations: () => request<any[]>('GET', '/invitations/outgoing'),
+
+  sendInvitation: (params: {
+    to_user_id: number;
+    board_size: number;
+    mode: string;
+    time_control_type: string;
+    time_control_config: Record<string, number>;
+    proposed_color: string;
+  }) => request<any>('POST', '/invitations', params),
+
   acceptInvitation: (id: number) => request<{ game_id: number }>('POST', `/invitations/${id}/accept`),
 
   declineInvitation: (id: number) => request<void>('POST', `/invitations/${id}/decline`),

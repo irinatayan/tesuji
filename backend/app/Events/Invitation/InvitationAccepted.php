@@ -23,6 +23,13 @@ final class InvitationAccepted implements ShouldBroadcast, ShouldDispatchAfterCo
         public readonly int $gameId,
     ) {}
 
+    public function broadcastWith(): array
+    {
+        return [
+            'game_id' => $this->gameId,
+        ];
+    }
+
     /** @return PrivateChannel[] */
     public function broadcastOn(): array
     {

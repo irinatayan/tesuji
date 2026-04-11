@@ -23,6 +23,16 @@ final class InvitationReceived implements ShouldBroadcast, ShouldQueue
         public readonly string $mode,
     ) {}
 
+    public function broadcastWith(): array
+    {
+        return [
+            'invitationId' => $this->invitationId,
+            'from' => $this->from,
+            'boardSize' => $this->boardSize,
+            'mode' => $this->mode,
+        ];
+    }
+
     public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel('user.'.$this->toUserId);
