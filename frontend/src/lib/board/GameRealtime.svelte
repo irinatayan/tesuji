@@ -22,6 +22,7 @@
   let error = $state('');
   let moveError = $state('');
   let selectedDead = $state<Position[]>([]);
+  let lastMove = $state<Position | null>(null);
 
   const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
@@ -64,6 +65,7 @@
     moveError = '';
     const before = board;
     board = board.set(pos, myColor!);
+    lastMove = pos;
 
     try {
       await api.playMove(gameId, pos.x, pos.y);
@@ -149,6 +151,7 @@
     channel
       .listen('.game.move.played', (event: MovePlayed) => {
         board = applyMovePlayed(board, event);
+        lastMove = { x: event.x, y: event.y };
         if (game) {
           game = {
             ...game,
@@ -233,6 +236,7 @@
             ? handleToggleDead
             : undefined}
         deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
+        {lastMove}
       />
 
       {#if game.status === 'playing'}
@@ -257,7 +261,7 @@
   .game-realtime {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     min-height: 100vh;
     padding-bottom: 32px;
   }
@@ -313,7 +317,9 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    padding: 24px 16px 0;
+    padding: 24px 8px 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .status-bar {
