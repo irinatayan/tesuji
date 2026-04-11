@@ -25,7 +25,7 @@ class InvitationController extends Controller
             ->exists();
 
         if ($existing) {
-            return response()->json(['message' => 'You already have a pending invitation to this player.'], 422);
+            return response()->json(['message' => __('messages.invitation_duplicate')], 422);
         }
 
         if ($request->mode === 'realtime') {
@@ -35,7 +35,7 @@ class InvitationController extends Controller
                 ->exists();
 
             if ($hasActive) {
-                return response()->json(['message' => 'You already have an active realtime game. Finish it first.'], 422);
+                return response()->json(['message' => __('messages.invitation_active_game')], 422);
             }
         }
 
@@ -88,11 +88,11 @@ class InvitationController extends Controller
     public function accept(Request $request, GameInvitation $invitation): JsonResponse
     {
         if ($invitation->to_user_id !== $request->user()->id) {
-            return response()->json(['message' => 'This invitation is not addressed to you.'], 403);
+            return response()->json(['message' => __('messages.invitation_not_for_you')], 403);
         }
 
         if ($invitation->status !== 'pending') {
-            return response()->json(['message' => 'This invitation is no longer pending.'], 422);
+            return response()->json(['message' => __('messages.invitation_not_pending')], 422);
         }
 
         if ($invitation->mode === 'realtime') {
@@ -103,9 +103,11 @@ class InvitationController extends Controller
                     ->exists();
 
                 if ($hasActive) {
-                    $who = $playerId === $request->user()->id ? 'You already have' : 'Your opponent already has';
+                    $key = $playerId === $request->user()->id
+                        ? 'messages.invitation_accept_self_active'
+                        : 'messages.invitation_accept_opponent_active';
 
-                    return response()->json(['message' => $who.' an active realtime game.'], 422);
+                    return response()->json(['message' => __($key)], 422);
                 }
             }
         }
@@ -155,11 +157,11 @@ class InvitationController extends Controller
     public function decline(Request $request, GameInvitation $invitation): JsonResponse
     {
         if ($invitation->to_user_id !== $request->user()->id) {
-            return response()->json(['message' => 'This invitation is not addressed to you.'], 403);
+            return response()->json(['message' => __('messages.invitation_not_for_you')], 403);
         }
 
         if ($invitation->status !== 'pending') {
-            return response()->json(['message' => 'This invitation is no longer pending.'], 422);
+            return response()->json(['message' => __('messages.invitation_not_pending')], 422);
         }
 
         $invitation->update(['status' => 'declined']);
@@ -169,6 +171,6 @@ class InvitationController extends Controller
             fromUserId: $invitation->from_user_id,
         ));
 
-        return response()->json(['message' => 'Invitation declined.']);
+        return response()->json(['message' => __('messages.invitation_declined')]);
     }
 }

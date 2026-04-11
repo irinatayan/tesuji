@@ -24,7 +24,7 @@ final class GameFinishedMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Game finished — Tesuji');
+        return new Envelope(subject: __('messages.mail_finished_subject'));
     }
 
     public function content(): Content

@@ -24,7 +24,7 @@ final class GameTimedOutMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Game timed out — Tesuji');
+        return new Envelope(subject: __('messages.mail_timeout_subject'));
     }
 
     public function content(): Content

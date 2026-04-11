@@ -24,7 +24,7 @@ final class YourTurnMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your turn — Tesuji');
+        return new Envelope(subject: __('messages.mail_your_turn_subject'));
     }
 
     public function content(): Content

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <body>
-<p>Hi {{ $recipient->name }},</p>
+<p>{{ __('messages.mail_your_turn_greeting', ['name' => $recipient->name]) }}</p>
 
-<p>It's your turn in your {{ $game->board_size }}×{{ $game->board_size }} correspondence game on Tesuji.</p>
+<p>{{ __('messages.mail_your_turn_body', ['size' => $game->board_size]) }}</p>
 
 <p>
     @if ($game->black_player_id === $recipient->id)
-        You are playing Black.
+        {{ __('messages.mail_your_turn_black') }}
     @else
-        You are playing White.
+        {{ __('messages.mail_your_turn_white') }}
     @endif
 </p>
 
-<p><a href="{{ env('FRONTEND_URL') }}">Open Tesuji</a></p>
+<p><a href="{{ env('FRONTEND_URL') }}">{{ __('messages.mail_open') }}</a></p>
 </body>
 </html>

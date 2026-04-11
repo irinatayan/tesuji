@@ -95,7 +95,7 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         $move = DomainMove::play($stone, new Position($request->x, $request->y));
@@ -103,7 +103,7 @@ class GameController extends Controller
         try {
             $game = $this->gameService->applyMove($game, $move);
         } catch (IllegalMoveException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => __('messages.illegal_'.$e->getMessage(), $e->params)], 422);
         }
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
@@ -116,13 +116,13 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         try {
             $game = $this->gameService->applyMove($game, DomainMove::pass($stone));
         } catch (IllegalMoveException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => __('messages.illegal_'.$e->getMessage(), $e->params)], 422);
         }
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
@@ -135,13 +135,13 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         try {
             $game = $this->gameService->applyMove($game, DomainMove::resign($stone));
         } catch (IllegalMoveException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json(['message' => __('messages.illegal_'.$e->getMessage(), $e->params)], 422);
         }
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
@@ -154,7 +154,7 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         $positions = array_map(
@@ -188,7 +188,7 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         try {
@@ -230,7 +230,7 @@ class GameController extends Controller
         $stone = $this->resolvePlayerStone($request, $game);
 
         if ($stone === null) {
-            return response()->json(['message' => 'You are not a participant of this game.'], 403);
+            return response()->json(['message' => __('messages.not_participant')], 403);
         }
 
         try {

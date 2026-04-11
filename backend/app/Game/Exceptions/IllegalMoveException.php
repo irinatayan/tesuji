@@ -6,28 +6,37 @@ namespace App\Game\Exceptions;
 
 final class IllegalMoveException extends \RuntimeException
 {
+    /** @var array<string, string> */
+    public readonly array $params;
+
+    public function __construct(string $key, array $params = [])
+    {
+        parent::__construct($key);
+        $this->params = $params;
+    }
+
     public static function occupiedCell(): self
     {
-        return new self('Cell is already occupied');
+        return new self('occupied');
     }
 
     public static function suicide(): self
     {
-        return new self('Suicide moves are not allowed');
+        return new self('suicide');
     }
 
     public static function ko(): self
     {
-        return new self('Move violates the ko rule');
+        return new self('ko');
     }
 
     public static function wrongTurn(string $expected, string $got): self
     {
-        return new self("It is {$expected}'s turn, got {$got}");
+        return new self('wrong_turn', ['expected' => $expected, 'got' => $got]);
     }
 
     public static function gameNotInProgress(): self
     {
-        return new self('Game is not in progress');
+        return new self('not_in_progress');
     }
 }

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <body>
-<p>Hi {{ $recipient->name }},</p>
+<p>{{ __('messages.mail_your_turn_greeting', ['name' => $recipient->name]) }}</p>
 
-<p>Your {{ $game->board_size }}×{{ $game->board_size }} correspondence game on Tesuji has finished.</p>
+<p>{{ __('messages.mail_finished_body', ['size' => $game->board_size]) }}</p>
 
-<p>Result: <strong>{{ $game->result }}</strong></p>
+<p>{{ __('messages.mail_finished_result', ['result' => $game->result]) }}</p>
 
-<p><a href="{{ env('FRONTEND_URL') }}">Open Tesuji</a></p>
+<p><a href="{{ env('FRONTEND_URL') }}">{{ __('messages.mail_open') }}</a></p>
 </body>
 </html>
