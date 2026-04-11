@@ -113,7 +113,13 @@
         });
       })
       .listen('.invitation.accepted', (e: { game_id: number }) => {
-        openGame(e.game_id);
+        addToast({
+          type: 'info',
+          message: 'Your invitation was accepted — game started!',
+          actions: [
+            { label: 'Open', style: 'primary', handler: () => openGame(e.game_id) },
+          ],
+        });
       });
 
     return () => {

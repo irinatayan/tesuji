@@ -28,6 +28,17 @@ class InvitationController extends Controller
             return response()->json(['message' => 'You already have a pending invitation to this player.'], 422);
         }
 
+        if ($request->mode === 'realtime') {
+            $hasActive = Game::where('mode', 'realtime')
+                ->where('status', 'playing')
+                ->where(fn ($q) => $q->where('black_player_id', $request->user()->id)->orWhere('white_player_id', $request->user()->id))
+                ->exists();
+
+            if ($hasActive) {
+                return response()->json(['message' => 'You already have an active realtime game. Finish it first.'], 422);
+            }
+        }
+
         $invitation = GameInvitation::create([
             'from_user_id' => $request->user()->id,
             'to_user_id' => $request->to_user_id,
@@ -82,6 +93,21 @@ class InvitationController extends Controller
 
         if ($invitation->status !== 'pending') {
             return response()->json(['message' => 'This invitation is no longer pending.'], 422);
+        }
+
+        if ($invitation->mode === 'realtime') {
+            foreach ([$invitation->from_user_id, $invitation->to_user_id] as $playerId) {
+                $hasActive = Game::where('mode', 'realtime')
+                    ->where('status', 'playing')
+                    ->where(fn ($q) => $q->where('black_player_id', $playerId)->orWhere('white_player_id', $playerId))
+                    ->exists();
+
+                if ($hasActive) {
+                    $who = $playerId === $request->user()->id ? 'You already have' : 'Your opponent already has';
+
+                    return response()->json(['message' => $who.' an active realtime game.'], 422);
+                }
+            }
         }
 
         $game = DB::transaction(function () use ($invitation, $request): Game {

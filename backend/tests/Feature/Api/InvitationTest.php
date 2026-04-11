@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
+use App\Models\Game;
 use App\Models\GameInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -163,5 +164,77 @@ class InvitationTest extends TestCase
         $this->actingAs($outsider)
             ->postJson("/api/invitations/{$invitation->id}/decline")
             ->assertStatus(403);
+    }
+
+    // --- Realtime game limit ---
+
+    public function test_cannot_send_realtime_invitation_while_in_active_game(): void
+    {
+        Game::create([
+            'black_player_id' => $this->alice->id,
+            'white_player_id' => User::factory()->create()->id,
+            'mode' => 'realtime',
+            'ruleset' => 'chinese',
+            'board_size' => 9,
+            'status' => 'playing',
+            'current_turn' => 'black',
+            'time_control_type' => 'absolute',
+            'time_control_config' => ['seconds' => 600],
+            'started_at' => now(),
+        ]);
+
+        $this->actingAs($this->alice)
+            ->postJson('/api/invitations', $this->invitationPayload())
+            ->assertStatus(422)
+            ->assertJsonFragment(['message' => 'You already have an active realtime game. Finish it first.']);
+    }
+
+    public function test_cannot_accept_realtime_invitation_while_in_active_game(): void
+    {
+        // Bob already has an active game
+        Game::create([
+            'black_player_id' => $this->bob->id,
+            'white_player_id' => User::factory()->create()->id,
+            'mode' => 'realtime',
+            'ruleset' => 'chinese',
+            'board_size' => 9,
+            'status' => 'playing',
+            'current_turn' => 'black',
+            'time_control_type' => 'absolute',
+            'time_control_config' => ['seconds' => 600],
+            'started_at' => now(),
+        ]);
+
+        $this->actingAs($this->alice)->postJson('/api/invitations', $this->invitationPayload());
+        $invitation = GameInvitation::first();
+
+        $this->actingAs($this->bob)
+            ->postJson("/api/invitations/{$invitation->id}/accept")
+            ->assertStatus(422)
+            ->assertJsonFragment(['message' => 'You already have an active realtime game.']);
+    }
+
+    public function test_correspondence_invitation_allowed_with_active_realtime_game(): void
+    {
+        Game::create([
+            'black_player_id' => $this->alice->id,
+            'white_player_id' => User::factory()->create()->id,
+            'mode' => 'realtime',
+            'ruleset' => 'chinese',
+            'board_size' => 9,
+            'status' => 'playing',
+            'current_turn' => 'black',
+            'time_control_type' => 'absolute',
+            'time_control_config' => ['seconds' => 600],
+            'started_at' => now(),
+        ]);
+
+        $this->actingAs($this->alice)
+            ->postJson('/api/invitations', $this->invitationPayload([
+                'mode' => 'correspondence',
+                'time_control_type' => 'correspondence',
+                'time_control_config' => ['days_per_move' => 3],
+            ]))
+            ->assertStatus(201);
     }
 }
