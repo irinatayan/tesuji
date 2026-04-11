@@ -86,21 +86,28 @@ class LegalityTest extends TestCase
     public function test_ko_move_is_illegal(): void
     {
         // Classic ko shape:
-        // . B . .
-        // B W B .
-        // . B . .
+        //   0 1 2 3
+        // 0 . B W .
+        // 1 B W . W
+        // 2 . B W .
         $board = Board::empty(9)
             ->place(new Position(1, 0), Stone::Black)
             ->place(new Position(0, 1), Stone::Black)
-            ->place(new Position(2, 1), Stone::Black)
             ->place(new Position(1, 2), Stone::Black)
-            ->place(new Position(1, 1), Stone::White);
+            ->place(new Position(2, 0), Stone::White)
+            ->place(new Position(1, 1), Stone::White)
+            ->place(new Position(3, 1), Stone::White)
+            ->place(new Position(2, 2), Stone::White);
 
-        // Black captures White at (1,1)
-        $afterCapture = $board->placeStone(new Position(1, 1), Stone::Black);
         $hashBeforeCapture = $board->hash();
 
-        // White tries to recapture at (1,1) — would restore position before Black's move
+        // Black captures White at (1,1) by playing at (2,1)
+        $afterCapture = $board->placeStone(new Position(2, 1), Stone::Black);
+
+        $this->assertNull($afterCapture->board->get(new Position(1, 1)));
+        $this->assertCount(1, $afterCapture->captured);
+
+        // White tries to recapture at (1,1) — would restore the position before Black's move
         $this->assertFalse(
             $afterCapture->board->isLegalMove(new Position(1, 1), Stone::White, $this->rules, $hashBeforeCapture)
         );

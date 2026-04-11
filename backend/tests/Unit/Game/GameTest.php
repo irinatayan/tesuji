@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Game;
 
+use App\Game\Board;
 use App\Game\Exceptions\IllegalMoveException;
 use App\Game\Game;
 use App\Game\GamePhase;
@@ -123,5 +124,115 @@ class GameTest extends TestCase
 
         $this->assertSame(Stone::Black, $game->currentTurn);
         $this->assertCount(0, $game->history);
+    }
+
+    public function test_last_captures_contains_captured_positions(): void
+    {
+        // Set up a board where Black can capture White at (1,1)
+        //   0 1 2
+        // 0 . B .
+        // 1 B W .   ← Black plays (2,1) to capture White at (1,1)
+        // 2 . B .
+        $board = Board::empty(9)
+            ->place(new Position(1, 0), Stone::Black)
+            ->place(new Position(0, 1), Stone::Black)
+            ->place(new Position(1, 2), Stone::Black)
+            ->place(new Position(1, 1), Stone::White);
+
+        $game = Game::restore(
+            board: $board,
+            currentTurn: Stone::Black,
+            phase: GamePhase::Playing,
+            ruleset: $this->rules,
+            history: [],
+            consecutivePasses: 0,
+            koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
+        );
+
+        $after = $game->apply(Move::play(Stone::Black, new Position(2, 1)));
+
+        $this->assertCount(1, $after->lastCaptures);
+        $this->assertTrue($after->lastCaptures[0]->equals(new Position(1, 1)));
+        $this->assertNull($after->board->get(new Position(1, 1)));
+    }
+
+    public function test_last_captures_empty_when_no_capture(): void
+    {
+        $game = Game::start(9, $this->rules)
+            ->apply(Move::play(Stone::Black, new Position(3, 3)));
+
+        $this->assertCount(0, $game->lastCaptures);
+    }
+
+    public function test_ko_rule_prevents_immediate_recapture(): void
+    {
+        // Classic Ko shape:
+        //   0 1 2 3
+        // 0 . B W .
+        // 1 B W . W
+        // 2 . B W .
+        $board = Board::empty(9)
+            ->place(new Position(1, 0), Stone::Black)
+            ->place(new Position(0, 1), Stone::Black)
+            ->place(new Position(1, 2), Stone::Black)
+            ->place(new Position(2, 0), Stone::White)
+            ->place(new Position(1, 1), Stone::White)
+            ->place(new Position(3, 1), Stone::White)
+            ->place(new Position(2, 2), Stone::White);
+
+        $game = Game::restore(
+            board: $board,
+            currentTurn: Stone::Black,
+            phase: GamePhase::Playing,
+            ruleset: $this->rules,
+            history: [],
+            consecutivePasses: 0,
+            koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
+        );
+
+        // Black captures White at (1,1) by playing (2,1)
+        $afterCapture = $game->apply(Move::play(Stone::Black, new Position(2, 1)));
+
+        // White tries to recapture at (1,1) — Ko violation
+        $this->expectException(IllegalMoveException::class);
+        $afterCapture->apply(Move::play(Stone::White, new Position(1, 1)));
+    }
+
+    public function test_pass_resets_ko_restriction(): void
+    {
+        $board = Board::empty(9)
+            ->place(new Position(1, 0), Stone::Black)
+            ->place(new Position(0, 1), Stone::Black)
+            ->place(new Position(1, 2), Stone::Black)
+            ->place(new Position(2, 0), Stone::White)
+            ->place(new Position(1, 1), Stone::White)
+            ->place(new Position(3, 1), Stone::White)
+            ->place(new Position(2, 2), Stone::White);
+
+        $game = Game::restore(
+            board: $board,
+            currentTurn: Stone::Black,
+            phase: GamePhase::Playing,
+            ruleset: $this->rules,
+            history: [],
+            consecutivePasses: 0,
+            koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
+        );
+
+        // Black captures at (2,1)
+        $afterCapture = $game->apply(Move::play(Stone::Black, new Position(2, 1)));
+
+        // White passes (resets Ko)
+        $afterPass = $afterCapture->apply(Move::pass(Stone::White));
+        $this->assertNull($afterPass->koHash);
     }
 }
