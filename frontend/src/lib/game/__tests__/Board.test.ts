@@ -30,6 +30,68 @@ describe('Board', () => {
     expect(cleared.get({ x: 0, y: 0 })).toBeNull();
   });
 
+  describe('group', () => {
+    it('returns empty array for empty cell', () => {
+      const board = Board.empty(9);
+      expect(board.group({ x: 0, y: 0 })).toEqual([]);
+    });
+
+    it('returns single stone group', () => {
+      const board = Board.empty(9).set({ x: 3, y: 3 }, 'black');
+      const group = board.group({ x: 3, y: 3 });
+      expect(group).toHaveLength(1);
+      expect(group).toContainEqual({ x: 3, y: 3 });
+    });
+
+    it('returns connected stones of same color', () => {
+      const board = Board.empty(9)
+        .set({ x: 3, y: 3 }, 'black')
+        .set({ x: 3, y: 4 }, 'black')
+        .set({ x: 4, y: 4 }, 'black');
+      const group = board.group({ x: 3, y: 3 });
+      expect(group).toHaveLength(3);
+      expect(group).toContainEqual({ x: 3, y: 3 });
+      expect(group).toContainEqual({ x: 3, y: 4 });
+      expect(group).toContainEqual({ x: 4, y: 4 });
+    });
+
+    it('does not include diagonally adjacent stones', () => {
+      const board = Board.empty(9)
+        .set({ x: 3, y: 3 }, 'black')
+        .set({ x: 4, y: 4 }, 'black');
+      expect(board.group({ x: 3, y: 3 })).toHaveLength(1);
+    });
+
+    it('does not include stones of other color', () => {
+      const board = Board.empty(9)
+        .set({ x: 3, y: 3 }, 'black')
+        .set({ x: 3, y: 4 }, 'white');
+      expect(board.group({ x: 3, y: 3 })).toHaveLength(1);
+    });
+  });
+
+  describe('toArray', () => {
+    it('returns 2D array matching board state', () => {
+      const board = Board.empty(3).set({ x: 1, y: 2 }, 'white');
+      const arr = board.toArray();
+      expect(arr).toHaveLength(3);
+      expect(arr[2][1]).toBe('white');
+      expect(arr[0][0]).toBeNull();
+    });
+  });
+
+  it('placeStone is alias for set with stone', () => {
+    const board = Board.empty(9);
+    const next = board.placeStone({ x: 1, y: 1 }, 'black');
+    expect(next.get({ x: 1, y: 1 })).toBe('black');
+  });
+
+  it('removeStone clears cell', () => {
+    const board = Board.empty(9).set({ x: 1, y: 1 }, 'white');
+    const next = board.removeStone({ x: 1, y: 1 });
+    expect(next.get({ x: 1, y: 1 })).toBeNull();
+  });
+
   describe('neighbors', () => {
     it('corner has 2 neighbors', () => {
       const board = Board.empty(9);

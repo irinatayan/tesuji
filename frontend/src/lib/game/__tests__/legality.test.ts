@@ -32,6 +32,30 @@ describe('isLegal', () => {
     const board = Board.empty(9).set({ x: 1, y: 0 }, 'white');
     expect(isLegal(board, { x: 0, y: 0 }, 'black')).toBe(true);
   });
+
+  it('move connecting to friendly group with liberties is legal', () => {
+    // Black at (1,0); Black plays (0,0) — corner with one neighbor (1,0) being friendly with liberties
+    const board = Board.empty(9)
+      .set({ x: 1, y: 0 }, 'black')
+      .set({ x: 0, y: 1 }, 'white');
+    // (0,0) has neighbors: (1,0)=black (has liberty at (2,0)), (0,1)=white
+    // No empty neighbor, but connects to friendly group with liberty → legal
+    expect(isLegal(board, { x: 0, y: 0 }, 'black')).toBe(true);
+  });
+
+  it('capture-before-suicide is legal', () => {
+    //   0 1 2
+    // 0 . W B   Black plays (0,0): no empty neighbors, no friendly neighbors,
+    // 1 W B .   but both W stones have (0,0) as only liberty → captured → legal
+    // 2 B . .
+    const board = Board.empty(9)
+      .set({ x: 1, y: 0 }, 'white')
+      .set({ x: 0, y: 1 }, 'white')
+      .set({ x: 2, y: 0 }, 'black')
+      .set({ x: 1, y: 1 }, 'black')
+      .set({ x: 0, y: 2 }, 'black');
+    expect(isLegal(board, { x: 0, y: 0 }, 'black')).toBe(true);
+  });
 });
 
 describe('legalMoves', () => {
