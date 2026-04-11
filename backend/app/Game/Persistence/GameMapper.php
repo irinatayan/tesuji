@@ -76,7 +76,10 @@ final class GameMapper
             },
             'x' => $move->position?->x,
             'y' => $move->position?->y,
-            'captures' => [],
+            'captures' => array_map(
+                fn (Position $p) => ['x' => $p->x, 'y' => $p->y],
+                $game->lastCaptures
+            ),
             'position_hash' => $board->hash(),
             'board_state' => BoardSerializer::serialize($board),
             'played_at' => now(),

@@ -68,9 +68,12 @@
     lastMove = pos;
 
     try {
-      await api.playMove(gameId, pos.x, pos.y);
+      const res = await api.playMove(gameId, pos.x, pos.y);
+      game = res.data;
+      board = boardFromGame(res.data);
     } catch (err) {
       board = before;
+      lastMove = null;
       moveError =
         err instanceof ApiError && err.status === 422
           ? (err.body as { message: string }).message
@@ -150,6 +153,7 @@
 
     channel
       .listen('.game.move.played', (event: MovePlayed) => {
+        console.log('[WS] game.move.played', JSON.stringify(event));
         board = applyMovePlayed(board, event);
         lastMove = { x: event.x, y: event.y };
         if (game) {

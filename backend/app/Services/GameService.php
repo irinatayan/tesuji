@@ -59,6 +59,11 @@ final class GameService
         $color = strtolower($move->color->name);
         $lastMove = $model->moves()->latest('move_number')->first();
 
+        $captures = array_map(
+            fn (\App\Game\Position $p) => ['x' => $p->x, 'y' => $p->y],
+            $domainGame->lastCaptures
+        );
+
         match ($move->type) {
             MoveType::Play => event(new MovePlayed(
                 gameId: $model->id,
@@ -66,7 +71,7 @@ final class GameService
                 x: $move->position->x,
                 y: $move->position->y,
                 color: $color,
-                captures: $lastMove->captures ?? [],
+                captures: $captures,
                 positionHash: $lastMove->position_hash,
             )),
             MoveType::Pass => event(new MovePassed(

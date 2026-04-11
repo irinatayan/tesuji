@@ -11,6 +11,7 @@ final readonly class Game
 {
     /** @param Move[] $history */
     /** @param Position[] $proposedDeadStones */
+    /** @param Position[] $lastCaptures */
     private function __construct(
         public Board $board,
         public Stone $currentTurn,
@@ -22,6 +23,7 @@ final readonly class Game
         public ?array $proposedDeadStones,
         public ?Stone $proposedBy,
         public ?Score $score,
+        public array $lastCaptures = [],
     ) {}
 
     public static function start(int $boardSize, Ruleset $ruleset): self
@@ -187,6 +189,7 @@ final readonly class Game
             proposedDeadStones: null,
             proposedBy: null,
             score: null,
+            lastCaptures: $result->captured,
         );
     }
 

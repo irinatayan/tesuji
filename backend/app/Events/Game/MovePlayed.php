@@ -25,6 +25,19 @@ final class MovePlayed implements ShouldBroadcast, ShouldQueue
         public readonly string $positionHash,
     ) {}
 
+    public function broadcastWith(): array
+    {
+        return [
+            'game_id' => $this->gameId,
+            'move_number' => $this->moveNumber,
+            'x' => $this->x,
+            'y' => $this->y,
+            'color' => $this->color,
+            'captures' => $this->captures,
+            'position_hash' => $this->positionHash,
+        ];
+    }
+
     public function broadcastOn(): PrivateChannel
     {
         return new PrivateChannel('game.'.$this->gameId);
