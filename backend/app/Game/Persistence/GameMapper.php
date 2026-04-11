@@ -21,7 +21,9 @@ final class GameMapper
     public function restore(GameModel $model): DomainGame
     {
         $ruleset = $this->resolveRuleset($model->ruleset);
-        $lastMove = $model->moves()->reorder()->orderByDesc('move_number')->first();
+        $recentMoves = $model->moves()->reorder()->orderByDesc('move_number')->take(2)->get();
+        $lastMove = $recentMoves->first();
+        $prevMove = $recentMoves->count() > 1 ? $recentMoves->last() : null;
 
         $board = $lastMove !== null
             ? BoardSerializer::deserialize($lastMove->board_state, $model->board_size)
@@ -47,6 +49,10 @@ final class GameMapper
             );
         }
 
+        $koHash = ($lastMove !== null && $lastMove->type === 'play')
+            ? ($prevMove?->position_hash ?? Board::empty($model->board_size)->hash())
+            : null;
+
         return DomainGame::restore(
             board: $board,
             currentTurn: $currentTurn,
@@ -54,7 +60,7 @@ final class GameMapper
             ruleset: $ruleset,
             history: $history,
             consecutivePasses: $this->countTrailingPasses($history),
-            koHash: $lastMove?->position_hash,
+            koHash: $koHash,
             proposedDeadStones: $proposedDeadStones,
             proposedBy: null,
             score: null,
