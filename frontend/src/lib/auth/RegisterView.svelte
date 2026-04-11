@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import { api, ApiError } from '$lib/api';
   import { setToken } from '$lib/stores/auth.svelte';
 
@@ -21,8 +22,8 @@
     } catch (err) {
       error =
         err instanceof ApiError && err.status === 422
-          ? 'Please check the form fields'
-          : 'Registration failed';
+          ? $_('auth.checkFields')
+          : $_('auth.registerFailed');
     } finally {
       loading = false;
     }
@@ -32,8 +33,8 @@
 <div class="auth-card">
   <div class="card-ornament top"></div>
   <div class="stone-icon">⚪</div>
-  <h2>Register</h2>
-  <p class="subtitle">Begin your journey</p>
+  <h2>{$_('auth.register')}</h2>
+  <p class="subtitle">{$_('auth.registerSubtitle')}</p>
 
   {#if error}
     <div class="error-box"><span>⚠</span> {error}</div>
@@ -41,19 +42,19 @@
 
   <form onsubmit={handleSubmit}>
     <div class="field">
-      <label for="name">Name</label>
-      <input id="name" type="text" bind:value={name} required disabled={loading} placeholder="Your name" />
+      <label for="name">{$_('auth.name')}</label>
+      <input id="name" type="text" bind:value={name} required disabled={loading} placeholder={$_('auth.namePlaceholder')} />
     </div>
     <div class="field">
-      <label for="email">Email</label>
-      <input id="email" type="email" bind:value={email} required disabled={loading} placeholder="your@email.com" />
+      <label for="email">{$_('auth.email')}</label>
+      <input id="email" type="email" bind:value={email} required disabled={loading} placeholder={$_('auth.emailPlaceholder')} />
     </div>
     <div class="field">
-      <label for="password">Password</label>
-      <input id="password" type="password" bind:value={password} minlength="8" required disabled={loading} placeholder="At least 8 characters" />
+      <label for="password">{$_('auth.password')}</label>
+      <input id="password" type="password" bind:value={password} minlength="8" required disabled={loading} placeholder={$_('auth.passwordPlaceholder')} />
     </div>
     <button type="submit" class="btn-submit" disabled={loading}>
-      {loading ? 'Creating account…' : 'Register'}
+      {loading ? $_('auth.registering') : $_('auth.register')}
     </button>
   </form>
   <div class="card-ornament bottom"></div>

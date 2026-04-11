@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
 
   type OutgoingInvitation = {
@@ -25,15 +26,15 @@
 
 {#if invitations.length > 0}
   <div class="outgoing">
-    <h3>Waiting for response</h3>
+    <h3>{$_('invitations.outgoing')}</h3>
     {#each invitations as inv (inv.id)}
       <div class="invitation">
         <span>
-          Sent to <strong>{inv.to_user.name}</strong>
+          {$_('invitations.sentTo')} <strong>{inv.to_user.name}</strong>
           — {inv.board_size}×{inv.board_size}
           ({inv.mode})
         </span>
-        <span class="status">pending</span>
+        <span class="status">{$_('invitations.pending')}</span>
       </div>
     {/each}
   </div>

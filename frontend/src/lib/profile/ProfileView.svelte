@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
 
   let { userId, onBack }: { userId: number; onBack: () => void } = $props();
@@ -57,7 +58,7 @@
 
   function playerColor(game: GameEntry): string {
     if (!profile) return '';
-    return game.black_player.id === profile.id ? 'Black' : 'White';
+    return game.black_player.id === profile.id ? $_('profile.colorBlack') : $_('profile.colorWhite');
   }
 
   function won(game: GameEntry): boolean {
@@ -71,34 +72,34 @@
 </script>
 
 <div class="profile">
-  <button class="back" onclick={onBack}>← Back</button>
+  <button class="back" onclick={onBack}>{$_('app.back')}</button>
 
   {#if loading}
-    <p>Loading...</p>
+    <p>{$_('app.loading')}</p>
   {:else if profile}
     <h2>{profile.name}</h2>
     <div class="stats">
-      <div class="stat"><span class="label">Games</span><span>{profile.stats.total}</span></div>
-      <div class="stat"><span class="label">Wins</span><span>{profile.stats.wins}</span></div>
-      <div class="stat"><span class="label">Losses</span><span>{profile.stats.losses}</span></div>
-      <div class="stat"><span class="label">Win rate</span><span>{profile.stats.win_rate}%</span></div>
+      <div class="stat"><span class="label">{$_('profile.games')}</span><span>{profile.stats.total}</span></div>
+      <div class="stat"><span class="label">{$_('profile.wins')}</span><span>{profile.stats.wins}</span></div>
+      <div class="stat"><span class="label">{$_('profile.losses')}</span><span>{profile.stats.losses}</span></div>
+      <div class="stat"><span class="label">{$_('profile.winRate')}</span><span>{profile.stats.win_rate}%</span></div>
     </div>
 
-    <h3>Game history</h3>
+    <h3>{$_('profile.history')}</h3>
 
     {#if gamesLoading}
-      <p>Loading games...</p>
+      <p>{$_('profile.loadingGames')}</p>
     {:else if games.length === 0}
-      <p class="empty">No finished games yet.</p>
+      <p class="empty">{$_('profile.noGames')}</p>
     {:else}
       <table>
         <thead>
           <tr>
-            <th>Opponent</th>
-            <th>Color</th>
-            <th>Board</th>
-            <th>Result</th>
-            <th>Outcome</th>
+            <th>{$_('profile.opponent')}</th>
+            <th>{$_('profile.color')}</th>
+            <th>{$_('profile.board')}</th>
+            <th>{$_('profile.result')}</th>
+            <th>{$_('profile.outcome')}</th>
           </tr>
         </thead>
         <tbody>
@@ -108,7 +109,7 @@
               <td>{playerColor(game)}</td>
               <td>{game.board_size}×{game.board_size}</td>
               <td>{game.result}</td>
-              <td>{won(game) ? 'Win' : 'Loss'}</td>
+              <td>{won(game) ? $_('profile.win') : $_('profile.loss')}</td>
             </tr>
           {/each}
         </tbody>

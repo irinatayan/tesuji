@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { setToken } from '$lib/stores/auth.svelte';
 
   let { onSuccess, onFail }: { onSuccess: () => void; onFail: () => void } = $props();
@@ -17,4 +18,4 @@
   });
 </script>
 
-<p>Авторизация...</p>
+<p>{$_('auth.authorizing')}</p>

@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   const GOOGLE_URL = `${import.meta.env.VITE_API_URL}/api/auth/google`;
 </script>
 
 <div class="auth-card">
   <div class="card-ornament top"></div>
   <div class="stone-icon">⚫⚪</div>
-  <h2>Sign In</h2>
-  <p class="subtitle">Enter the Way of Stones</p>
-  <a href={GOOGLE_URL} class="google-btn">Continue with Google</a>
+  <h2>{$_('auth.signIn')}</h2>
+  <p class="subtitle">{$_('auth.subtitle')}</p>
+  <a href={GOOGLE_URL} class="google-btn">{$_('auth.google')}</a>
   <div class="card-ornament bottom"></div>
 </div>
 

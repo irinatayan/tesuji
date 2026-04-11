@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import { api, type GameResponse } from '$lib/api';
   import { auth } from '$lib/stores/auth.svelte';
   import { onMount } from 'svelte';
@@ -29,18 +30,18 @@
 </script>
 
 <div class="game-list">
-  <h3>Active Games</h3>
+  <h3>{$_('games.active')}</h3>
   {#if loading}
-    <p class="empty">Loading…</p>
+    <p class="empty">{$_('games.loading')}</p>
   {:else if games.length === 0}
-    <p class="empty">No active games</p>
+    <p class="empty">{$_('games.noActive')}</p>
   {:else}
     <ul>
       {#each games as game}
         <li>
           <button onclick={() => onSelect(game.id)}>
             <span class="game-players">
-              {myColor(game)} <span class="vs">vs</span> {opponentName(game)}
+              {myColor(game)} <span class="vs">{$_('games.vs')}</span> {opponentName(game)}
             </span>
             <span class="game-meta">
               {game.board_size}×{game.board_size}

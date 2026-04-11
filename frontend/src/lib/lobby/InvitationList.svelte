@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { api, ApiError } from '$lib/api';
 
   let {
@@ -55,7 +56,7 @@
 
 {#if invitations.length > 0}
   <div class="invitations">
-    <h3>Incoming invitations ({invitations.length})</h3>
+    <h3>{$_('invitations.incoming', { values: { count: invitations.length } })}</h3>
     {#each invitations as inv (inv.id)}
       <div class="invitation">
         <span>
@@ -64,8 +65,8 @@
           ({inv.mode})
         </span>
         <div class="actions">
-          <button onclick={() => accept(inv.id)} class="accept">Accept</button>
-          <button onclick={() => decline(inv.id)} class="decline">Decline</button>
+          <button onclick={() => accept(inv.id)} class="accept">{$_('invitations.accept')}</button>
+          <button onclick={() => decline(inv.id)} class="decline">{$_('invitations.decline')}</button>
         </div>
       </div>
     {/each}

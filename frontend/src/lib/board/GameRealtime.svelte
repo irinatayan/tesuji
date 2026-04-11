@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { _ } from 'svelte-i18n';
   import { api, ApiError, type GameResponse } from '$lib/api';
   import { auth } from '$lib/stores/auth.svelte';
   import { getEcho } from '$lib/echo';
@@ -197,7 +198,7 @@
 </script>
 
 {#if loading}
-  <p>Loading...</p>
+  <p>{$_('app.loading')}</p>
 {:else if error}
   <p class="error">{error}</p>
 {:else if game}
@@ -205,24 +206,24 @@
     <div class="game-header">
       <div class="players">
         <span>⚫ {game.black_player.name}</span>
-        <span class="vs">vs</span>
+        <span class="vs">{$_('games.vs')}</span>
         <span>⚪ {game.white_player.name}</span>
       </div>
-      <button onclick={onLeave} class="leave">← Back</button>
+      <button onclick={onLeave} class="leave">{$_('app.back')}</button>
     </div>
 
     <div class="game-body">
       <div class="status-bar">
         {#if game.status === 'playing'}
           {#if isMyTurn}
-            <strong>Your turn</strong>
+            <strong>{$_('game.yourTurn')}</strong>
           {:else}
-            Opponent's turn…
+            {$_('game.opponentTurn')}
           {/if}
         {:else if game.status === 'scoring'}
-          <strong>Scoring</strong> — mark dead stones
+          <strong>{$_('game.scoring')}</strong> — {$_('game.markDead')}
         {:else if game.status === 'finished'}
-          Game over — <strong>{game.result}</strong>
+          {$_('game.gameOver')} — <strong>{game.result}</strong>
         {/if}
       </div>
 
@@ -245,16 +246,16 @@
 
       {#if game.status === 'playing'}
         <div class="actions">
-          <button onclick={handlePass} disabled={!isMyTurn}>Pass</button>
-          <button onclick={handleResign} class="resign">Resign</button>
+          <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
+          <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
         </div>
       {:else if game.status === 'scoring'}
         <div class="actions">
           <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
-            Mark dead ({selectedDead.length})
+            {$_('game.markDeadCount', { values: { count: selectedDead.length } })}
           </button>
-          <button onclick={handleConfirmDead} class="btn-confirm">Confirm</button>
-          <button onclick={handleDisputeDead} class="resign">Dispute</button>
+          <button onclick={handleConfirmDead} class="btn-confirm">{$_('game.confirm')}</button>
+          <button onclick={handleDisputeDead} class="resign">{$_('game.dispute')}</button>
         </div>
       {/if}
     </div>

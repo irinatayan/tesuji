@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import { api, ApiError } from '$lib/api';
   import UserSearch from './UserSearch.svelte';
 
@@ -26,13 +27,13 @@
         time_control_config: { seconds: 600 },
         proposed_color: color,
       });
-      success = 'Invitation sent!';
+      success = $_('invite.sent');
       onInvited();
     } catch (err) {
       if (err instanceof ApiError) {
         error = (err.body as any)?.message ?? `Error: ${err.status}`;
       } else {
-        error = 'Failed to send invitation';
+        error = $_('invite.sendFailed');
       }
     } finally {
       loading = false;
@@ -41,14 +42,14 @@
 </script>
 
 <div class="create-game">
-  <h3>New Game</h3>
+  <h3>{$_('invite.title')}</h3>
   <form onsubmit={handleSubmit}>
     <label>
-      Opponent
+      {$_('invite.opponent')}
       <UserSearch onSelect={(user) => (opponentId = user.id)} />
     </label>
     <label>
-      Board size
+      {$_('invite.boardSize')}
       <select bind:value={boardSize}>
         <option value={9}>9×9</option>
         <option value={13}>13×13</option>
@@ -56,17 +57,17 @@
       </select>
     </label>
     <label>
-      Color
+      {$_('invite.color')}
       <select bind:value={color}>
-        <option value="black">Black</option>
-        <option value="white">White</option>
-        <option value="random">Random</option>
+        <option value="black">{$_('invite.colorBlack')}</option>
+        <option value="white">{$_('invite.colorWhite')}</option>
+        <option value="random">{$_('invite.colorRandom')}</option>
       </select>
     </label>
     {#if error}<p class="error">{error}</p>{/if}
     {#if success}<p class="success">{success}</p>{/if}
     <button type="submit" disabled={loading}>
-      {loading ? 'Sending...' : 'Send Invitation'}
+      {loading ? $_('invite.sending') : $_('invite.send')}
     </button>
   </form>
 </div>

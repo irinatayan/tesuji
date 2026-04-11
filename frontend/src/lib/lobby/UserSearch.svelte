@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
 
   let { onSelect }: { onSelect: (user: { id: number; name: string }) => void } = $props();
@@ -31,7 +32,7 @@
 <div class="user-search">
   <input
     type="text"
-    placeholder="Search player..."
+    placeholder={$_('invite.searchPlayer')}
     bind:value={query}
     oninput={handleInput}
     autocomplete="off"

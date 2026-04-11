@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { _, locale, isLoading } from 'svelte-i18n';
   import { api, ApiError } from '$lib/api';
   import { auth, clearAuth } from '$lib/stores/auth.svelte';
   import { resetEcho } from '$lib/echo';
@@ -105,19 +106,19 @@
         const invId = e.invitationId;
         addToast({
           type: 'invite',
-          message: `${from} invites you to a ${size}×${size} game`,
+          message: $_('toast.inviteReceived', { values: { name: from, size } }),
           actions: [
-            { label: 'Accept', style: 'primary', handler: () => handleAcceptFromToast(invId) },
-            { label: 'Decline', style: 'danger', handler: () => handleDeclineFromToast(invId) },
+            { label: $_('invitations.accept'), style: 'primary', handler: () => handleAcceptFromToast(invId) },
+            { label: $_('invitations.decline'), style: 'danger', handler: () => handleDeclineFromToast(invId) },
           ],
         });
       })
       .listen('.invitation.accepted', (e: { game_id: number }) => {
         addToast({
           type: 'info',
-          message: 'Your invitation was accepted — game started!',
+          message: $_('toast.inviteAccepted'),
           actions: [
-            { label: 'Open', style: 'primary', handler: () => openGame(e.game_id) },
+            { label: $_('toast.open'), style: 'primary', handler: () => openGame(e.game_id) },
           ],
         });
       });
@@ -131,7 +132,7 @@
 <div class="app">
   <div class="wood-grain"></div>
 
-  {#if view === 'loading'}
+  {#if $isLoading || view === 'loading'}
     <div class="splash"><span class="splash-title">TESUJI</span></div>
 
   {:else if view === 'oauth-callback'}
@@ -141,20 +142,25 @@
     <div class="auth-wrap">
       <div class="board-pattern"></div>
       <div class="auth-brand">
-        <span class="brand-title">TESUJI</span>
-        <span class="brand-sub">The Game of Go</span>
+        <span class="brand-title">{$_('app.title')}</span>
+        <span class="brand-sub">{$_('app.subtitle')}</span>
       </div>
       <LoginView onSuccess={afterLogin} />
     </div>
 
   {:else if view === 'lobby'}
     <header class="site-header">
-      <span class="site-title">TESUJI</span>
+      <span class="site-title">{$_('app.title')}</span>
       <nav>
+        <select class="lang-select" value={$locale} onchange={(e) => { const v = (e.target as HTMLSelectElement).value; locale.set(v); localStorage.setItem('locale', v); }}>
+          <option value="en">EN</option>
+          <option value="uk">UK</option>
+          <option value="ru">RU</option>
+        </select>
         <button class="user-btn" onclick={() => auth.user && openProfile(auth.user.id)}>
           ⚫ {auth.user?.name}
         </button>
-        <button class="btn-outline" onclick={logout}>Sign out</button>
+        <button class="btn-outline" onclick={logout}>{$_('app.signOut')}</button>
       </nav>
     </header>
 
@@ -166,40 +172,40 @@
       <div class="create-section">
         {#if !showCreateForm}
           <button class="btn-primary" onclick={() => (showCreateForm = true)}>
-            + New game
+            {$_('lobby.newGame')}
           </button>
         {:else}
           <CreateGameView onInvited={() => { showCreateForm = false; }} />
-          <button class="btn-ghost" onclick={() => (showCreateForm = false)}>Cancel</button>
+          <button class="btn-ghost" onclick={() => (showCreateForm = false)}>{$_('lobby.cancel')}</button>
         {/if}
       </div>
     </main>
 
   {:else if view === 'game' && activeGameId !== null}
     <header class="site-header">
-      <span class="site-title">TESUJI</span>
+      <span class="site-title">{$_('app.title')}</span>
       <nav>
         {#if invitationStore.incoming.length > 0}
           <button class="badge-btn" onclick={() => (view = 'lobby')}>
             ✉ <span class="badge">{invitationStore.incoming.length}</span>
           </button>
         {/if}
-        <button class="btn-outline" onclick={() => (view = 'lobby')}>← Lobby</button>
+        <button class="btn-outline" onclick={() => (view = 'lobby')}>← {$_('app.lobby')}</button>
       </nav>
     </header>
     <GameRealtime gameId={activeGameId} onLeave={() => (view = 'lobby')} />
 
   {:else if view === 'profile' && profileUserId !== null}
     <header class="site-header">
-      <span class="site-title">TESUJI</span>
+      <span class="site-title">{$_('app.title')}</span>
       <nav>
         {#if invitationStore.incoming.length > 0}
           <button class="badge-btn" onclick={() => (view = 'lobby')}>
             ✉ <span class="badge">{invitationStore.incoming.length}</span>
           </button>
         {/if}
-        <button class="btn-outline" onclick={() => (view = 'lobby')}>← Lobby</button>
-        <button class="btn-outline" onclick={logout}>Sign out</button>
+        <button class="btn-outline" onclick={() => (view = 'lobby')}>← {$_('app.lobby')}</button>
+        <button class="btn-outline" onclick={logout}>{$_('app.signOut')}</button>
       </nav>
     </header>
     <main class="lobby">
@@ -333,6 +339,21 @@
     align-items: center;
     gap: 12px;
   }
+
+  .lang-select {
+    background: rgba(20,13,8,0.6);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 5px 8px;
+    cursor: pointer;
+  }
+  .lang-select:focus { outline: none; border-color: var(--gold); }
+  .lang-select option { background: #2c1810; color: var(--cream); }
 
   .badge-btn {
     position: relative;
