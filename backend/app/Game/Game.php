@@ -72,6 +72,14 @@ final readonly class Game
 
     public function apply(Move $move): self
     {
+        if ($move->type === MoveType::Resign) {
+            if ($this->phase === GamePhase::Finished) {
+                throw IllegalMoveException::gameNotInProgress();
+            }
+
+            return $this->applyResign($move);
+        }
+
         if ($this->phase !== GamePhase::Playing) {
             throw IllegalMoveException::gameNotInProgress();
         }
@@ -86,7 +94,6 @@ final readonly class Game
         return match ($move->type) {
             MoveType::Play => $this->applyPlay($move),
             MoveType::Pass => $this->applyPass($move),
-            MoveType::Resign => $this->applyResign($move),
         };
     }
 

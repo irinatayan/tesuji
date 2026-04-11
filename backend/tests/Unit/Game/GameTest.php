@@ -204,6 +204,33 @@ class GameTest extends TestCase
         $afterCapture->apply(Move::play(Stone::White, new Position(1, 1)));
     }
 
+    public function test_resign_allowed_on_opponents_turn(): void
+    {
+        $game = Game::start(9, $this->rules)
+            ->apply(Move::resign(Stone::White));
+
+        $this->assertSame(GamePhase::Finished, $game->phase);
+    }
+
+    public function test_resign_allowed_during_scoring(): void
+    {
+        $game = Game::start(9, $this->rules)
+            ->apply(Move::pass(Stone::Black))
+            ->apply(Move::pass(Stone::White))
+            ->apply(Move::resign(Stone::Black));
+
+        $this->assertSame(GamePhase::Finished, $game->phase);
+    }
+
+    public function test_resign_not_allowed_after_finished(): void
+    {
+        $game = Game::start(9, $this->rules)
+            ->apply(Move::resign(Stone::Black));
+
+        $this->expectException(IllegalMoveException::class);
+        $game->apply(Move::resign(Stone::White));
+    }
+
     public function test_pass_resets_ko_restriction(): void
     {
         $board = Board::empty(9)
