@@ -33,6 +33,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     method,
     headers: {
       'Content-Type': 'application/json',
+      'Accept-Language': localStorage.getItem('locale') ?? 'en',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
