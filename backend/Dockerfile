@@ -36,12 +36,13 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader --no-script
 # Copy application
 COPY . .
 
-# Run post-install scripts (generates bootstrap/cache/packages.php)
-RUN php artisan package:discover --ansi
+# Ensure writable directories exist, then run post-install scripts
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && php artisan package:discover --ansi
 
 # Permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Configs
 COPY docker/nginx.conf /etc/nginx/nginx.conf
