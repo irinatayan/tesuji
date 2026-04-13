@@ -283,6 +283,7 @@
     flex-direction: column;
     align-items: stretch;
     min-height: 100vh;
+    position: relative;
   }
 
   .game-layout {
@@ -313,7 +314,7 @@
 
   @media (max-width: 719px) {
     .chat-panel {
-      position: fixed;
+      position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
