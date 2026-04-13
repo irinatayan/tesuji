@@ -26,6 +26,7 @@
   let selectedDead = $state<Position[]>([]);
   let lastMove = $state<Position | null>(null);
   let chatCollapsed = $state(window.innerWidth < 720);
+  let chatUnread = $state(0);
 
   const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
@@ -211,7 +212,12 @@
         <span class="vs">{$_('games.vs')}</span>
         <span>⚪ {game.white_player.name}</span>
       </div>
-      <button onclick={onLeave} class="leave">{$_('app.back')}</button>
+      <div class="header-right">
+        <button class="chat-open-btn" onclick={() => (chatCollapsed = false)}>
+          💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
+        </button>
+        <button onclick={onLeave} class="leave">{$_('app.back')}</button>
+      </div>
     </div>
 
     <div class="game-layout">
@@ -263,14 +269,16 @@
         {/if}
       </div>
 
-      <div class="chat-panel">
+      <div class="chat-panel" class:chat-panel--hidden={chatCollapsed}>
         <Chat
           {gameId}
           currentUserId={auth.user?.id ?? 0}
           {channel}
           collapsed={chatCollapsed}
+          noToggleButton={true}
           onUncollapse={() => (chatCollapsed = false)}
           onCollapse={() => (chatCollapsed = true)}
+          onUnreadChange={(n) => (chatUnread = n)}
         />
       </div>
     </div>
@@ -315,11 +323,15 @@
   @media (max-width: 719px) {
     .chat-panel {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
+      inset: 0;
+      z-index: 200;
       padding: 0;
+      width: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-panel--hidden {
+      display: none;
     }
   }
 
@@ -333,6 +345,52 @@
     border-bottom: 2px solid var(--border);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chat-open-btn {
+    display: none;
+    position: relative;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--gold);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .chat-open-btn:hover {
+    background: rgba(139, 90, 43, 0.2);
+    border-color: var(--gold);
+  }
+
+  .chat-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #c0392b;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    line-height: 1.4;
+  }
+
+  @media (max-width: 719px) {
+    .chat-open-btn {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .players {

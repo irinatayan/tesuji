@@ -7,8 +7,10 @@
     currentUserId: number;
     channel: any;
     collapsed?: boolean;
+    noToggleButton?: boolean;
     onUncollapse?: () => void;
     onCollapse?: () => void;
+    onUnreadChange?: (n: number) => void;
   }
 
   let {
@@ -16,8 +18,10 @@
     currentUserId,
     channel,
     collapsed = false,
+    noToggleButton = false,
     onUncollapse,
     onCollapse,
+    onUnreadChange,
   }: Props = $props();
 
   let messages = $state<ChatMessage[]>([]);
@@ -98,6 +102,10 @@
     }
   }
 
+  $effect(() => {
+    onUnreadChange?.(unread);
+  });
+
   function handleExpand() {
     unread = 0;
     onUncollapse?.();
@@ -110,11 +118,11 @@
   }
 </script>
 
-{#if collapsed}
+{#if collapsed && !noToggleButton}
   <button class="chat-toggle" onclick={handleExpand}>
     💬 Chat{#if unread > 0}<span class="badge">{unread}</span>{/if}
   </button>
-{:else}
+{:else if !collapsed}
   <div class="chat">
     <div class="chat-header">
       <span>💬 Chat</span>
@@ -226,17 +234,10 @@
   }
 
   @media (max-width: 719px) {
-    .chat-toggle {
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-      border-bottom: none;
-    }
-
     .chat {
-      height: 55vh;
-      border-radius: 12px 12px 0 0;
-      border-bottom: none;
+      height: 100%;
+      border-radius: 0;
+      border: none;
       background: rgba(14, 9, 5, 0.97);
       backdrop-filter: blur(8px);
     }
