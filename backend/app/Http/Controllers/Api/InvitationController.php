@@ -112,7 +112,7 @@ class InvitationController extends Controller
             }
         }
 
-        $game = DB::transaction(function () use ($invitation, $request): Game {
+        $game = DB::transaction(function () use ($invitation): Game {
             $color = $invitation->proposed_color === 'random'
                 ? (rand(0, 1) === 0 ? 'black' : 'white')
                 : $invitation->proposed_color;

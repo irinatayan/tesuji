@@ -13,6 +13,7 @@ use App\Game\Game as DomainGame;
 use App\Game\Move as DomainMove;
 use App\Game\MoveType;
 use App\Game\Persistence\GameMapper;
+use App\Game\Position;
 use App\Mail\GameFinishedMail;
 use App\Mail\YourTurnMail;
 use App\Models\Game;
@@ -60,7 +61,7 @@ final class GameService
         $lastMove = $model->moves()->latest('move_number')->first();
 
         $captures = array_map(
-            fn (\App\Game\Position $p) => ['x' => $p->x, 'y' => $p->y],
+            fn (Position $p) => ['x' => $p->x, 'y' => $p->y],
             $domainGame->lastCaptures
         );
 
