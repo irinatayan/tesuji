@@ -109,4 +109,21 @@ export const api = {
 
   disputeDead: (id: number) =>
     request<{ data: GameResponse }>('POST', `/games/${id}/dead-stones/dispute`),
+
+  getMessages: (gameId: number, after?: number) =>
+    request<{ data: ChatMessage[] }>(
+      'GET',
+      `/games/${gameId}/messages${after !== undefined ? `?after=${after}` : ''}`,
+    ),
+
+  sendMessage: (gameId: number, text: string) =>
+    request<{ data: ChatMessage }>('POST', `/games/${gameId}/messages`, { text }),
 };
+
+export interface ChatMessage {
+  id: number;
+  user_id: number;
+  user_name: string;
+  text: string;
+  created_at: string;
+}

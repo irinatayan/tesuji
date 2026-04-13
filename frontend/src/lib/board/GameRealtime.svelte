@@ -9,6 +9,7 @@
   import { isLegal } from '$lib/game/legality';
   import type { Position, Stone } from '$lib/game/types';
   import GoBoard from './GoBoard.svelte';
+  import Chat from './Chat.svelte';
 
   interface DeadStonesMarked {
     by: Stone;
@@ -24,6 +25,7 @@
   let moveError = $state('');
   let selectedDead = $state<Position[]>([]);
   let lastMove = $state<Position | null>(null);
+  let chatCollapsed = $state(window.innerWidth < 720);
 
   const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
@@ -212,52 +214,64 @@
       <button onclick={onLeave} class="leave">{$_('app.back')}</button>
     </div>
 
-    <div class="game-body">
-      <div class="status-bar">
-        {#if game.status === 'playing'}
-          {#if isMyTurn}
-            <strong>{$_('game.yourTurn')}</strong>
-          {:else}
-            {$_('game.opponentTurn')}
+    <div class="game-layout">
+      <div class="game-body">
+        <div class="status-bar">
+          {#if game.status === 'playing'}
+            {#if isMyTurn}
+              <strong>{$_('game.yourTurn')}</strong>
+            {:else}
+              {$_('game.opponentTurn')}
+            {/if}
+          {:else if game.status === 'scoring'}
+            <strong>{$_('game.scoring')}</strong> — {$_('game.markDead')}
+          {:else if game.status === 'finished'}
+            {$_('game.gameOver')} — <strong>{game.result}</strong>
           {/if}
+        </div>
+
+        {#if moveError}
+          <p class="error">{moveError}</p>
+        {/if}
+
+        <GoBoard
+          {board}
+          size={game.board_size}
+          currentTurn={myColor ?? 'black'}
+          onmove={game.status === 'playing' && isMyTurn
+            ? handleMove
+            : game.status === 'scoring'
+              ? handleToggleDead
+              : undefined}
+          deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
+          {lastMove}
+        />
+
+        {#if game.status === 'playing'}
+          <div class="actions">
+            <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
+            <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
+          </div>
         {:else if game.status === 'scoring'}
-          <strong>{$_('game.scoring')}</strong> — {$_('game.markDead')}
-        {:else if game.status === 'finished'}
-          {$_('game.gameOver')} — <strong>{game.result}</strong>
+          <div class="actions">
+            <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
+              {$_('game.markDeadCount', { values: { count: selectedDead.length } })}
+            </button>
+            <button onclick={handleConfirmDead} class="btn-confirm">{$_('game.confirm')}</button>
+            <button onclick={handleDisputeDead} class="resign">{$_('game.dispute')}</button>
+          </div>
         {/if}
       </div>
 
-      {#if moveError}
-        <p class="error">{moveError}</p>
-      {/if}
-
-      <GoBoard
-        {board}
-        size={game.board_size}
-        currentTurn={myColor ?? 'black'}
-        onmove={game.status === 'playing' && isMyTurn
-          ? handleMove
-          : game.status === 'scoring'
-            ? handleToggleDead
-            : undefined}
-        deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
-        {lastMove}
-      />
-
-      {#if game.status === 'playing'}
-        <div class="actions">
-          <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
-          <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
-        </div>
-      {:else if game.status === 'scoring'}
-        <div class="actions">
-          <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
-            {$_('game.markDeadCount', { values: { count: selectedDead.length } })}
-          </button>
-          <button onclick={handleConfirmDead} class="btn-confirm">{$_('game.confirm')}</button>
-          <button onclick={handleDisputeDead} class="resign">{$_('game.dispute')}</button>
-        </div>
-      {/if}
+      <div class="chat-panel">
+        <Chat
+          {gameId}
+          currentUserId={auth.user?.id ?? 0}
+          {channel}
+          collapsed={chatCollapsed}
+          onUncollapse={() => (chatCollapsed = false)}
+        />
+      </div>
     </div>
   </div>
 {/if}
@@ -268,7 +282,43 @@
     flex-direction: column;
     align-items: stretch;
     min-height: 100vh;
-    padding-bottom: 32px;
+  }
+
+  .game-layout {
+    display: flex;
+    flex: 1;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  .game-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 8px 32px;
+    min-width: 0;
+  }
+
+  .chat-panel {
+    width: 280px;
+    flex-shrink: 0;
+    padding: 16px 16px 16px 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 719px) {
+    .game-layout {
+      flex-direction: column;
+    }
+    .chat-panel {
+      width: 100%;
+      padding: 0 16px 24px;
+      align-self: auto;
+    }
   }
 
   .game-header {
@@ -315,16 +365,6 @@
   .leave:hover {
     background: rgba(139, 90, 43, 0.2);
     border-color: var(--gold);
-  }
-
-  .game-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    padding: 24px 8px 0;
-    width: 100%;
-    box-sizing: border-box;
   }
 
   .status-bar {
