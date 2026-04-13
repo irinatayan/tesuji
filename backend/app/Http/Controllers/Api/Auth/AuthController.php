@@ -66,7 +66,7 @@ class AuthController extends Controller
         $user = $this->findOrCreateUser($googleUser);
         $token = $user->createToken('google-oauth')->plainTextToken;
 
-        return redirect(env('FRONTEND_URL').'/auth/callback?token='.$token);
+        return redirect(config('app.frontend_url').'/auth/callback?token='.$token);
     }
 
     private function findOrCreateUser(SocialiteUser $googleUser): User
