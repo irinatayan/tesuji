@@ -78,7 +78,7 @@
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 20px 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   }
   h3 {
     margin: 0 0 16px;
@@ -124,7 +124,7 @@
     background: #2c1810;
     color: var(--cream);
   }
-  button[type="submit"] {
+  button[type='submit'] {
     padding: 12px;
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
     color: var(--bg-dark);
@@ -139,11 +139,14 @@
     transition: all 0.2s;
     margin-top: 4px;
   }
-  button[type="submit"]:hover:not(:disabled) {
+  button[type='submit']:hover:not(:disabled) {
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
     transform: translateY(-1px);
   }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   .error {
     color: #ffcccc;
     font-size: 13px;

@@ -46,7 +46,7 @@
     border: 2px solid var(--border-dim);
     border-radius: 8px;
     padding: 20px 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   }
   h3 {
     margin: 0 0 16px;
@@ -64,11 +64,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 0;
-    border-top: 1px solid rgba(139,90,43,0.15);
+    border-top: 1px solid rgba(139, 90, 43, 0.15);
     font-size: 14px;
     color: var(--cream);
   }
-  .invitation strong { color: var(--gold); }
+  .invitation strong {
+    color: var(--gold);
+  }
   .status {
     font-size: 12px;
     color: var(--muted);

@@ -51,14 +51,14 @@
 
   function opponent(game: GameEntry): string {
     if (!profile) return '';
-    return game.black_player.id === profile.id
-      ? game.white_player.name
-      : game.black_player.name;
+    return game.black_player.id === profile.id ? game.white_player.name : game.black_player.name;
   }
 
   function playerColor(game: GameEntry): string {
     if (!profile) return '';
-    return game.black_player.id === profile.id ? $_('profile.colorBlack') : $_('profile.colorWhite');
+    return game.black_player.id === profile.id
+      ? $_('profile.colorBlack')
+      : $_('profile.colorWhite');
   }
 
   function won(game: GameEntry): boolean {
@@ -79,10 +79,18 @@
   {:else if profile}
     <h2>{profile.name}</h2>
     <div class="stats">
-      <div class="stat"><span class="label">{$_('profile.games')}</span><span>{profile.stats.total}</span></div>
-      <div class="stat"><span class="label">{$_('profile.wins')}</span><span>{profile.stats.wins}</span></div>
-      <div class="stat"><span class="label">{$_('profile.losses')}</span><span>{profile.stats.losses}</span></div>
-      <div class="stat"><span class="label">{$_('profile.winRate')}</span><span>{profile.stats.win_rate}%</span></div>
+      <div class="stat">
+        <span class="label">{$_('profile.games')}</span><span>{profile.stats.total}</span>
+      </div>
+      <div class="stat">
+        <span class="label">{$_('profile.wins')}</span><span>{profile.stats.wins}</span>
+      </div>
+      <div class="stat">
+        <span class="label">{$_('profile.losses')}</span><span>{profile.stats.losses}</span>
+      </div>
+      <div class="stat">
+        <span class="label">{$_('profile.winRate')}</span><span>{profile.stats.win_rate}%</span>
+      </div>
     </div>
 
     <h3>{$_('profile.history')}</h3>
@@ -119,7 +127,9 @@
         <div class="pagination">
           <button disabled={currentPage === 1} onclick={() => loadGames(currentPage - 1)}>‹</button>
           <span>{currentPage} / {lastPage}</span>
-          <button disabled={currentPage === lastPage} onclick={() => loadGames(currentPage + 1)}>›</button>
+          <button disabled={currentPage === lastPage} onclick={() => loadGames(currentPage + 1)}
+            >›</button
+          >
         </div>
       {/if}
     {/if}

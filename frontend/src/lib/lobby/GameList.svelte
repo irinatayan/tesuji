@@ -41,7 +41,8 @@
         <li>
           <button onclick={() => onSelect(game.id)}>
             <span class="game-players">
-              {myColor(game)} <span class="vs">{$_('games.vs')}</span> {opponentName(game)}
+              {myColor(game)} <span class="vs">{$_('games.vs')}</span>
+              {opponentName(game)}
             </span>
             <span class="game-meta">
               {game.board_size}×{game.board_size}
@@ -61,7 +62,7 @@
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 20px 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   }
   h3 {
     margin: 0 0 16px;
@@ -94,7 +95,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    background: rgba(20,13,8,0.5);
+    background: rgba(20, 13, 8, 0.5);
     border: 1px solid var(--border-dim);
     border-radius: 6px;
     cursor: pointer;
@@ -104,7 +105,7 @@
     transition: all 0.2s;
   }
   li button:hover {
-    background: rgba(139,90,43,0.15);
+    background: rgba(139, 90, 43, 0.15);
     border-color: var(--border);
     color: var(--gold-light);
   }
@@ -121,8 +122,16 @@
     color: var(--muted);
     font-size: 13px;
   }
-  .status { font-weight: 600; }
-  .status.playing { color: var(--gold); }
-  .status.scoring { color: #90c0a0; }
-  .status.finished { color: var(--subtle); }
+  .status {
+    font-weight: 600;
+  }
+  .status.playing {
+    color: var(--gold);
+  }
+  .status.scoring {
+    color: #90c0a0;
+  }
+  .status.finished {
+    color: var(--subtle);
+  }
 </style>

@@ -14,7 +14,11 @@
   import GameRealtime from '$lib/board/GameRealtime.svelte';
   import ToastContainer from '$lib/notifications/ToastContainer.svelte';
   import { addToast } from '$lib/notifications/toasts.svelte';
-  import { invitationStore, loadIncoming, removeIncoming } from '$lib/notifications/invitations.svelte';
+  import {
+    invitationStore,
+    loadIncoming,
+    removeIncoming,
+  } from '$lib/notifications/invitations.svelte';
   import { getEcho } from '$lib/echo';
 
   type View = 'loading' | 'oauth-callback' | 'auth' | 'lobby' | 'game' | 'profile';
@@ -74,7 +78,7 @@
       invitationRefresh++;
       openGame(res.game_id);
     } catch (err) {
-      const msg = err instanceof ApiError ? (err.body as any)?.message ?? 'Error' : 'Error';
+      const msg = err instanceof ApiError ? ((err.body as any)?.message ?? 'Error') : 'Error';
       addToast({ type: 'info', message: msg });
     }
   }
@@ -108,8 +112,16 @@
           type: 'invite',
           message: $_('toast.inviteReceived', { values: { name: from, size } }),
           actions: [
-            { label: $_('invitations.accept'), style: 'primary', handler: () => handleAcceptFromToast(invId) },
-            { label: $_('invitations.decline'), style: 'danger', handler: () => handleDeclineFromToast(invId) },
+            {
+              label: $_('invitations.accept'),
+              style: 'primary',
+              handler: () => handleAcceptFromToast(invId),
+            },
+            {
+              label: $_('invitations.decline'),
+              style: 'danger',
+              handler: () => handleDeclineFromToast(invId),
+            },
           ],
         });
       })
@@ -134,10 +146,8 @@
 
   {#if $isLoading || view === 'loading'}
     <div class="splash"><span class="splash-title">TESUJI</span></div>
-
   {:else if view === 'oauth-callback'}
     <OAuthCallback onSuccess={afterLogin} onFail={() => (view = 'auth')} />
-
   {:else if view === 'auth'}
     <div class="auth-wrap">
       <div class="board-pattern"></div>
@@ -147,12 +157,19 @@
       </div>
       <LoginView onSuccess={afterLogin} />
     </div>
-
   {:else if view === 'lobby'}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
       <nav>
-        <select class="lang-select" value={$locale} onchange={(e) => { const v = (e.target as HTMLSelectElement).value; locale.set(v); localStorage.setItem('locale', v); }}>
+        <select
+          class="lang-select"
+          value={$locale}
+          onchange={(e) => {
+            const v = (e.target as HTMLSelectElement).value;
+            locale.set(v);
+            localStorage.setItem('locale', v);
+          }}
+        >
           <option value="en">EN</option>
           <option value="uk">UK</option>
           <option value="ru">RU</option>
@@ -175,12 +192,17 @@
             {$_('lobby.newGame')}
           </button>
         {:else}
-          <CreateGameView onInvited={() => { showCreateForm = false; }} />
-          <button class="btn-ghost" onclick={() => (showCreateForm = false)}>{$_('lobby.cancel')}</button>
+          <CreateGameView
+            onInvited={() => {
+              showCreateForm = false;
+            }}
+          />
+          <button class="btn-ghost" onclick={() => (showCreateForm = false)}
+            >{$_('lobby.cancel')}</button
+          >
         {/if}
       </div>
     </main>
-
   {:else if view === 'game' && activeGameId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
@@ -194,7 +216,6 @@
       </nav>
     </header>
     <GameRealtime gameId={activeGameId} onLeave={() => (view = 'lobby')} />
-
   {:else if view === 'profile' && profileUserId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
@@ -264,8 +285,20 @@
     width: 600px;
     height: 600px;
     background:
-      linear-gradient(0deg, transparent 49%, rgba(139, 90, 43, 0.08) 49%, rgba(139, 90, 43, 0.08) 51%, transparent 51%),
-      linear-gradient(90deg, transparent 49%, rgba(139, 90, 43, 0.08) 49%, rgba(139, 90, 43, 0.08) 51%, transparent 51%);
+      linear-gradient(
+        0deg,
+        transparent 49%,
+        rgba(139, 90, 43, 0.08) 49%,
+        rgba(139, 90, 43, 0.08) 51%,
+        transparent 51%
+      ),
+      linear-gradient(
+        90deg,
+        transparent 49%,
+        rgba(139, 90, 43, 0.08) 49%,
+        rgba(139, 90, 43, 0.08) 51%,
+        transparent 51%
+      );
     background-size: 55px 55px;
     pointer-events: none;
     z-index: 0;
@@ -285,7 +318,7 @@
     font-weight: 700;
     color: var(--gold);
     letter-spacing: 10px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
   }
 
   .brand-sub {
@@ -309,7 +342,7 @@
     font-weight: 700;
     color: var(--gold);
     letter-spacing: 12px;
-    text-shadow: 2px 2px 12px rgba(0,0,0,0.9);
+    text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.9);
   }
 
   /* ── Site header ─────────────────────────────── */
@@ -320,9 +353,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 32px;
-    background: linear-gradient(180deg, rgba(20,12,8,0.95) 0%, rgba(30,18,10,0.9) 100%);
+    background: linear-gradient(180deg, rgba(20, 12, 8, 0.95) 0%, rgba(30, 18, 10, 0.9) 100%);
     border-bottom: 2px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
   .site-title {
@@ -331,7 +364,7 @@
     font-weight: 700;
     color: var(--gold);
     letter-spacing: 6px;
-    text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
   }
 
   nav {
@@ -341,7 +374,7 @@
   }
 
   .lang-select {
-    background: rgba(20,13,8,0.6);
+    background: rgba(20, 13, 8, 0.6);
     border: 1px solid var(--border-dim);
     border-radius: 4px;
     color: var(--gold);
@@ -352,8 +385,14 @@
     padding: 5px 8px;
     cursor: pointer;
   }
-  .lang-select:focus { outline: none; border-color: var(--gold); }
-  .lang-select option { background: #2c1810; color: var(--cream); }
+  .lang-select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .lang-select option {
+    background: #2c1810;
+    color: var(--cream);
+  }
 
   .badge-btn {
     position: relative;
@@ -446,13 +485,13 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     align-self: flex-start;
   }
   .btn-primary:hover {
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(212,165,116,0.3);
+    box-shadow: 0 6px 16px rgba(212, 165, 116, 0.3);
   }
 
   .btn-ghost {

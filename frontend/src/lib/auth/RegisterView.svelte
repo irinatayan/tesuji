@@ -43,15 +43,37 @@
   <form onsubmit={handleSubmit}>
     <div class="field">
       <label for="name">{$_('auth.name')}</label>
-      <input id="name" type="text" bind:value={name} required disabled={loading} placeholder={$_('auth.namePlaceholder')} />
+      <input
+        id="name"
+        type="text"
+        bind:value={name}
+        required
+        disabled={loading}
+        placeholder={$_('auth.namePlaceholder')}
+      />
     </div>
     <div class="field">
       <label for="email">{$_('auth.email')}</label>
-      <input id="email" type="email" bind:value={email} required disabled={loading} placeholder={$_('auth.emailPlaceholder')} />
+      <input
+        id="email"
+        type="email"
+        bind:value={email}
+        required
+        disabled={loading}
+        placeholder={$_('auth.emailPlaceholder')}
+      />
     </div>
     <div class="field">
       <label for="password">{$_('auth.password')}</label>
-      <input id="password" type="password" bind:value={password} minlength="8" required disabled={loading} placeholder={$_('auth.passwordPlaceholder')} />
+      <input
+        id="password"
+        type="password"
+        bind:value={password}
+        minlength="8"
+        required
+        disabled={loading}
+        placeholder={$_('auth.passwordPlaceholder')}
+      />
     </div>
     <button type="submit" class="btn-submit" disabled={loading}>
       {loading ? $_('auth.registering') : $_('auth.register')}
@@ -70,7 +92,9 @@
     padding: 48px 52px;
     width: 100%;
     max-width: 420px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(212,165,116,0.2);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(212, 165, 116, 0.2);
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -84,12 +108,16 @@
     height: 2px;
     background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
   }
-  .card-ornament.top  { top: 16px; }
-  .card-ornament.bottom { bottom: 16px; }
+  .card-ornament.top {
+    top: 16px;
+  }
+  .card-ornament.bottom {
+    bottom: 16px;
+  }
   .stone-icon {
     font-size: 48px;
     text-align: center;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
     margin-bottom: 12px;
   }
   h2 {
@@ -109,8 +137,8 @@
     letter-spacing: 1px;
   }
   .error-box {
-    background: rgba(139,0,0,0.25);
-    border: 1px solid rgba(200,100,100,0.5);
+    background: rgba(139, 0, 0, 0.25);
+    border: 1px solid rgba(200, 100, 100, 0.5);
     border-radius: 6px;
     color: #ffcccc;
     padding: 12px 16px;
@@ -120,9 +148,22 @@
     gap: 8px;
     align-items: center;
   }
-  form { display: flex; flex-direction: column; gap: 16px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  label { color: var(--gold); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  label {
+    color: var(--gold);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
   input {
     width: 100%;
     padding: 12px 16px;
@@ -133,11 +174,22 @@
     font-family: var(--font-serif);
     font-size: 15px;
     box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
-  input::placeholder { color: var(--subtle); }
-  input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,165,116,0.1); }
-  input:disabled { opacity: 0.5; cursor: not-allowed; }
+  input::placeholder {
+    color: var(--subtle);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+  }
+  input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   .btn-submit {
     width: 100%;
     padding: 14px;
@@ -153,11 +205,14 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
   .btn-submit:hover:not(:disabled) {
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
     transform: translateY(-1px);
   }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 </style>

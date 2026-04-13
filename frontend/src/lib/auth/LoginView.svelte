@@ -22,7 +22,9 @@
     padding: 48px 52px;
     width: 100%;
     max-width: 380px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7), inset 0 1px 0 rgba(212,165,116,0.2);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(212, 165, 116, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,13 +39,17 @@
     height: 2px;
     background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
   }
-  .card-ornament.top  { top: 16px; }
-  .card-ornament.bottom { bottom: 16px; }
+  .card-ornament.top {
+    top: 16px;
+  }
+  .card-ornament.bottom {
+    bottom: 16px;
+  }
   .stone-icon {
     font-size: 44px;
     letter-spacing: -4px;
     margin-bottom: 16px;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
   }
   h2 {
     margin: 0 0 6px;
@@ -78,11 +84,11 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     transition: all 0.2s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
   .google-btn:hover {
     background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(212,165,116,0.3);
+    box-shadow: 0 6px 16px rgba(212, 165, 116, 0.3);
   }
 </style>

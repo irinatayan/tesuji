@@ -5,7 +5,11 @@
 {#if toasts.items.length > 0}
   <div class="toast-container">
     {#each toasts.items as toast (toast.id)}
-      <div class="toast" class:toast-info={toast.type === 'info'} class:toast-invite={toast.type === 'invite'}>
+      <div
+        class="toast"
+        class:toast-info={toast.type === 'info'}
+        class:toast-invite={toast.type === 'invite'}
+      >
         <div class="toast-body">
           <p class="toast-msg">{toast.message}</p>
           {#if toast.actions}
@@ -15,8 +19,11 @@
                   class="toast-btn"
                   class:toast-btn-primary={action.style === 'primary'}
                   class:toast-btn-danger={action.style === 'danger'}
-                  onclick={() => { action.handler(); dismissToast(toast.id); }}
-                >{action.label}</button>
+                  onclick={() => {
+                    action.handler();
+                    dismissToast(toast.id);
+                  }}>{action.label}</button
+                >
               {/each}
             </div>
           {/if}
@@ -47,7 +54,7 @@
     background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card2) 100%);
     border: 2px solid var(--border);
     border-radius: 8px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
     animation: slideIn 0.3s ease-out;
   }
 
@@ -98,11 +105,11 @@
   .toast-btn-danger {
     background: transparent;
     color: #e07070;
-    border: 1px solid rgba(200,100,100,0.4);
+    border: 1px solid rgba(200, 100, 100, 0.4);
   }
   .toast-btn-danger:hover {
     border-color: #e07070;
-    background: rgba(200,100,100,0.1);
+    background: rgba(200, 100, 100, 0.1);
   }
 
   .toast-close {
@@ -120,7 +127,13 @@
   }
 
   @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 </style>

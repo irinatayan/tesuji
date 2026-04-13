@@ -34,7 +34,7 @@
       invitations = invitations.filter((i) => i.id !== id);
       onAccepted(res.game_id);
     } catch (err) {
-      alert(err instanceof ApiError ? err.body?.message ?? 'Error' : 'Error');
+      alert(err instanceof ApiError ? (err.body?.message ?? 'Error') : 'Error');
     }
   }
 
@@ -43,7 +43,7 @@
       await api.declineInvitation(id);
       invitations = invitations.filter((i) => i.id !== id);
     } catch (err) {
-      alert(err instanceof ApiError ? err.body?.message ?? 'Error' : 'Error');
+      alert(err instanceof ApiError ? (err.body?.message ?? 'Error') : 'Error');
     }
   }
 
@@ -66,7 +66,9 @@
         </span>
         <div class="actions">
           <button onclick={() => accept(inv.id)} class="accept">{$_('invitations.accept')}</button>
-          <button onclick={() => decline(inv.id)} class="decline">{$_('invitations.decline')}</button>
+          <button onclick={() => decline(inv.id)} class="decline"
+            >{$_('invitations.decline')}</button
+          >
         </div>
       </div>
     {/each}
@@ -79,7 +81,7 @@
     border: 2px solid var(--border);
     border-radius: 8px;
     padding: 20px 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   }
   h3 {
     margin: 0 0 16px;
@@ -97,12 +99,17 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 0;
-    border-top: 1px solid rgba(139,90,43,0.2);
+    border-top: 1px solid rgba(139, 90, 43, 0.2);
     font-size: 14px;
     color: var(--cream);
   }
-  .invitation strong { color: var(--gold); }
-  .actions { display: flex; gap: 8px; }
+  .invitation strong {
+    color: var(--gold);
+  }
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
   .accept {
     padding: 6px 16px;
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
@@ -117,17 +124,22 @@
     text-transform: uppercase;
     transition: all 0.2s;
   }
-  .accept:hover { background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%); }
+  .accept:hover {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  }
   .decline {
     padding: 6px 16px;
     background: transparent;
     color: #e07070;
-    border: 1px solid rgba(200,100,100,0.4);
+    border: 1px solid rgba(200, 100, 100, 0.4);
     border-radius: 4px;
     cursor: pointer;
     font-family: var(--font-serif);
     font-size: 12px;
     transition: all 0.2s;
   }
-  .decline:hover { border-color: #e07070; background: rgba(200,100,100,0.1); }
+  .decline:hover {
+    border-color: #e07070;
+    background: rgba(200, 100, 100, 0.1);
+  }
 </style>

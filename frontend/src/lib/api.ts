@@ -61,8 +61,7 @@ export const api = {
 
   getUserProfile: (id: number) => request<any>('GET', `/users/${id}`),
 
-  getUserGames: (id: number, page = 1) =>
-    request<any>('GET', `/users/${id}/games?page=${page}`),
+  getUserGames: (id: number, page = 1) => request<any>('GET', `/users/${id}/games?page=${page}`),
 
   getInvitations: () => request<any[]>('GET', '/invitations/incoming'),
 
@@ -77,7 +76,8 @@ export const api = {
     proposed_color: string;
   }) => request<any>('POST', '/invitations', params),
 
-  acceptInvitation: (id: number) => request<{ game_id: number }>('POST', `/invitations/${id}/accept`),
+  acceptInvitation: (id: number) =>
+    request<{ game_id: number }>('POST', `/invitations/${id}/accept`),
 
   declineInvitation: (id: number) => request<void>('POST', `/invitations/${id}/decline`),
 

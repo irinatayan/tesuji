@@ -1,22 +1,22 @@
 :root {
-  --bg-deep:    #1a0f08;
-  --bg-dark:    #2c1810;
-  --bg-card:    rgba(40, 28, 20, 0.98);
-  --bg-card2:   rgba(50, 35, 25, 0.98);
-  --bg-input:   rgba(20, 15, 10, 0.7);
+  --bg-deep: #1a0f08;
+  --bg-dark: #2c1810;
+  --bg-card: rgba(40, 28, 20, 0.98);
+  --bg-card2: rgba(50, 35, 25, 0.98);
+  --bg-input: rgba(20, 15, 10, 0.7);
 
-  --gold:       #d4a574;
+  --gold: #d4a574;
   --gold-light: #e8c89c;
-  --gold-dark:  #b8936a;
-  --cream:      #f5e6d3;
-  --muted:      #a68a64;
-  --subtle:     #8b7355;
+  --gold-dark: #b8936a;
+  --cream: #f5e6d3;
+  --muted: #a68a64;
+  --subtle: #8b7355;
 
-  --border:     #8b5a2b;
+  --border: #8b5a2b;
   --border-dim: #654321;
 
   --font-display: 'Cinzel', serif;
-  --font-serif:   'Noto Serif', serif;
+  --font-serif: 'Noto Serif', serif;
 
   font-family: var(--font-serif);
   font-size: 16px;

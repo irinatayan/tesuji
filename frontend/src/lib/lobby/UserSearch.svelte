@@ -49,7 +49,9 @@
 </div>
 
 <style>
-  .user-search { position: relative; }
+  .user-search {
+    position: relative;
+  }
   input {
     width: 100%;
     padding: 10px 14px;
@@ -62,8 +64,13 @@
     box-sizing: border-box;
     transition: border-color 0.2s;
   }
-  input::placeholder { color: var(--subtle); }
-  input:focus { outline: none; border-color: var(--gold); }
+  input::placeholder {
+    color: var(--subtle);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
   .results {
     position: absolute;
     top: calc(100% + 2px);
@@ -78,7 +85,7 @@
     z-index: 20;
     max-height: 200px;
     overflow-y: auto;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   }
   .results li button {
     width: 100%;
@@ -86,13 +93,18 @@
     padding: 10px 14px;
     background: none;
     border: none;
-    border-bottom: 1px solid rgba(139,90,43,0.2);
+    border-bottom: 1px solid rgba(139, 90, 43, 0.2);
     cursor: pointer;
     font-family: var(--font-serif);
     font-size: 14px;
     color: var(--cream);
     transition: background 0.15s;
   }
-  .results li:last-child button { border-bottom: none; }
-  .results li button:hover { background: rgba(139,90,43,0.2); color: var(--gold-light); }
+  .results li:last-child button {
+    border-bottom: none;
+  }
+  .results li button:hover {
+    background: rgba(139, 90, 43, 0.2);
+    color: var(--gold-light);
+  }
 </style>

@@ -56,16 +56,12 @@ describe('Board', () => {
     });
 
     it('does not include diagonally adjacent stones', () => {
-      const board = Board.empty(9)
-        .set({ x: 3, y: 3 }, 'black')
-        .set({ x: 4, y: 4 }, 'black');
+      const board = Board.empty(9).set({ x: 3, y: 3 }, 'black').set({ x: 4, y: 4 }, 'black');
       expect(board.group({ x: 3, y: 3 })).toHaveLength(1);
     });
 
     it('does not include stones of other color', () => {
-      const board = Board.empty(9)
-        .set({ x: 3, y: 3 }, 'black')
-        .set({ x: 3, y: 4 }, 'white');
+      const board = Board.empty(9).set({ x: 3, y: 3 }, 'black').set({ x: 3, y: 4 }, 'white');
       expect(board.group({ x: 3, y: 3 })).toHaveLength(1);
     });
   });

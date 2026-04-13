@@ -277,9 +277,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 32px;
-    background: linear-gradient(180deg, rgba(20,12,8,0.95) 0%, rgba(30,18,10,0.9) 100%);
+    background: linear-gradient(180deg, rgba(20, 12, 8, 0.95) 0%, rgba(30, 18, 10, 0.9) 100%);
     border-bottom: 2px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
   }
 
@@ -313,7 +313,7 @@
     transition: all 0.2s;
   }
   .leave:hover {
-    background: rgba(139,90,43,0.2);
+    background: rgba(139, 90, 43, 0.2);
     border-color: var(--gold);
   }
 
@@ -362,9 +362,12 @@
   .actions button:hover:not(:disabled) {
     border-color: var(--gold);
     color: var(--gold);
-    background: rgba(139,90,43,0.1);
+    background: rgba(139, 90, 43, 0.1);
   }
-  .actions button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .actions button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
 
   .actions button.btn-confirm {
     background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
@@ -379,11 +382,11 @@
 
   .resign {
     color: #e07070 !important;
-    border-color: rgba(200,100,100,0.4) !important;
+    border-color: rgba(200, 100, 100, 0.4) !important;
   }
   .resign:hover {
     border-color: #e07070 !important;
-    background: rgba(200,100,100,0.1) !important;
+    background: rgba(200, 100, 100, 0.1) !important;
     color: #e07070 !important;
   }
 
