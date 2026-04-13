@@ -270,6 +270,7 @@
           {channel}
           collapsed={chatCollapsed}
           onUncollapse={() => (chatCollapsed = false)}
+          onCollapse={() => (chatCollapsed = true)}
         />
       </div>
     </div>
@@ -311,13 +312,13 @@
   }
 
   @media (max-width: 719px) {
-    .game-layout {
-      flex-direction: column;
-    }
     .chat-panel {
-      width: 100%;
-      padding: 0 16px 24px;
-      align-self: auto;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding: 0;
     }
   }
 

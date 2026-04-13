@@ -8,9 +8,17 @@
     channel: any;
     collapsed?: boolean;
     onUncollapse?: () => void;
+    onCollapse?: () => void;
   }
 
-  let { gameId, currentUserId, channel, collapsed = false, onUncollapse }: Props = $props();
+  let {
+    gameId,
+    currentUserId,
+    channel,
+    collapsed = false,
+    onUncollapse,
+    onCollapse,
+  }: Props = $props();
 
   let messages = $state<ChatMessage[]>([]);
   let text = $state('');
@@ -100,7 +108,10 @@
   </button>
 {:else}
   <div class="chat">
-    <div class="chat-header">💬 Chat</div>
+    <div class="chat-header">
+      <span>💬 Chat</span>
+      <button class="chat-close" onclick={() => onCollapse?.()} aria-label="Close chat">✕</button>
+    </div>
     <div class="messages" bind:this={scrollEl}>
       {#if messages.length === 0}
         <p class="empty">No messages yet</p>
@@ -177,6 +188,9 @@
   }
 
   .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 10px 16px;
     font-family: var(--font-display);
     font-size: 12px;
@@ -186,6 +200,42 @@
     text-transform: uppercase;
     border-bottom: 1px solid var(--border-dim);
     flex-shrink: 0;
+  }
+
+  .chat-close {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .chat-close:hover {
+    color: var(--cream);
+  }
+
+  @media (max-width: 719px) {
+    .chat-toggle {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .chat {
+      height: 55vh;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+      background: rgba(14, 9, 5, 0.97);
+      backdrop-filter: blur(8px);
+    }
+
+    .chat-close {
+      display: block;
+    }
   }
 
   .messages {
