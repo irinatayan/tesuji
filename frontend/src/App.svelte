@@ -241,7 +241,6 @@
   .app {
     min-height: 100vh;
     position: relative;
-    overflow-x: hidden;
   }
 
   .wood-grain {

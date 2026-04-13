@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { tick } from 'svelte';
   import { api, type ChatMessage } from '$lib/api';
 
   interface Props {
@@ -46,10 +46,18 @@
     }
   }
 
-  onMount(async () => {
-    const res = await api.getMessages(gameId);
-    messages = res.data;
-    scrollToBottom();
+  let historyLoaded = false;
+
+  $effect(() => {
+    if (!channel) return;
+
+    if (!historyLoaded) {
+      historyLoaded = true;
+      api.getMessages(gameId).then((res) => {
+        messages = res.data;
+        scrollToBottom();
+      });
+    }
 
     channel.listen('.game.message.sent', (e: ChatMessage) => {
       addMessage(e);

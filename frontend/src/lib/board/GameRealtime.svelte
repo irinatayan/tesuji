@@ -145,9 +145,9 @@
     }
   }
 
-  let channel: ReturnType<typeof getEcho>['private'] extends (...args: unknown[]) => infer R
-    ? R
-    : never;
+  let channel = $state<
+    ReturnType<typeof getEcho>['private'] extends (...args: unknown[]) => infer R ? R : never
+  >(null as any);
 
   onMount(async () => {
     await loadGame();
@@ -314,11 +314,11 @@
 
   @media (max-width: 719px) {
     .chat-panel {
-      position: absolute;
+      position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 50;
+      z-index: 100;
       padding: 0;
     }
   }
