@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Api;
+
+use App\Events\Game\MessageSent;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SendMessageRequest;
+use App\Models\Game;
+use App\Models\Message;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+
+class MessageController extends Controller
+{
+    public function index(Request $request, Game $game): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($game->black_player_id !== $user->id && $game->white_player_id !== $user->id) {
+            abort(403);
+        }
+
+        $query = Message::where('game_id', $game->id)
+            ->with('user:id,name');
+
+        $after = $request->query('after');
+        if ($after !== null) {
+            $query->where('id', '>', (int) $after);
+        } else {
+            $query->orderByDesc('id')->limit(50);
+        }
+
+        $messages = $query->orderBy('id')->get();
+
+        return response()->json([
+            'data' => $messages->map(fn (Message $m) => [
+                'id' => $m->id,
+                'user_id' => $m->user_id,
+                'user_name' => $m->user->name,
+                'text' => $m->text,
+                'created_at' => $m->created_at->toISOString(),
+            ]),
+        ]);
+    }
+
+    public function store(SendMessageRequest $request, Game $game): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($game->black_player_id !== $user->id && $game->white_player_id !== $user->id) {
+            abort(403);
+        }
+
+        $key = 'message:'.$user->id;
+        if (RateLimiter::tooManyAttempts($key, 2)) {
+            abort(429, 'Too many messages.');
+        }
+        RateLimiter::hit($key, 1);
+
+        $message = Message::create([
+            'game_id' => $game->id,
+            'user_id' => $user->id,
+            'text' => $request->validated('text'),
+            'created_at' => now(),
+        ]);
+
+        MessageSent::dispatch(
+            $game->id,
+            $message->id,
+            $user->id,
+            $user->name,
+            $message->text,
+            $message->created_at->toISOString(),
+        );
+
+        return response()->json([
+            'data' => [
+                'id' => $message->id,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'text' => $message->text,
+                'created_at' => $message->created_at->toISOString(),
+            ],
+        ], 201);
+    }
+}

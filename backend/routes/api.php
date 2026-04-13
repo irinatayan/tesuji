@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 
@@ -31,6 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('games/{game}/dead-stones', [GameController::class, 'markDead']);
     Route::post('games/{game}/dead-stones/confirm', [GameController::class, 'confirmDead']);
     Route::post('games/{game}/dead-stones/dispute', [GameController::class, 'disputeDead']);
+
+    Route::get('games/{game}/messages', [MessageController::class, 'index']);
+    Route::post('games/{game}/messages', [MessageController::class, 'store']);
 });
 
 Route::prefix('auth')->group(function () {
