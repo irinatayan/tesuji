@@ -30,6 +30,7 @@ class GameResource extends JsonResource
                 'name' => $this->whitePlayer->name,
             ],
             'board' => $this->buildBoard(),
+            'captures' => $this->buildCaptures(),
             'result' => $this->result,
             'score' => null,
             'started_at' => $this->started_at?->toISOString(),
@@ -62,5 +63,21 @@ class GameResource extends JsonResource
         }
 
         return $grid;
+    }
+
+    private function buildCaptures(): array
+    {
+        $black = 0;
+        $white = 0;
+        foreach ($this->moves as $move) {
+            $count = is_array($move->captures) ? count($move->captures) : 0;
+            if ($move->color === 'black') {
+                $black += $count;
+            } elseif ($move->color === 'white') {
+                $white += $count;
+            }
+        }
+
+        return ['black' => $black, 'white' => $white];
     }
 }
