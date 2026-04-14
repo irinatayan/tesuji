@@ -7,8 +7,6 @@
     currentUserId: number;
     channel: any;
     collapsed?: boolean;
-    noToggleButton?: boolean;
-    onUncollapse?: () => void;
     onCollapse?: () => void;
     onUnreadChange?: (n: number) => void;
   }
@@ -18,8 +16,6 @@
     currentUserId,
     channel,
     collapsed = false,
-    noToggleButton = false,
-    onUncollapse,
     onCollapse,
     onUnreadChange,
   }: Props = $props();
@@ -29,6 +25,13 @@
   let sending = $state(false);
   let unread = $state(0);
   let scrollEl = $state<HTMLElement | null>(null);
+
+  function mergeMessages(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
+    const byId = new Map<number, ChatMessage>();
+    for (const m of existing) byId.set(m.id, m);
+    for (const m of incoming) byId.set(m.id, m);
+    return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+  }
 
   function isAtBottom(): boolean {
     if (!scrollEl) return true;
@@ -40,17 +43,23 @@
     if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
   }
 
-  function addMessage(msg: ChatMessage) {
+  function addMessages(incoming: ChatMessage[]) {
+    if (incoming.length === 0) return;
+    const existingIds = new Set(messages.map((m) => m.id));
+    const trulyNew = incoming.filter((m) => !existingIds.has(m.id));
+    if (trulyNew.length === 0) return;
+
     const wasAtBottom = isAtBottom();
-    messages = [...messages, msg];
+    messages = mergeMessages(messages, trulyNew);
     if (collapsed) {
-      unread += 1;
+      unread += trulyNew.length;
     } else if (wasAtBottom) {
       scrollToBottom();
     }
   }
 
   let historyLoaded = false;
+  let firstSubscription = true;
 
   $effect(() => {
     if (!channel) return;
@@ -58,27 +67,47 @@
     if (!historyLoaded) {
       historyLoaded = true;
       api.getMessages(gameId).then((res) => {
-        messages = res.data;
-        scrollToBottom();
+        messages = mergeMessages(messages, res.data);
+        if (!collapsed) scrollToBottom();
       });
     }
 
-    channel.listen('.game.message.sent', (e: ChatMessage) => {
-      addMessage(e);
-    });
+    const onMessage = (e: ChatMessage) => {
+      addMessages([e]);
+    };
 
-    channel.on('pusher:subscription_succeeded', async () => {
-      const lastId = messages.at(-1)?.id;
-      if (lastId !== undefined) {
-        const res = await api.getMessages(gameId, lastId);
-        if (res.data.length > 0) {
-          const wasAtBottom = isAtBottom();
-          messages = [...messages, ...res.data];
-          if (!collapsed && wasAtBottom) scrollToBottom();
-          if (collapsed) unread += res.data.length;
-        }
+    const onSubscribed = async () => {
+      if (firstSubscription) {
+        firstSubscription = false;
+        return;
       }
-    });
+      const lastId = messages.at(-1)?.id;
+      if (lastId === undefined) return;
+      const res = await api.getMessages(gameId, lastId);
+      addMessages(res.data);
+    };
+
+    channel.listen('.game.message.sent', onMessage);
+    channel.on('pusher:subscription_succeeded', onSubscribed);
+
+    return () => {
+      try {
+        channel.stopListening('.game.message.sent');
+      } catch {
+        // channel already left
+      }
+    };
+  });
+
+  $effect(() => {
+    if (!collapsed) {
+      unread = 0;
+      scrollToBottom();
+    }
+  });
+
+  $effect(() => {
+    onUnreadChange?.(unread);
   });
 
   async function handleSend() {
@@ -102,96 +131,48 @@
     }
   }
 
-  $effect(() => {
-    onUnreadChange?.(unread);
-  });
-
-  function handleExpand() {
-    unread = 0;
-    onUncollapse?.();
-    scrollToBottom();
-  }
-
   function formatTime(iso: string): string {
     const d = new Date(iso);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 </script>
 
-{#if collapsed && !noToggleButton}
-  <button class="chat-toggle" onclick={handleExpand}>
-    💬 Chat{#if unread > 0}<span class="badge">{unread}</span>{/if}
-  </button>
-{:else if !collapsed}
-  <div class="chat">
-    <div class="chat-header">
-      <span>💬 Chat</span>
-      <button class="chat-close" onclick={() => onCollapse?.()} aria-label="Close chat">✕</button>
-    </div>
-    <div class="messages" bind:this={scrollEl}>
-      {#if messages.length === 0}
-        <p class="empty">No messages yet</p>
-      {:else}
-        {#each messages as msg (msg.id)}
-          <div class="message {msg.user_id === currentUserId ? 'mine' : 'theirs'}">
-            {#if msg.user_id !== currentUserId}
-              <span class="name">{msg.user_name}</span>
-            {/if}
-            <div class="bubble">
-              <span class="msg-text">{msg.text}</span>
-              <span class="time">{formatTime(msg.created_at)}</span>
-            </div>
-          </div>
-        {/each}
-      {/if}
-    </div>
-    <div class="input-row">
-      <textarea
-        bind:value={text}
-        onkeydown={handleKeydown}
-        placeholder="Message…"
-        rows="1"
-        maxlength="500"
-        disabled={sending}
-      ></textarea>
-      <button onclick={handleSend} disabled={!text.trim() || sending}>Send</button>
-    </div>
+<div class="chat">
+  <div class="chat-header">
+    <span>💬 Chat</span>
+    <button class="chat-close" onclick={() => onCollapse?.()} aria-label="Close chat">✕</button>
   </div>
-{/if}
+  <div class="messages" bind:this={scrollEl}>
+    {#if messages.length === 0}
+      <p class="empty">No messages yet</p>
+    {:else}
+      {#each messages as msg (msg.id)}
+        <div class="message {msg.user_id === currentUserId ? 'mine' : 'theirs'}">
+          {#if msg.user_id !== currentUserId}
+            <span class="name">{msg.user_name}</span>
+          {/if}
+          <div class="bubble">
+            <span class="msg-text">{msg.text}</span>
+            <span class="time">{formatTime(msg.created_at)}</span>
+          </div>
+        </div>
+      {/each}
+    {/if}
+  </div>
+  <div class="input-row">
+    <textarea
+      bind:value={text}
+      onkeydown={handleKeydown}
+      placeholder="Message…"
+      rows="1"
+      maxlength="500"
+      disabled={sending}
+    ></textarea>
+    <button onclick={handleSend} disabled={!text.trim() || sending}>Send</button>
+  </div>
+</div>
 
 <style>
-  .chat-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    background: rgba(20, 13, 8, 0.8);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    color: var(--gold);
-    font-family: var(--font-display);
-    font-size: 13px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-  }
-  .chat-toggle:hover {
-    background: rgba(139, 90, 43, 0.2);
-    border-color: var(--gold);
-  }
-
-  .badge {
-    background: #c0392b;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-family: var(--font-display);
-    line-height: 1.4;
-  }
-
   .chat {
     display: flex;
     flex-direction: column;

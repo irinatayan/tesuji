@@ -288,8 +288,6 @@
             currentUserId={auth.user?.id ?? 0}
             {channel}
             collapsed={chatCollapsed}
-            noToggleButton={true}
-            onUncollapse={() => (chatCollapsed = false)}
             onCollapse={() => (chatCollapsed = true)}
             onUnreadChange={(n) => (chatUnread = n)}
           />
