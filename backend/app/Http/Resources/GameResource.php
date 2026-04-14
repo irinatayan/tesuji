@@ -34,6 +34,10 @@ class GameResource extends JsonResource
             'score' => null,
             'started_at' => $this->started_at?->toISOString(),
             'finished_at' => $this->finished_at?->toISOString(),
+            'unread_count' => $this->when(
+                $this->resource->unread_count !== null,
+                fn () => (int) $this->resource->unread_count,
+            ),
         ];
     }
 

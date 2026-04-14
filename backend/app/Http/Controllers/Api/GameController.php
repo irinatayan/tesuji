@@ -42,6 +42,7 @@ class GameController extends Controller
         })
             ->where('status', 'playing')
             ->with(['blackPlayer', 'whitePlayer', 'moves'])
+            ->withUnreadCount($userId)
             ->latest()
             ->get();
 
@@ -85,6 +86,7 @@ class GameController extends Controller
 
     public function show(Request $request, Game $game): GameResource
     {
+        $game = Game::withUnreadCount($request->user()->id)->findOrFail($game->id);
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
         return new GameResource($game);
