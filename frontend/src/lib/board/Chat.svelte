@@ -201,6 +201,8 @@
     border: 2px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .chat-header {

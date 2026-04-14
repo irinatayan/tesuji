@@ -404,7 +404,9 @@
       bottom: 0;
       left: 0;
       right: 0;
-      width: auto;
+      width: 100%;
+      max-width: 100vw;
+      box-sizing: border-box;
       height: 58vh;
       padding: 0;
       z-index: 200;
