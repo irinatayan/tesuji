@@ -20,55 +20,65 @@
     removeIncoming,
   } from '$lib/notifications/invitations.svelte';
   import { getEcho } from '$lib/echo';
+  import { router, navigate, initRouter, routeToPath, type Route } from '$lib/router.svelte';
 
-  type View = 'loading' | 'oauth-callback' | 'auth' | 'lobby' | 'game' | 'profile';
-
-  let view = $state<View>('loading');
-  let activeGameId = $state<number | null>(null);
   let showCreateForm = $state(false);
   let invitationRefresh = $state(0);
-  let profileUserId = $state<number | null>(null);
 
-  const isOAuthCallback = window.location.search.includes('token=');
+  const gameId = $derived(router.current.name === 'game' ? router.current.id : null);
+  const profileUserId = $derived(router.current.name === 'profile' ? router.current.userId : null);
 
   onMount(async () => {
-    if (isOAuthCallback) {
-      view = 'oauth-callback';
+    const initial = initRouter();
+
+    if (initial.name === 'oauth-callback') {
+      router.current = initial;
       return;
     }
-    if (auth.token) {
-      try {
-        auth.user = await api.me();
-        view = 'lobby';
-      } catch {
-        clearAuth();
-        view = 'auth';
-      }
-    } else {
-      view = 'auth';
+
+    if (!auth.token) {
+      saveRedirect(initial);
+      navigate({ name: 'auth' });
+      return;
+    }
+
+    try {
+      auth.user = await api.me();
+      navigate(initial.name === 'auth' ? { name: 'lobby' } : initial);
+    } catch {
+      clearAuth();
+      saveRedirect(initial);
+      navigate({ name: 'auth' });
     }
   });
 
-  async function afterLogin() {
-    auth.user = await api.me();
-    view = 'lobby';
+  function saveRedirect(route: Route) {
+    if (route.name !== 'auth' && route.name !== 'lobby' && route.name !== 'loading') {
+      sessionStorage.setItem('redirectAfter', JSON.stringify(route));
+    }
   }
 
-  function openGame(gameId: number) {
-    activeGameId = gameId;
+  async function afterLogin() {
+    auth.user = await api.me();
+    const redirectJson = sessionStorage.getItem('redirectAfter');
+    sessionStorage.removeItem('redirectAfter');
+    const redirect: Route = redirectJson ? JSON.parse(redirectJson) : { name: 'lobby' };
+    navigate(redirect);
+  }
+
+  function openGame(id: number) {
     showCreateForm = false;
-    view = 'game';
+    navigate({ name: 'game', id });
   }
 
   function openProfile(userId: number) {
-    profileUserId = userId;
-    view = 'profile';
+    navigate({ name: 'profile', userId });
   }
 
   function logout() {
     clearAuth();
     resetEcho();
-    view = 'auth';
+    navigate({ name: 'auth' });
   }
 
   async function handleAcceptFromToast(invId: number) {
@@ -144,20 +154,20 @@
 <div class="app">
   <div class="wood-grain"></div>
 
-  {#if $isLoading || view === 'loading'}
+  {#if $isLoading || router.current.name === 'loading'}
     <div class="splash"><span class="splash-title">TESUJI</span></div>
-  {:else if view === 'oauth-callback'}
-    <OAuthCallback onSuccess={afterLogin} onFail={() => (view = 'auth')} />
-  {:else if view === 'auth'}
+  {:else if router.current.name === 'oauth-callback'}
+    <OAuthCallback onSuccess={afterLogin} onFail={() => navigate({ name: 'auth' })} />
+  {:else if router.current.name === 'auth'}
     <div class="auth-wrap">
       <div class="board-pattern"></div>
       <div class="auth-brand">
         <span class="brand-title">{$_('app.title')}</span>
         <span class="brand-sub">{$_('app.subtitle')}</span>
       </div>
-      <LoginView onSuccess={afterLogin} />
+      <LoginView />
     </div>
-  {:else if view === 'lobby'}
+  {:else if router.current.name === 'lobby'}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
       <nav>
@@ -203,34 +213,34 @@
         {/if}
       </div>
     </main>
-  {:else if view === 'game' && activeGameId !== null}
+  {:else if router.current.name === 'game' && gameId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
       <nav>
         {#if invitationStore.incoming.length > 0}
-          <button class="badge-btn" onclick={() => (view = 'lobby')}>
+          <button class="badge-btn" onclick={() => navigate({ name: 'lobby' })}>
             ✉ <span class="badge">{invitationStore.incoming.length}</span>
           </button>
         {/if}
-        <button class="btn-outline" onclick={() => (view = 'lobby')}>← {$_('app.lobby')}</button>
+        <button class="btn-outline" onclick={() => navigate({ name: 'lobby' })}>← {$_('app.lobby')}</button>
       </nav>
     </header>
-    <GameRealtime gameId={activeGameId} onLeave={() => (view = 'lobby')} />
-  {:else if view === 'profile' && profileUserId !== null}
+    <GameRealtime {gameId} onLeave={() => navigate({ name: 'lobby' })} />
+  {:else if router.current.name === 'profile' && profileUserId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
       <nav>
         {#if invitationStore.incoming.length > 0}
-          <button class="badge-btn" onclick={() => (view = 'lobby')}>
+          <button class="badge-btn" onclick={() => navigate({ name: 'lobby' })}>
             ✉ <span class="badge">{invitationStore.incoming.length}</span>
           </button>
         {/if}
-        <button class="btn-outline" onclick={() => (view = 'lobby')}>← {$_('app.lobby')}</button>
+        <button class="btn-outline" onclick={() => navigate({ name: 'lobby' })}>← {$_('app.lobby')}</button>
         <button class="btn-outline" onclick={logout}>{$_('app.signOut')}</button>
       </nav>
     </header>
     <main class="lobby">
-      <ProfileView userId={profileUserId} onBack={() => (view = 'lobby')} />
+      <ProfileView userId={profileUserId} onBack={() => navigate({ name: 'lobby' })} />
     </main>
   {/if}
 </div>

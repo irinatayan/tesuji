@@ -9,6 +9,9 @@ export default defineConfig({
       $lib: resolve(__dirname, 'src/lib'),
     },
   },
+  server: {
+    historyApiFallback: true,
+  },
   test: {
     include: ['src/**/*.test.ts'],
   },
