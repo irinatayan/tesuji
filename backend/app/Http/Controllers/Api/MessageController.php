@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Events\Game\MessageSent;
+use App\Events\Game\UnreadChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SendMessageRequest;
 use App\Models\Game;
@@ -77,6 +78,12 @@ class MessageController extends Controller
             $message->text,
             $message->created_at->toISOString(),
         );
+
+        $recipientId = $game->black_player_id === $user->id
+            ? $game->white_player_id
+            : $game->black_player_id;
+        $unreadCount = (int) Game::withUnreadCount($recipientId)->find($game->id)->unread_count;
+        UnreadChanged::dispatch($recipientId, $game->id, $unreadCount);
 
         return response()->json([
             'data' => [
