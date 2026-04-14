@@ -118,6 +118,9 @@ export const api = {
 
   sendMessage: (gameId: number, text: string) =>
     request<{ data: ChatMessage }>('POST', `/games/${gameId}/messages`, { text }),
+
+  markMessagesRead: (gameId: number, lastReadId: number) =>
+    request<void>('POST', `/games/${gameId}/messages/read`, { last_read_id: lastReadId }),
 };
 
 export interface ChatMessage {

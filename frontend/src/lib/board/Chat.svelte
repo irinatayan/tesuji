@@ -26,6 +26,23 @@
   let unread = $state(0);
   let scrollEl = $state<HTMLElement | null>(null);
 
+  let lastSentReadId = 0;
+  let readDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function scheduleMarkRead() {
+    const lastId = messages.at(-1)?.id;
+    if (lastId === undefined || lastId <= lastSentReadId) return;
+    if (readDebounceTimer) clearTimeout(readDebounceTimer);
+    readDebounceTimer = setTimeout(() => {
+      const id = messages.at(-1)?.id;
+      if (id === undefined || id <= lastSentReadId) return;
+      lastSentReadId = id;
+      api.markMessagesRead(gameId, id).catch(() => {
+        lastSentReadId = 0;
+      });
+    }, 150);
+  }
+
   function mergeMessages(existing: ChatMessage[], incoming: ChatMessage[]): ChatMessage[] {
     const byId = new Map<number, ChatMessage>();
     for (const m of existing) byId.set(m.id, m);
@@ -103,6 +120,12 @@
     if (!collapsed) {
       unread = 0;
       scrollToBottom();
+    }
+  });
+
+  $effect(() => {
+    if (!collapsed && messages.length > 0) {
+      scheduleMarkRead();
     }
   });
 
