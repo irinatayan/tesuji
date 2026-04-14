@@ -270,15 +270,12 @@
       </div>
 
       {#if !chatCollapsed}
-        <button class="chat-backdrop" onclick={() => (chatCollapsed = true)} aria-label="Close chat"></button>
+        <button class="chat-backdrop" onclick={() => (chatCollapsed = true)} aria-label="Close chat"
+        ></button>
       {/if}
 
       <div class="chat-panel" class:chat-panel--collapsed={chatCollapsed}>
-        <button
-          class="chat-strip"
-          onclick={() => (chatCollapsed = false)}
-          aria-label="Open chat"
-        >
+        <button class="chat-strip" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
           💬{#if chatUnread > 0}<span class="chat-strip-badge">{chatUnread}</span>{/if}
         </button>
         <div class="chat-handle"></div>
@@ -454,8 +451,12 @@
       cursor: default;
     }
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
   }
 

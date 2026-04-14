@@ -224,7 +224,9 @@
             ✉ <span class="badge">{invitationStore.incoming.length}</span>
           </button>
         {/if}
-        <button class="btn-outline" onclick={() => navigate({ name: 'lobby' })}>← {$_('app.lobby')}</button>
+        <button class="btn-outline" onclick={() => navigate({ name: 'lobby' })}
+          >← {$_('app.lobby')}</button
+        >
         <button class="btn-outline" onclick={logout}>{$_('app.signOut')}</button>
       </nav>
     </header>

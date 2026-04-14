@@ -4,7 +4,7 @@ export type Route =
   | { name: 'oauth-callback' }
   | { name: 'lobby' }
   | { name: 'game'; id: number }
-  | { name: 'profile'; userId: number }
+  | { name: 'profile'; userId: number };
 
 export const router = $state<{ current: Route }>({ current: { name: 'loading' } });
 
