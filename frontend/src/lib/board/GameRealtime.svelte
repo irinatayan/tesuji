@@ -207,17 +207,18 @@
 {:else if game}
   <div class="game-realtime">
     <div class="game-header">
+      <button onclick={onLeave} class="leave" aria-label={$_('app.back')}>
+        <span class="leave-arrow">←</span>
+        <span class="leave-text">{$_('app.back')}</span>
+      </button>
       <div class="players">
-        <span>⚫ {game.black_player.name}</span>
+        <span class="player"><span class="stone">⚫</span>{game.black_player.name}</span>
         <span class="vs">{$_('games.vs')}</span>
-        <span>⚪ {game.white_player.name}</span>
+        <span class="player"><span class="stone">⚪</span>{game.white_player.name}</span>
       </div>
-      <div class="header-right">
-        <button class="chat-open-btn" onclick={() => (chatCollapsed = false)}>
-          💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
-        </button>
-        <button onclick={onLeave} class="leave">{$_('app.back')}</button>
-      </div>
+      <button class="chat-open-btn" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
+        💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
+      </button>
     </div>
 
     <div class="game-layout">
@@ -466,8 +467,8 @@
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
+    gap: 12px;
+    padding: 12px 24px;
     background: linear-gradient(180deg, rgba(20, 12, 8, 0.95) 0%, rgba(30, 18, 10, 0.9) 100%);
     border-bottom: 2px solid var(--border);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -476,22 +477,18 @@
     z-index: 10;
   }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
   .chat-open-btn {
     display: none;
     position: relative;
-    padding: 8px 14px;
+    padding: 6px 10px;
     background: transparent;
     color: var(--gold);
     border: 2px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
     transition: all 0.2s;
   }
   .chat-open-btn:hover {
@@ -513,21 +510,31 @@
     line-height: 1.4;
   }
 
-  @media (max-width: 719px) {
-    .chat-open-btn {
-      display: flex;
-      align-items: center;
-    }
-  }
-
   .players {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 10px;
     font-family: var(--font-serif);
     font-size: 15px;
     font-weight: 600;
     color: var(--cream);
+  }
+
+  .player {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .stone {
+    flex-shrink: 0;
   }
 
   .vs {
@@ -535,10 +542,14 @@
     font-style: italic;
     font-weight: 400;
     font-size: 13px;
+    flex-shrink: 0;
   }
 
   .leave {
-    padding: 8px 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
     background: transparent;
     color: var(--gold);
     border: 2px solid var(--border);
@@ -547,11 +558,44 @@
     font-family: var(--font-display);
     font-size: 12px;
     letter-spacing: 1px;
+    line-height: 1;
+    flex-shrink: 0;
     transition: all 0.2s;
   }
   .leave:hover {
     background: rgba(139, 90, 43, 0.2);
     border-color: var(--gold);
+  }
+  .leave-arrow {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  @media (max-width: 719px) {
+    .game-header {
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .chat-open-btn {
+      display: flex;
+      align-items: center;
+    }
+    .players {
+      font-size: 13px;
+      gap: 6px;
+    }
+    .vs {
+      display: none;
+    }
+    .stone {
+      font-size: 14px;
+    }
+    .leave {
+      padding: 6px 8px;
+    }
+    .leave-text {
+      display: none;
+    }
   }
 
   .status-bar {
