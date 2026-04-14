@@ -299,7 +299,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-height: 100vh;
+    height: 100vh;
     position: relative;
   }
 
@@ -307,7 +307,8 @@
     display: flex;
     flex: 1;
     gap: 0;
-    align-items: flex-start;
+    align-items: stretch;
+    min-height: 0;
   }
 
   .game-body {
@@ -318,6 +319,7 @@
     gap: 16px;
     padding: 24px 8px 32px;
     min-width: 0;
+    overflow-y: auto;
   }
 
   /* ── Chat panel — desktop ────────────────────── */
@@ -325,11 +327,11 @@
     width: 280px;
     flex-shrink: 0;
     padding: 16px 16px 16px 0;
-    align-self: stretch;
     display: flex;
     flex-direction: column;
     transition: width 0.25s ease;
     overflow: hidden;
+    min-height: 0;
   }
 
   .chat-panel--collapsed {
