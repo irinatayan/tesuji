@@ -269,17 +269,31 @@
         {/if}
       </div>
 
-      <div class="chat-panel" class:chat-panel--hidden={chatCollapsed}>
-        <Chat
-          {gameId}
-          currentUserId={auth.user?.id ?? 0}
-          {channel}
-          collapsed={chatCollapsed}
-          noToggleButton={true}
-          onUncollapse={() => (chatCollapsed = false)}
-          onCollapse={() => (chatCollapsed = true)}
-          onUnreadChange={(n) => (chatUnread = n)}
-        />
+      {#if !chatCollapsed}
+        <button class="chat-backdrop" onclick={() => (chatCollapsed = true)} aria-label="Close chat"></button>
+      {/if}
+
+      <div class="chat-panel" class:chat-panel--collapsed={chatCollapsed}>
+        <button
+          class="chat-strip"
+          onclick={() => (chatCollapsed = false)}
+          aria-label="Open chat"
+        >
+          💬{#if chatUnread > 0}<span class="chat-strip-badge">{chatUnread}</span>{/if}
+        </button>
+        <div class="chat-handle"></div>
+        <div class="chat-content">
+          <Chat
+            {gameId}
+            currentUserId={auth.user?.id ?? 0}
+            {channel}
+            collapsed={chatCollapsed}
+            noToggleButton={true}
+            onUncollapse={() => (chatCollapsed = false)}
+            onCollapse={() => (chatCollapsed = true)}
+            onUnreadChange={(n) => (chatUnread = n)}
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -311,6 +325,7 @@
     min-width: 0;
   }
 
+  /* ── Chat panel — desktop ────────────────────── */
   .chat-panel {
     width: 280px;
     flex-shrink: 0;
@@ -318,20 +333,129 @@
     align-self: stretch;
     display: flex;
     flex-direction: column;
+    transition: width 0.25s ease;
+    overflow: hidden;
   }
 
+  .chat-panel--collapsed {
+    width: 44px;
+    padding: 12px 0;
+    cursor: default;
+  }
+
+  .chat-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Desktop collapsed strip */
+  .chat-strip {
+    display: none;
+    width: 44px;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 18px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: color 0.2s;
+  }
+  .chat-strip:hover {
+    color: var(--gold-light);
+  }
+  .chat-panel--collapsed .chat-strip {
+    display: flex;
+  }
+
+  .chat-strip-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #c0392b;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    line-height: 1.4;
+  }
+
+  /* Drag handle — hidden on desktop */
+  .chat-handle {
+    display: none;
+  }
+
+  /* Backdrop — hidden on desktop */
+  .chat-backdrop {
+    display: none;
+  }
+
+  /* ── Chat panel — mobile ─────────────────────── */
   @media (max-width: 719px) {
     .chat-panel {
       position: fixed;
-      inset: 0;
-      z-index: 200;
-      padding: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       width: auto;
-      display: flex;
-      flex-direction: column;
+      height: 58vh;
+      padding: 0;
+      z-index: 200;
+      border-radius: 16px 16px 0 0;
+      background: rgba(14, 9, 5, 0.97);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      transform: translateY(0);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow: hidden;
     }
-    .chat-panel--hidden {
-      display: none;
+
+    .chat-panel--collapsed {
+      width: auto;
+      padding: 0;
+      transform: translateY(105%);
+      pointer-events: none;
+    }
+
+    .chat-strip {
+      display: none !important;
+    }
+
+    .chat-handle {
+      display: flex;
+      justify-content: center;
+      padding: 10px 0 6px;
+      flex-shrink: 0;
+    }
+    .chat-handle::before {
+      content: '';
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .chat-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 199;
+      animation: fadeIn 0.2s ease;
+      border: none;
+      padding: 0;
+      cursor: default;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   }
 

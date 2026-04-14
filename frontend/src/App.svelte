@@ -214,17 +214,6 @@
       </div>
     </main>
   {:else if router.current.name === 'game' && gameId !== null}
-    <header class="site-header">
-      <span class="site-title">{$_('app.title')}</span>
-      <nav>
-        {#if invitationStore.incoming.length > 0}
-          <button class="badge-btn" onclick={() => navigate({ name: 'lobby' })}>
-            ✉ <span class="badge">{invitationStore.incoming.length}</span>
-          </button>
-        {/if}
-        <button class="btn-outline" onclick={() => navigate({ name: 'lobby' })}>← {$_('app.lobby')}</button>
-      </nav>
-    </header>
     <GameRealtime {gameId} onLeave={() => navigate({ name: 'lobby' })} />
   {:else if router.current.name === 'profile' && profileUserId !== null}
     <header class="site-header">
