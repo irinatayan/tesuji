@@ -57,8 +57,16 @@ export const api = {
 
   me: () => request<User>('GET', '/user'),
 
-  searchUsers: (query: string) =>
-    request<{ id: number; name: string }[]>('GET', `/users?search=${encodeURIComponent(query)}`),
+  listUsers: (params: { search?: string; page?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (params.search) qs.set('search', params.search);
+    if (params.page) qs.set('page', String(params.page));
+    const query = qs.toString();
+    return request<{
+      data: { id: number; name: string }[];
+      meta: { current_page: number; last_page: number; total: number };
+    }>('GET', `/users${query ? `?${query}` : ''}`);
+  },
 
   getUserProfile: (id: number) => request<any>('GET', `/users/${id}`),
 

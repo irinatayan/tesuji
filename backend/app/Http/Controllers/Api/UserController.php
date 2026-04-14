@@ -15,20 +15,33 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate([
-            'search' => ['required', 'string', 'min:2', 'max:100'],
+            'search' => ['nullable', 'string', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $users = User::where('id', '!=', $request->user()->id)
+        $query = User::where('id', '!=', $request->user()->id)
             ->where('is_bot', false)
-            ->where(function ($query) use ($request): void {
-                $query->whereRaw('name ILIKE ?', ['%'.$request->search.'%'])
-                    ->orWhereRaw('email ILIKE ?', ['%'.$request->search.'%']);
-            })
             ->select('id', 'name')
-            ->limit(20)
-            ->get();
+            ->orderBy('name');
 
-        return response()->json($users);
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search): void {
+                $q->whereRaw('name ILIKE ?', ['%'.$search.'%'])
+                    ->orWhereRaw('email ILIKE ?', ['%'.$search.'%']);
+            });
+        }
+
+        $users = $query->paginate(20);
+
+        return response()->json([
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'total' => $users->total(),
+            ],
+        ]);
     }
 
     public function show(Request $request, User $user): JsonResponse

@@ -37,6 +37,7 @@
   "invite.sent": "Invitation sent!",
   "invite.sendFailed": "Failed to send invitation",
   "invite.searchPlayer": "Search player...",
+  "invite.noUsersFound": "No users found",
 
   "invitations.incoming": "Incoming invitations ({count})",
   "invitations.outgoing": "Waiting for response",

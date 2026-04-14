@@ -37,6 +37,7 @@
   "invite.sent": "Приглашение отправлено!",
   "invite.sendFailed": "Не удалось отправить приглашение",
   "invite.searchPlayer": "Найти игрока...",
+  "invite.noUsersFound": "Пользователи не найдены",
 
   "invitations.incoming": "Входящие приглашения ({count})",
   "invitations.outgoing": "Ожидают ответа",

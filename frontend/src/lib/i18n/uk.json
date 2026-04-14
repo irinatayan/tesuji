@@ -37,6 +37,7 @@
   "invite.sent": "Запрошення надіслано!",
   "invite.sendFailed": "Не вдалося надіслати запрошення",
   "invite.searchPlayer": "Шукати гравця...",
+  "invite.noUsersFound": "Користувачі не знайдені",
 
   "invitations.incoming": "Вхідні запрошення ({count})",
   "invitations.outgoing": "Очікують відповіді",
