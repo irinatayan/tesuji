@@ -25,6 +25,7 @@ export interface GameResponse {
   white_player: User;
   board: (string | null)[][];
   dead_stones: { x: number; y: number }[] | null;
+  unread_count?: number;
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {

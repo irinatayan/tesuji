@@ -2,7 +2,8 @@
   import { _ } from 'svelte-i18n';
   import { api, type GameResponse } from '$lib/api';
   import { auth } from '$lib/stores/auth.svelte';
-  import { onMount } from 'svelte';
+  import { getEcho } from '$lib/echo';
+  import { onMount, onDestroy } from 'svelte';
 
   let { onSelect }: { onSelect: (gameId: number) => void } = $props();
 
@@ -16,6 +17,33 @@
     } finally {
       loading = false;
     }
+  });
+
+  let userChannel: ReturnType<ReturnType<typeof getEcho>['private']> | null = null;
+
+  $effect(() => {
+    const userId = auth.user?.id;
+    if (!userId) return;
+
+    const channel = getEcho().private(`user.${userId}`);
+    userChannel = channel;
+    channel.listen('.unread.changed', (e: { game_id: number; unread_count: number }) => {
+      games = games.map((g) => (g.id === e.game_id ? { ...g, unread_count: e.unread_count } : g));
+    });
+
+    return () => {
+      try {
+        channel.stopListening('.unread.changed');
+        getEcho().leave(`user.${userId}`);
+      } catch {
+        // channel already left
+      }
+      userChannel = null;
+    };
+  });
+
+  onDestroy(() => {
+    userChannel = null;
   });
 
   function opponentName(game: GameResponse): string {
@@ -43,6 +71,11 @@
             <span class="game-players">
               {myColor(game)} <span class="vs">{$_('games.vs')}</span>
               {opponentName(game)}
+              {#if game.unread_count && game.unread_count > 0}
+                <span class="unread-badge" title={`${game.unread_count} unread`}>
+                  {game.unread_count}
+                </span>
+              {/if}
             </span>
             <span class="game-meta">
               {game.board_size}×{game.board_size}
@@ -133,5 +166,22 @@
   }
   .status.finished {
     color: var(--subtle);
+  }
+  .unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 8px;
+    background: #c0504d;
+    color: #fff;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1;
   }
 </style>
