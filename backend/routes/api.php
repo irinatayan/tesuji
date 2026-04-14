@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('games/{game}/messages', [MessageController::class, 'index']);
     Route::post('games/{game}/messages', [MessageController::class, 'store']);
+    Route::post('games/{game}/messages/read', [MessageController::class, 'markRead']);
 });
 
 Route::prefix('auth')->group(function () {

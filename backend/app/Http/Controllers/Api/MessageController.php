@@ -11,6 +11,8 @@ use App\Models\Game;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 
 class MessageController extends Controller
@@ -85,5 +87,37 @@ class MessageController extends Controller
                 'created_at' => $message->created_at->toISOString(),
             ],
         ], 201);
+    }
+
+    public function markRead(Request $request, Game $game): Response
+    {
+        $user = $request->user();
+
+        if ($game->black_player_id !== $user->id && $game->white_player_id !== $user->id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'last_read_id' => ['required', 'integer', 'min:1'],
+        ]);
+        $lastReadId = (int) $data['last_read_id'];
+
+        $exists = Message::where('game_id', $game->id)->where('id', $lastReadId)->exists();
+        if (! $exists) {
+            abort(422, 'Message does not belong to this game.');
+        }
+
+        DB::table('game_read_states')->upsert(
+            [[
+                'game_id' => $game->id,
+                'user_id' => $user->id,
+                'last_read_message_id' => $lastReadId,
+                'updated_at' => now(),
+            ]],
+            ['game_id', 'user_id'],
+            ['last_read_message_id' => DB::raw('GREATEST(game_read_states.last_read_message_id, EXCLUDED.last_read_message_id)'), 'updated_at' => now()],
+        );
+
+        return response()->noContent();
     }
 }
