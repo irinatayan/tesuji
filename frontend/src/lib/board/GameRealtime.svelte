@@ -161,9 +161,14 @@
         board = applyMovePlayed(board, event);
         lastMove = { x: event.x, y: event.y };
         if (game) {
+          const captured = event.captures.length;
           game = {
             ...game,
             current_turn: event.color === 'black' ? 'white' : 'black',
+            captures: {
+              black: game.captures.black + (event.color === 'black' ? captured : 0),
+              white: game.captures.white + (event.color === 'white' ? captured : 0),
+            },
           };
         }
       })
@@ -211,10 +216,17 @@
         <span class="leave-arrow">←</span>
         <span class="leave-text">{$_('app.back')}</span>
       </button>
-      <div class="players">
-        <span class="player"><span class="stone">⚫</span>{game.black_player.name}</span>
-        <span class="vs">{$_('games.vs')}</span>
-        <span class="player"><span class="stone">⚪</span>{game.white_player.name}</span>
+      <div class="players-strip">
+        <div class="player-row">
+          <span class="stone">⚫</span>
+          <span class="player-name">{game.black_player.name}</span>
+          <span class="captures">×{game.captures.black}</span>
+        </div>
+        <div class="player-row">
+          <span class="stone">⚪</span>
+          <span class="player-name">{game.white_player.name}</span>
+          <span class="captures">×{game.captures.white}</span>
+        </div>
       </div>
       <button class="chat-open-btn" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
         💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
@@ -510,38 +522,43 @@
     line-height: 1.4;
   }
 
-  .players {
+  .players-strip {
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-family: var(--font-serif);
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--cream);
+    flex-direction: column;
+    gap: 2px;
   }
 
-  .player {
-    display: inline-flex;
+  .player-row {
+    display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--cream);
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .player-name {
+    flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .stone {
+  .captures {
     flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.5px;
   }
 
-  .vs {
-    color: var(--muted);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 13px;
+  .stone {
     flex-shrink: 0;
   }
 
@@ -580,21 +597,15 @@
       display: flex;
       align-items: center;
     }
-    .players {
-      font-size: 13px;
-      gap: 6px;
-    }
-    .vs {
-      display: none;
-    }
-    .stone {
-      font-size: 14px;
-    }
     .leave {
       padding: 6px 8px;
     }
     .leave-text {
       display: none;
+    }
+    .player-row {
+      font-size: 13px;
+      gap: 6px;
     }
   }
 
