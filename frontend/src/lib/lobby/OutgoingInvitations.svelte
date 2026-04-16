@@ -11,6 +11,8 @@
     status: string;
   };
 
+  let { refresh = $bindable(0) }: { refresh?: number } = $props();
+
   let invitations = $state<OutgoingInvitation[]>([]);
 
   async function load() {
@@ -22,6 +24,10 @@
   }
 
   onMount(load);
+
+  $effect(() => {
+    if (refresh > 0) load();
+  });
 </script>
 
 {#if invitations.length > 0}

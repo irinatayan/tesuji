@@ -24,6 +24,7 @@
 
   let showCreateForm = $state(false);
   let invitationRefresh = $state(0);
+  let outgoingRefresh = $state(0);
 
   const gameId = $derived(router.current.name === 'game' ? router.current.id : null);
   const profileUserId = $derived(router.current.name === 'profile' ? router.current.userId : null);
@@ -193,7 +194,7 @@
 
     <main class="lobby">
       <InvitationList onAccepted={openGame} bind:refresh={invitationRefresh} />
-      <OutgoingInvitations />
+      <OutgoingInvitations bind:refresh={outgoingRefresh} />
       <GameList onSelect={openGame} />
 
       <div class="create-section">
@@ -205,6 +206,7 @@
           <CreateGameView
             onInvited={() => {
               showCreateForm = false;
+              outgoingRefresh++;
             }}
           />
           <button class="btn-ghost" onclick={() => (showCreateForm = false)}
