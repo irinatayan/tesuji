@@ -108,6 +108,8 @@ export const api = {
 
   getGames: () => request<{ data: GameResponse[] }>('GET', '/games'),
 
+  getLiveGames: () => request<{ data: GameResponse[] }>('GET', '/games/live'),
+
   playMove: (id: number, x: number, y: number) =>
     request<{ data: GameResponse }>('POST', `/games/${id}/moves`, { x, y }),
 

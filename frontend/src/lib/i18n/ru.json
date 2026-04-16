@@ -55,6 +55,8 @@
   "games.loading": "Загрузка…",
   "games.noActive": "Нет активных игр",
   "games.vs": "против",
+  "games.live": "Игры сейчас",
+  "games.spectate": "Смотреть",
 
   "game.yourTurn": "Ваш ход",
   "game.opponentTurn": "Ход соперника…",
@@ -66,6 +68,7 @@
   "game.markDeadCount": "Мёртвые ({count})",
   "game.confirm": "Подтвердить",
   "game.dispute": "Оспорить",
+  "game.spectating": "Наблюдение",
 
   "profile.back": "← Назад",
   "profile.games": "Игры",

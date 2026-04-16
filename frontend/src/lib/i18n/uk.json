@@ -55,6 +55,8 @@
   "games.loading": "Завантаження…",
   "games.noActive": "Немає активних ігор",
   "games.vs": "проти",
+  "games.live": "Ігри зараз",
+  "games.spectate": "Дивитися",
 
   "game.yourTurn": "Ваш хід",
   "game.opponentTurn": "Хід суперника…",
@@ -66,6 +68,7 @@
   "game.markDeadCount": "Мертві ({count})",
   "game.confirm": "Підтвердити",
   "game.dispute": "Оскаржити",
+  "game.spectating": "Спостереження",
 
   "profile.back": "← Назад",
   "profile.games": "Ігри",

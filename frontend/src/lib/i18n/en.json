@@ -55,6 +55,8 @@
   "games.loading": "Loading…",
   "games.noActive": "No active games",
   "games.vs": "vs",
+  "games.live": "Live Games",
+  "games.spectate": "Watch",
 
   "game.yourTurn": "Your turn",
   "game.opponentTurn": "Opponent's turn…",
@@ -66,6 +68,7 @@
   "game.markDeadCount": "Mark dead ({count})",
   "game.confirm": "Confirm",
   "game.dispute": "Dispute",
+  "game.spectating": "Spectating",
 
   "profile.back": "← Back",
   "profile.games": "Games",

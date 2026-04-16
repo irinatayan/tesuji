@@ -35,6 +35,7 @@
     return null;
   });
 
+  const isSpectator = $derived(myColor === null);
   const isMyTurn = $derived(game?.current_turn === myColor && game?.status === 'playing');
 
   function boardFromGame(g: GameResponse): Board {
@@ -228,15 +229,30 @@
           <span class="captures">×{game.captures.white}</span>
         </div>
       </div>
-      <button class="chat-open-btn" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
-        💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
-      </button>
+      {#if !isSpectator}
+        <button
+          class="chat-open-btn"
+          onclick={() => (chatCollapsed = false)}
+          aria-label="Open chat"
+        >
+          💬{#if chatUnread > 0}<span class="chat-badge">{chatUnread}</span>{/if}
+        </button>
+      {/if}
     </div>
 
     <div class="game-layout">
       <div class="game-body">
         <div class="status-bar">
-          {#if game.status === 'playing'}
+          {#if isSpectator}
+            <em>{$_('game.spectating')}</em>
+            {#if game.status === 'playing'}
+              — {game.current_turn === 'black' ? game.black_player.name : game.white_player.name}
+            {:else if game.status === 'scoring'}
+              — {$_('game.scoring')}
+            {:else if game.status === 'finished'}
+              — {$_('game.gameOver')} — <strong>{game.result}</strong>
+            {/if}
+          {:else if game.status === 'playing'}
             {#if isMyTurn}
               <strong>{$_('game.yourTurn')}</strong>
             {:else}
@@ -256,53 +272,62 @@
         <GoBoard
           {board}
           size={game.board_size}
-          currentTurn={myColor ?? 'black'}
-          onmove={game.status === 'playing' && isMyTurn
-            ? handleMove
-            : game.status === 'scoring'
-              ? handleToggleDead
-              : undefined}
+          currentTurn={myColor ?? (game.current_turn as Stone)}
+          onmove={isSpectator
+            ? undefined
+            : game.status === 'playing' && isMyTurn
+              ? handleMove
+              : game.status === 'scoring'
+                ? handleToggleDead
+                : undefined}
           deadStones={[...(game.dead_stones ?? []), ...selectedDead]}
           {lastMove}
         />
 
-        {#if game.status === 'playing'}
-          <div class="actions">
-            <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
-            <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
-          </div>
-        {:else if game.status === 'scoring'}
-          <div class="actions">
-            <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
-              {$_('game.markDeadCount', { values: { count: selectedDead.length } })}
-            </button>
-            <button onclick={handleConfirmDead} class="btn-confirm">{$_('game.confirm')}</button>
-            <button onclick={handleDisputeDead} class="resign">{$_('game.dispute')}</button>
-          </div>
+        {#if !isSpectator}
+          {#if game.status === 'playing'}
+            <div class="actions">
+              <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
+              <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
+            </div>
+          {:else if game.status === 'scoring'}
+            <div class="actions">
+              <button onclick={submitDeadStones} disabled={selectedDead.length === 0}>
+                {$_('game.markDeadCount', { values: { count: selectedDead.length } })}
+              </button>
+              <button onclick={handleConfirmDead} class="btn-confirm">{$_('game.confirm')}</button>
+              <button onclick={handleDisputeDead} class="resign">{$_('game.dispute')}</button>
+            </div>
+          {/if}
         {/if}
       </div>
 
-      {#if !chatCollapsed}
-        <button class="chat-backdrop" onclick={() => (chatCollapsed = true)} aria-label="Close chat"
-        ></button>
-      {/if}
+      {#if !isSpectator}
+        {#if !chatCollapsed}
+          <button
+            class="chat-backdrop"
+            onclick={() => (chatCollapsed = true)}
+            aria-label="Close chat"
+          ></button>
+        {/if}
 
-      <div class="chat-panel" class:chat-panel--collapsed={chatCollapsed}>
-        <button class="chat-strip" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
-          💬{#if chatUnread > 0}<span class="chat-strip-badge">{chatUnread}</span>{/if}
-        </button>
-        <div class="chat-handle"></div>
-        <div class="chat-content">
-          <Chat
-            {gameId}
-            currentUserId={auth.user?.id ?? 0}
-            {channel}
-            collapsed={chatCollapsed}
-            onCollapse={() => (chatCollapsed = true)}
-            onUnreadChange={(n) => (chatUnread = n)}
-          />
+        <div class="chat-panel" class:chat-panel--collapsed={chatCollapsed}>
+          <button class="chat-strip" onclick={() => (chatCollapsed = false)} aria-label="Open chat">
+            💬{#if chatUnread > 0}<span class="chat-strip-badge">{chatUnread}</span>{/if}
+          </button>
+          <div class="chat-handle"></div>
+          <div class="chat-content">
+            <Chat
+              {gameId}
+              currentUserId={auth.user?.id ?? 0}
+              {channel}
+              collapsed={chatCollapsed}
+              onCollapse={() => (chatCollapsed = true)}
+              onUnreadChange={(n) => (chatUnread = n)}
+            />
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
   </div>
 {/if}

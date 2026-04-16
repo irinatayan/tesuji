@@ -51,6 +51,17 @@ class GameController extends Controller
         return GameResource::collection($games);
     }
 
+    public function live(): AnonymousResourceCollection
+    {
+        $games = Game::where('status', 'playing')
+            ->with(['blackPlayer', 'whitePlayer'])
+            ->latest('started_at')
+            ->limit(50)
+            ->get();
+
+        return GameResource::collection($games);
+    }
+
     public function store(CreateGameRequest $request): JsonResponse
     {
         $color = $request->color === 'random'

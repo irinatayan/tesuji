@@ -9,6 +9,7 @@
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
   import PlayVsBotView from '$lib/lobby/PlayVsBotView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
+  import LiveGames from '$lib/lobby/LiveGames.svelte';
   import InvitationList from '$lib/lobby/InvitationList.svelte';
   import OutgoingInvitations from '$lib/lobby/OutgoingInvitations.svelte';
   import ProfileView from '$lib/profile/ProfileView.svelte';
@@ -201,6 +202,7 @@
       <InvitationList onAccepted={openGame} bind:refresh={invitationRefresh} />
       <OutgoingInvitations bind:refresh={outgoingRefresh} />
       <GameList onSelect={openGame} bind:refresh={gamesRefresh} />
+      <LiveGames onSelect={openGame} />
 
       <div class="create-section">
         {#if !showCreateForm && !showBotForm}

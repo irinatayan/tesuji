@@ -13,10 +13,5 @@ Broadcast::channel('user.{id}', function (User $user, int $id): bool {
 });
 
 Broadcast::channel('game.{gameId}', function (User $user, int $gameId): bool {
-    $game = Game::find($gameId);
-
-    return $game !== null && (
-        $user->id === $game->black_player_id ||
-        $user->id === $game->white_player_id
-    );
+    return Game::where('id', $gameId)->exists();
 });
