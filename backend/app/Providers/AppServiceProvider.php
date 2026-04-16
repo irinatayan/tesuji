@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\Game\DeadStonesMarked;
 use App\Events\Game\MovePassed;
 use App\Events\Game\MovePlayed;
 use App\Game\Engines\GoEngine;
 use App\Game\Engines\GnuGoEngine;
 use App\Game\Engines\ProcessGtpClient;
+use App\Listeners\TriggerBotConfirmDead;
 use App\Listeners\TriggerBotMove;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -30,5 +32,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::listen(MovePlayed::class, TriggerBotMove::class);
         Event::listen(MovePassed::class, TriggerBotMove::class);
+        Event::listen(DeadStonesMarked::class, TriggerBotConfirmDead::class);
     }
 }
