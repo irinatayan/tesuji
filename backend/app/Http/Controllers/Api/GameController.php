@@ -13,8 +13,10 @@ use App\Game\Position;
 use App\Game\Stone;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGameRequest;
+use App\Http\Requests\CreateVsBotRequest;
 use App\Http\Requests\MarkDeadStonesRequest;
 use App\Http\Requests\PlayMoveRequest;
+use App\Jobs\BotMoveJob;
 use App\Http\Resources\GameResource;
 use App\Mail\GameFinishedMail;
 use App\Models\Game;
@@ -78,6 +80,44 @@ class GameController extends Controller
             'started_at' => now(),
             'expires_at' => $expiresAt,
         ]);
+
+        $game->load(['blackPlayer', 'whitePlayer', 'moves']);
+
+        return (new GameResource($game))->response()->setStatusCode(201);
+    }
+
+    public function createVsBot(CreateVsBotRequest $request): JsonResponse
+    {
+        $bot = User::where('is_bot', true)->firstOrFail();
+
+        $color = $request->color === 'random'
+            ? (rand(0, 1) === 0 ? 'black' : 'white')
+            : $request->color;
+
+        [$blackId, $whiteId] = $color === 'black'
+            ? [$request->user()->id, $bot->id]
+            : [$bot->id, $request->user()->id];
+
+        $timeControlType = $request->input('time_control_type', 'absolute');
+        $timeControlConfig = $request->input('time_control_config', ['main_time' => 600]);
+        $mode = $request->input('mode', 'realtime');
+
+        $game = Game::create([
+            'black_player_id' => $blackId,
+            'white_player_id' => $whiteId,
+            'mode' => $mode,
+            'ruleset' => 'chinese',
+            'board_size' => $request->board_size,
+            'status' => 'playing',
+            'current_turn' => 'black',
+            'time_control_type' => $timeControlType,
+            'time_control_config' => $timeControlConfig,
+            'started_at' => now(),
+        ]);
+
+        if ($blackId === $bot->id) {
+            BotMoveJob::dispatch($game->id);
+        }
 
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
