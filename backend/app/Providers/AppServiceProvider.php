@@ -5,8 +5,8 @@ namespace App\Providers;
 use App\Events\Game\DeadStonesMarked;
 use App\Events\Game\MovePassed;
 use App\Events\Game\MovePlayed;
-use App\Game\Engines\GoEngine;
 use App\Game\Engines\GnuGoEngine;
+use App\Game\Engines\GoEngine;
 use App\Game\Engines\ProcessGtpClient;
 use App\Listeners\TriggerBotConfirmDead;
 use App\Listeners\TriggerBotMove;
@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(GoEngine::class, function () {
-            return new GnuGoEngine(new ProcessGtpClient());
+            return new GnuGoEngine(new ProcessGtpClient);
         });
     }
 

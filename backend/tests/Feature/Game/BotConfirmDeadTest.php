@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Game;
 
+use App\Game\Board;
 use App\Game\Engines\EngineMove;
 use App\Game\Engines\GoEngine;
 use App\Game\Stone;
@@ -27,7 +28,7 @@ class BotConfirmDeadTest extends TestCase
         // Bind fake engine before any game actions
         $this->app->bind(GoEngine::class, fn () => new class implements GoEngine
         {
-            public function suggestMove(\App\Game\Board $board, Stone $toPlay, array $history = []): EngineMove
+            public function suggestMove(Board $board, Stone $toPlay, array $history = []): EngineMove
             {
                 return EngineMove::pass();
             }

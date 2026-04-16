@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Game\Board;
 use App\Game\Engines\EngineMove;
 use App\Game\Engines\GoEngine;
 use App\Game\Move as DomainMove;
 use App\Game\MoveType;
 use App\Game\Persistence\BoardSerializer;
-use App\Game\Persistence\GameMapper;
 use App\Game\Position;
 use App\Game\Stone;
 use App\Models\Game;
@@ -47,7 +47,7 @@ final class BotMoveJob implements ShouldQueue
 
         $board = $lastMove !== null
             ? BoardSerializer::deserialize($lastMove->board_state, $game->board_size)
-            : \App\Game\Board::empty($game->board_size);
+            : Board::empty($game->board_size);
 
         $history = $game->moves->map(fn (MoveModel $m) => $this->toDomainMove($m))->all();
 
