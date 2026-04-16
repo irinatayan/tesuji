@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     curl \
     unzip \
+    gnugo \
     && docker-php-ext-install \
         pdo_pgsql \
         pgsql \
@@ -49,7 +50,8 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/start.sh /start.sh
 COPY docker/start-reverb.sh /start-reverb.sh
-RUN chmod +x /start.sh /start-reverb.sh
+COPY docker/start-horizon.sh /start-horizon.sh
+RUN chmod +x /start.sh /start-reverb.sh /start-horizon.sh
 
 EXPOSE 8080
 
