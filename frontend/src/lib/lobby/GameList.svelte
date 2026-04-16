@@ -5,18 +5,27 @@
   import { getEcho } from '$lib/echo';
   import { onMount, onDestroy } from 'svelte';
 
-  let { onSelect }: { onSelect: (gameId: number) => void } = $props();
+  let {
+    onSelect,
+    refresh = $bindable(0),
+  }: { onSelect: (gameId: number) => void; refresh?: number } = $props();
 
   let games = $state<GameResponse[]>([]);
   let loading = $state(true);
 
-  onMount(async () => {
+  async function load() {
     try {
       const res = await api.getGames();
       games = res.data;
     } finally {
       loading = false;
     }
+  }
+
+  onMount(load);
+
+  $effect(() => {
+    if (refresh > 0) load();
   });
 
   let userChannel: ReturnType<ReturnType<typeof getEcho>['private']> | null = null;

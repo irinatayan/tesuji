@@ -25,6 +25,7 @@
   let showCreateForm = $state(false);
   let invitationRefresh = $state(0);
   let outgoingRefresh = $state(0);
+  let gamesRefresh = $state(0);
 
   const gameId = $derived(router.current.name === 'game' ? router.current.id : null);
   const profileUserId = $derived(router.current.name === 'profile' ? router.current.userId : null);
@@ -137,6 +138,8 @@
         });
       })
       .listen('.invitation.accepted', (e: { game_id: number }) => {
+        outgoingRefresh++;
+        gamesRefresh++;
         addToast({
           type: 'info',
           message: $_('toast.inviteAccepted'),
@@ -195,7 +198,7 @@
     <main class="lobby">
       <InvitationList onAccepted={openGame} bind:refresh={invitationRefresh} />
       <OutgoingInvitations bind:refresh={outgoingRefresh} />
-      <GameList onSelect={openGame} />
+      <GameList onSelect={openGame} bind:refresh={gamesRefresh} />
 
       <div class="create-section">
         {#if !showCreateForm}
