@@ -27,6 +27,8 @@
   let lastMove = $state<Position | null>(null);
   let chatCollapsed = $state(window.innerWidth < 720);
   let chatUnread = $state(0);
+  let spectators = $state<{ id: number; name: string }[]>([]);
+  let showSpectators = $state(false);
 
   const myColor = $derived.by<Stone | null>(() => {
     if (!game || !auth.user) return null;
@@ -147,16 +149,30 @@
     }
   }
 
-  let channel = $state<
-    ReturnType<typeof getEcho>['private'] extends (...args: unknown[]) => infer R ? R : never
-  >(null as any);
+  let channel = $state<ReturnType<ReturnType<typeof getEcho>['join']>>(null as any);
+
+  function updateSpectators(members: { id: number; name: string }[]) {
+    if (!game) return;
+    spectators = members.filter(
+      (m) => m.id !== game!.black_player.id && m.id !== game!.white_player.id,
+    );
+  }
 
   onMount(async () => {
     await loadGame();
 
-    channel = getEcho().private(`game.${gameId}`);
+    channel = getEcho().join(`game.${gameId}`);
 
     channel
+      .here((members: { id: number; name: string }[]) => updateSpectators(members))
+      .joining((member: { id: number; name: string }) => {
+        if (game && member.id !== game.black_player.id && member.id !== game.white_player.id) {
+          spectators = [...spectators, member];
+        }
+      })
+      .leaving((member: { id: number; name: string }) => {
+        spectators = spectators.filter((s) => s.id !== member.id);
+      })
       .listen('.game.move.played', (event: MovePlayed) => {
         console.log('[WS] game.move.played', JSON.stringify(event));
         board = applyMovePlayed(board, event);
@@ -229,6 +245,25 @@
           <span class="captures">×{game.captures.white}</span>
         </div>
       </div>
+      {#if spectators.length > 0}
+        <div class="spectator-indicator">
+          <button
+            class="spectator-btn"
+            onclick={() => (showSpectators = !showSpectators)}
+            aria-label={$_('game.spectators')}
+          >
+            👁 {spectators.length}
+          </button>
+          {#if showSpectators}
+            <div class="spectator-popover">
+              <div class="spectator-title">{$_('game.spectators')}</div>
+              {#each spectators as s}
+                <div class="spectator-name">{s.name}</div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
       {#if !isSpectator}
         <button
           class="chat-open-btn"
@@ -701,5 +736,55 @@
     color: #ffaaaa;
     font-size: 13px;
     margin: 0;
+  }
+
+  /* ── Spectator indicator ──────────────────── */
+  .spectator-indicator {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .spectator-btn {
+    background: none;
+    border: 1px solid rgba(139, 90, 43, 0.3);
+    border-radius: 16px;
+    color: var(--cream);
+    font-size: 13px;
+    padding: 4px 10px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .spectator-btn:hover {
+    opacity: 1;
+    border-color: var(--gold);
+  }
+  .spectator-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 140px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 100;
+  }
+  .spectator-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .spectator-name {
+    font-size: 13px;
+    color: var(--cream);
+    padding: 3px 0;
   }
 </style>
