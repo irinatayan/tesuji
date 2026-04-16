@@ -51,7 +51,13 @@ final class BotMoveJob implements ShouldQueue
 
         $history = $game->moves->map(fn (MoveModel $m) => $this->toDomainMove($m))->all();
 
-        $engineMove = $engine->suggestMove($board, $stone, $history);
+        try {
+            $engineMove = $engine->suggestMove($board, $stone, $history);
+        } catch (\Throwable $e) {
+            Log::error("BotMoveJob: engine failed in game {$this->gameId}: {$e->getMessage()}");
+
+            throw $e;
+        }
 
         $domainMove = $this->toDomainMoveFromEngine($engineMove, $stone);
 
