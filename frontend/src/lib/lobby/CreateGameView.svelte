@@ -22,9 +22,9 @@
       await api.sendInvitation({
         to_user_id: opponentId,
         board_size: boardSize,
-        mode: 'realtime',
-        time_control_type: 'absolute',
-        time_control_config: { seconds: 600 },
+        mode: 'correspondence',
+        time_control_type: 'correspondence',
+        time_control_config: { days_per_move: 3 },
         proposed_color: color,
       });
       success = $_('invite.sent');
