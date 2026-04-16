@@ -23,6 +23,7 @@
   "auth.authorizing": "Авторизация...",
 
   "lobby.newGame": "+ Новая игра",
+  "lobby.playBot": "Играть с ботом",
   "lobby.cancel": "Отмена",
 
   "invite.title": "Новая игра",
@@ -82,5 +83,10 @@
   "profile.colorBlack": "Чёрные",
   "profile.colorWhite": "Белые",
   "profile.win": "Победа",
-  "profile.loss": "Поражение"
+  "profile.loss": "Поражение",
+
+  "bot.title": "Игра с ботом",
+  "bot.start": "Начать игру",
+  "bot.creating": "Создание…",
+  "bot.createFailed": "Не удалось создать игру"
 }

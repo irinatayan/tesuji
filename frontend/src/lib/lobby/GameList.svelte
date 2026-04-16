@@ -55,9 +55,10 @@
     userChannel = null;
   });
 
-  function opponentName(game: GameResponse): string {
-    if (!auth.user) return '?';
-    return game.black_player.id === auth.user.id ? game.white_player.name : game.black_player.name;
+  function opponent(game: GameResponse): { name: string; isBot: boolean } {
+    if (!auth.user) return { name: '?', isBot: false };
+    const opp = game.black_player.id === auth.user.id ? game.white_player : game.black_player;
+    return { name: opp.name, isBot: !!opp.is_bot };
   }
 
   function myColor(game: GameResponse): string {
@@ -79,7 +80,8 @@
           <button onclick={() => onSelect(game.id)}>
             <span class="game-players">
               {myColor(game)} <span class="vs">{$_('games.vs')}</span>
-              {opponentName(game)}
+              {#if opponent(game).isBot}<span class="bot-badge" title="Bot">🤖</span>{/if}
+              {opponent(game).name}
               {#if game.unread_count && game.unread_count > 0}
                 <span class="unread-badge" title={`${game.unread_count} unread`}>
                   {game.unread_count}

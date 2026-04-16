@@ -13,6 +13,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  is_bot?: boolean;
 }
 
 export interface GameResponse {
@@ -99,6 +100,11 @@ export const api = {
     time_control_config: Record<string, number>;
     color: string;
   }) => request<{ data: GameResponse }>('POST', '/games', params),
+
+  createVsBotGame: (params: {
+    board_size: number;
+    color: string;
+  }) => request<{ data: GameResponse }>('POST', '/games/vs-bot', params),
 
   getGame: (id: number) => request<{ data: GameResponse }>('GET', `/games/${id}`),
 

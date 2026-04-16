@@ -23,6 +23,7 @@
   "auth.authorizing": "Authorizing...",
 
   "lobby.newGame": "+ New game",
+  "lobby.playBot": "Play vs Bot",
   "lobby.cancel": "Cancel",
 
   "invite.title": "New Game",
@@ -82,5 +83,10 @@
   "profile.colorBlack": "Black",
   "profile.colorWhite": "White",
   "profile.win": "Win",
-  "profile.loss": "Loss"
+  "profile.loss": "Loss",
+
+  "bot.title": "Play vs Bot",
+  "bot.start": "Start Game",
+  "bot.creating": "Creating…",
+  "bot.createFailed": "Failed to create game"
 }

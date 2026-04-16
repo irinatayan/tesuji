@@ -7,6 +7,7 @@
   import LoginView from '$lib/auth/LoginView.svelte';
   import OAuthCallback from '$lib/auth/OAuthCallback.svelte';
   import CreateGameView from '$lib/lobby/CreateGameView.svelte';
+  import PlayVsBotView from '$lib/lobby/PlayVsBotView.svelte';
   import GameList from '$lib/lobby/GameList.svelte';
   import InvitationList from '$lib/lobby/InvitationList.svelte';
   import OutgoingInvitations from '$lib/lobby/OutgoingInvitations.svelte';
@@ -23,6 +24,7 @@
   import { router, navigate, initRouter, routeToPath, type Route } from '$lib/router.svelte';
 
   let showCreateForm = $state(false);
+  let showBotForm = $state(false);
   let invitationRefresh = $state(0);
   let outgoingRefresh = $state(0);
   let gamesRefresh = $state(0);
@@ -201,10 +203,25 @@
       <GameList onSelect={openGame} bind:refresh={gamesRefresh} />
 
       <div class="create-section">
-        {#if !showCreateForm}
-          <button class="btn-primary" onclick={() => (showCreateForm = true)}>
-            {$_('lobby.newGame')}
-          </button>
+        {#if !showCreateForm && !showBotForm}
+          <div class="lobby-buttons">
+            <button class="btn-primary" onclick={() => (showCreateForm = true)}>
+              {$_('lobby.newGame')}
+            </button>
+            <button class="btn-bot" onclick={() => (showBotForm = true)}>
+              {$_('lobby.playBot')}
+            </button>
+          </div>
+        {:else if showBotForm}
+          <PlayVsBotView
+            onCreated={(id) => {
+              showBotForm = false;
+              openGame(id);
+            }}
+          />
+          <button class="btn-ghost" onclick={() => (showBotForm = false)}
+            >{$_('lobby.cancel')}</button
+          >
         {:else}
           <CreateGameView
             onInvited={() => {
@@ -514,5 +531,32 @@
   .btn-ghost:hover {
     color: var(--cream);
     border-color: var(--border);
+  }
+
+  .lobby-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-bot {
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #5a7a5a 0%, #3d5c3d 100%);
+    color: var(--cream);
+    border: 2px solid #7a9a7a;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  .btn-bot:hover {
+    background: linear-gradient(135deg, #6a8a6a 0%, #4d6c4d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(90, 122, 90, 0.3);
   }
 </style>

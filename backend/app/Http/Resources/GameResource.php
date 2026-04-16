@@ -24,10 +24,12 @@ class GameResource extends JsonResource
             'black_player' => [
                 'id' => $this->blackPlayer->id,
                 'name' => $this->blackPlayer->name,
+                'is_bot' => $this->blackPlayer->is_bot,
             ],
             'white_player' => [
                 'id' => $this->whitePlayer->id,
                 'name' => $this->whitePlayer->name,
+                'is_bot' => $this->whitePlayer->is_bot,
             ],
             'board' => $this->buildBoard(),
             'captures' => $this->buildCaptures(),
