@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Events\Game;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,9 +36,9 @@ final class MessageSent implements ShouldBroadcast, ShouldDispatchAfterCommit, S
         ];
     }
 
-    public function broadcastOn(): PrivateChannel
+    public function broadcastOn(): PresenceChannel
     {
-        return new PrivateChannel('game.'.$this->gameId);
+        return new PresenceChannel('game.'.$this->gameId);
     }
 
     public function broadcastAs(): string

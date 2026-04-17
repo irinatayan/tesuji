@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Events\Game;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -38,9 +38,9 @@ final class MovePlayed implements ShouldBroadcast, ShouldQueue
         ];
     }
 
-    public function broadcastOn(): PrivateChannel
+    public function broadcastOn(): PresenceChannel
     {
-        return new PrivateChannel('game.'.$this->gameId);
+        return new PresenceChannel('game.'.$this->gameId);
     }
 
     public function broadcastAs(): string
