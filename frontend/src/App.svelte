@@ -14,6 +14,7 @@
   import OutgoingInvitations from '$lib/lobby/OutgoingInvitations.svelte';
   import ProfileView from '$lib/profile/ProfileView.svelte';
   import GameRealtime from '$lib/board/GameRealtime.svelte';
+  import GameReplay from '$lib/board/GameReplay.svelte';
   import ToastContainer from '$lib/notifications/ToastContainer.svelte';
   import { addToast } from '$lib/notifications/toasts.svelte';
   import {
@@ -31,6 +32,7 @@
   let gamesRefresh = $state(0);
 
   const gameId = $derived(router.current.name === 'game' ? router.current.id : null);
+  let gameStatus = $state<string | null>(null);
   const profileUserId = $derived(router.current.name === 'profile' ? router.current.userId : null);
 
   onMount(async () => {
@@ -49,6 +51,14 @@
 
     try {
       auth.user = await api.me();
+      if (initial.name === 'game') {
+        try {
+          const res = await api.getGame(initial.id);
+          gameStatus = res.data.status;
+        } catch {
+          gameStatus = null;
+        }
+      }
       navigate(initial.name === 'auth' ? { name: 'lobby' } : initial);
     } catch {
       clearAuth();
@@ -71,8 +81,14 @@
     navigate(redirect);
   }
 
-  function openGame(id: number) {
+  async function openGame(id: number) {
     showCreateForm = false;
+    try {
+      const res = await api.getGame(id);
+      gameStatus = res.data.status;
+    } catch {
+      gameStatus = null;
+    }
     navigate({ name: 'game', id });
   }
 
@@ -238,7 +254,23 @@
       </div>
     </main>
   {:else if router.current.name === 'game' && gameId !== null}
-    <GameRealtime {gameId} onLeave={() => navigate({ name: 'lobby' })} />
+    {#if gameStatus === 'finished'}
+      <GameReplay
+        {gameId}
+        onLeave={() => {
+          gameStatus = null;
+          navigate({ name: 'lobby' });
+        }}
+      />
+    {:else}
+      <GameRealtime
+        {gameId}
+        onLeave={() => {
+          gameStatus = null;
+          navigate({ name: 'lobby' });
+        }}
+      />
+    {/if}
   {:else if router.current.name === 'profile' && profileUserId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>

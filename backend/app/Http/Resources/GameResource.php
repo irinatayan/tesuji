@@ -37,6 +37,18 @@ class GameResource extends JsonResource
             'score' => null,
             'started_at' => $this->started_at?->toISOString(),
             'finished_at' => $this->finished_at?->toISOString(),
+            'dead_stones' => $this->dead_stones,
+            'moves' => $this->when(
+                $this->status === 'finished',
+                fn () => $this->moves->map(fn ($m) => [
+                    'move_number' => $m->move_number,
+                    'color' => $m->color,
+                    'type' => $m->type,
+                    'x' => $m->x,
+                    'y' => $m->y,
+                    'captures' => $m->captures ?? [],
+                ]),
+            ),
             'unread_count' => $this->when(
                 $this->resource->unread_count !== null,
                 fn () => (int) $this->resource->unread_count,
