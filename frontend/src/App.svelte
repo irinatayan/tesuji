@@ -13,7 +13,7 @@
   import InvitationList from '$lib/lobby/InvitationList.svelte';
   import OutgoingInvitations from '$lib/lobby/OutgoingInvitations.svelte';
   import ProfileView from '$lib/profile/ProfileView.svelte';
-  import GameRealtime from '$lib/board/GameRealtime.svelte';
+  import GamePage from '$lib/board/GamePage.svelte';
   import ToastContainer from '$lib/notifications/ToastContainer.svelte';
   import { addToast } from '$lib/notifications/toasts.svelte';
   import {
@@ -238,7 +238,7 @@
       </div>
     </main>
   {:else if router.current.name === 'game' && gameId !== null}
-    <GameRealtime {gameId} onLeave={() => navigate({ name: 'lobby' })} />
+    <GamePage {gameId} onLeave={() => navigate({ name: 'lobby' })} />
   {:else if router.current.name === 'profile' && profileUserId !== null}
     <header class="site-header">
       <span class="site-title">{$_('app.title')}</span>
@@ -255,7 +255,11 @@
       </nav>
     </header>
     <main class="lobby">
-      <ProfileView userId={profileUserId} onBack={() => navigate({ name: 'lobby' })} />
+      <ProfileView
+        userId={profileUserId}
+        onBack={() => navigate({ name: 'lobby' })}
+        onOpenGame={openGame}
+      />
     </main>
   {/if}
 </div>

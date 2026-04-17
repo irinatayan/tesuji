@@ -27,6 +27,14 @@ export interface GameResponse {
   board: (string | null)[][];
   captures: { black: number; white: number };
   dead_stones: { x: number; y: number }[] | null;
+  moves?: {
+    move_number: number;
+    color: 'black' | 'white';
+    type: 'play' | 'pass' | 'resign';
+    x: number | null;
+    y: number | null;
+    captures: { x: number; y: number }[];
+  }[];
   unread_count?: number;
 }
 

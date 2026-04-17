@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('games', [GameController::class, 'store']);
     Route::post('games/vs-bot', [GameController::class, 'createVsBot']);
     Route::get('games/{game}', [GameController::class, 'show']);
+    Route::get('games/{game}/sgf', [GameController::class, 'sgf']);
     Route::post('games/{game}/moves', [GameController::class, 'move']);
     Route::post('games/{game}/pass', [GameController::class, 'pass']);
     Route::post('games/{game}/resign', [GameController::class, 'resign']);

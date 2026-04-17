@@ -71,6 +71,14 @@
   "game.spectating": "Спостереження",
   "game.spectators": "Глядачі",
 
+  "replay.title": "Перегляд",
+  "replay.move": "Хід {n} / {total}",
+  "replay.download": "Завантажити SGF",
+  "replay.start": "На початок",
+  "replay.end": "В кінець",
+  "replay.prev": "Назад",
+  "replay.next": "Вперед",
+
   "profile.back": "← Назад",
   "profile.games": "Ігри",
   "profile.wins": "Перемоги",
