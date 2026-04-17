@@ -71,6 +71,14 @@
   "game.spectating": "Spectating",
   "game.spectators": "Spectators",
 
+  "replay.title": "Replay",
+  "replay.move": "Move {n} / {total}",
+  "replay.download": "Download SGF",
+  "replay.start": "First move",
+  "replay.end": "Last move",
+  "replay.prev": "Previous move",
+  "replay.next": "Next move",
+
   "profile.back": "← Back",
   "profile.games": "Games",
   "profile.wins": "Wins",

@@ -3,7 +3,11 @@
   import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
 
-  let { userId, onBack }: { userId: number; onBack: () => void } = $props();
+  let {
+    userId,
+    onBack,
+    onOpenGame,
+  }: { userId: number; onBack: () => void; onOpenGame: (id: number) => void } = $props();
 
   type Profile = {
     id: number;
@@ -112,7 +116,7 @@
         </thead>
         <tbody>
           {#each games as game (game.id)}
-            <tr class={won(game) ? 'win' : 'loss'}>
+            <tr class="{won(game) ? 'win' : 'loss'} clickable" onclick={() => onOpenGame(game.id)}>
               <td>{opponent(game)}</td>
               <td>{playerColor(game)}</td>
               <td>{game.board_size}×{game.board_size}</td>
@@ -194,6 +198,13 @@
   }
   tr.loss td:last-child {
     color: #c00;
+  }
+  tr.clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  tr.clickable:hover {
+    background: rgba(0, 0, 0, 0.04);
   }
   .pagination {
     display: flex;

@@ -23,7 +23,7 @@
 
   let snapshots = $state<Snapshot[]>([]);
 
-  const totalMoves = $derived(game?.moves?.length ?? 0);
+  const totalMoves = $derived(Math.max(0, snapshots.length - 1));
   const snapshot = $derived(snapshots[currentStep] ?? null);
 
   function buildSnapshots(g: GameResponse): Snapshot[] {
