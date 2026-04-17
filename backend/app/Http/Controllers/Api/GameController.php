@@ -22,9 +22,11 @@ use App\Mail\GameFinishedMail;
 use App\Models\Game;
 use App\Models\User;
 use App\Services\GameService;
+use App\Services\SgfExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
 
 class GameController extends Controller
@@ -133,6 +135,21 @@ class GameController extends Controller
         $game->load(['blackPlayer', 'whitePlayer', 'moves']);
 
         return (new GameResource($game))->response()->setStatusCode(201);
+    }
+
+    public function sgf(Game $game, SgfExporter $exporter): Response
+    {
+        if ($game->status !== 'finished') {
+            abort(403, 'Game is not finished yet.');
+        }
+
+        $sgf = $exporter->export($game);
+        $filename = "game-{$game->id}.sgf";
+
+        return response($sgf, 200, [
+            'Content-Type' => 'application/x-go-sgf',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 
     public function show(Request $request, Game $game): GameResource
