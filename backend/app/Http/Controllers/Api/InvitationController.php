@@ -11,6 +11,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateInvitationRequest;
 use App\Models\Game;
 use App\Models\GameInvitation;
+use App\Models\User;
+use App\Notifications\InvitationReceivedNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,6 +61,9 @@ class InvitationController extends Controller
             boardSize: $invitation->board_size,
             mode: $invitation->mode,
         ));
+
+        $invitation->load('fromUser');
+        User::find($invitation->to_user_id)?->notify(new InvitationReceivedNotification($invitation));
 
         return response()->json($invitation->load(['fromUser:id,name', 'toUser:id,name']), 201);
     }

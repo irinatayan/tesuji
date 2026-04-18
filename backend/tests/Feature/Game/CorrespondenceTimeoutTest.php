@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Game;
 
 use App\Jobs\CheckGameTimeouts;
-use App\Mail\GameTimedOutMail;
-use App\Mail\YourTurnMail;
 use App\Models\Game;
 use App\Models\User;
+use App\Notifications\GameTimedOutNotification;
+use App\Notifications\OpponentMovedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class CorrespondenceTimeoutTest extends TestCase
@@ -122,9 +122,9 @@ class CorrespondenceTimeoutTest extends TestCase
         $this->assertSame('B+5.5', $game->fresh()->result);
     }
 
-    public function test_timeout_sends_email_to_both_players(): void
+    public function test_timeout_sends_notification_to_both_players(): void
     {
-        Mail::fake();
+        Notification::fake();
 
         Game::factory()->correspondence()->create([
             'black_player_id' => $this->alice->id,
@@ -135,13 +135,13 @@ class CorrespondenceTimeoutTest extends TestCase
 
         (new CheckGameTimeouts)->handle();
 
-        Mail::assertQueued(GameTimedOutMail::class, fn ($mail) => $mail->hasTo($this->alice->email));
-        Mail::assertQueued(GameTimedOutMail::class, fn ($mail) => $mail->hasTo($this->bob->email));
+        Notification::assertSentTo($this->alice, GameTimedOutNotification::class);
+        Notification::assertSentTo($this->bob, GameTimedOutNotification::class);
     }
 
-    public function test_move_sends_your_turn_mail_in_correspondence(): void
+    public function test_move_sends_your_turn_notification_in_correspondence(): void
     {
-        Mail::fake();
+        Notification::fake();
 
         $game = Game::factory()->correspondence()->create([
             'black_player_id' => $this->alice->id,
@@ -153,12 +153,12 @@ class CorrespondenceTimeoutTest extends TestCase
             'x' => 3, 'y' => 3,
         ])->assertOk();
 
-        Mail::assertQueued(YourTurnMail::class, fn ($mail) => $mail->hasTo($this->bob->email));
+        Notification::assertSentTo($this->bob, OpponentMovedNotification::class);
     }
 
-    public function test_move_does_not_send_email_in_realtime_game(): void
+    public function test_move_does_not_send_notification_in_realtime_game(): void
     {
-        Mail::fake();
+        Notification::fake();
 
         $game = Game::factory()->create([
             'black_player_id' => $this->alice->id,
@@ -169,6 +169,6 @@ class CorrespondenceTimeoutTest extends TestCase
             'x' => 3, 'y' => 3,
         ])->assertOk();
 
-        Mail::assertNothingQueued();
+        Notification::assertNothingSent();
     }
 }

@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\Channels\TelegramChannel;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -12,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'provider', 'provider_id', 'is_bot'])]
+#[Fillable(['name', 'email', 'password', 'provider', 'provider_id', 'is_bot', 'telegram_chat_id', 'notification_preferences'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,8 +27,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_bot' => 'boolean',
+            'notification_preferences' => 'array',
         ];
     }
+
+    /** @return list<string> */
+    public function channelsFor(string $event): array
+    {
+        $prefs = $this->notification_preferences ?? [];
+        $eventPrefs = $prefs[$event] ?? [];
+
+        $channels = [];
+
+        if (($eventPrefs['telegram'] ?? true) && $this->telegram_chat_id) {
+            $channels[] = TelegramChannel::class;
+        }
+
+        if ($eventPrefs['mail'] ?? true) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
+    }
+
 
     public function gamesAsBlack(): HasMany
     {

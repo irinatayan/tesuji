@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\TelegramController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Webhook\TelegramWebhookController;
 use Illuminate\Http\Request;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -39,7 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('games/{game}/messages', [MessageController::class, 'index']);
     Route::post('games/{game}/messages', [MessageController::class, 'store']);
     Route::post('games/{game}/messages/read', [MessageController::class, 'markRead']);
+
+    Route::post('telegram/pair', [TelegramController::class, 'pair']);
+    Route::delete('telegram/unlink', [TelegramController::class, 'unlink']);
 });
+
+Route::post('webhooks/telegram', [TelegramWebhookController::class, 'handle']);
 
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);

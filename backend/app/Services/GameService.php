@@ -14,11 +14,10 @@ use App\Game\Move as DomainMove;
 use App\Game\MoveType;
 use App\Game\Persistence\GameMapper;
 use App\Game\Position;
-use App\Mail\GameFinishedMail;
-use App\Mail\YourTurnMail;
 use App\Models\Game;
+use App\Notifications\GameFinishedNotification;
+use App\Notifications\OpponentMovedNotification;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 final class GameService
 {
@@ -103,10 +102,10 @@ final class GameService
             $recipient = $model->current_turn === 'black'
                 ? $model->blackPlayer
                 : $model->whitePlayer;
-            Mail::to($recipient)->queue(new YourTurnMail($model, $recipient));
+            $recipient->notify(new OpponentMovedNotification($model));
         } elseif ($model->status === 'finished') {
-            Mail::to($model->blackPlayer)->queue(new GameFinishedMail($model, $model->blackPlayer));
-            Mail::to($model->whitePlayer)->queue(new GameFinishedMail($model, $model->whitePlayer));
+            $model->blackPlayer->notify(new GameFinishedNotification($model));
+            $model->whitePlayer->notify(new GameFinishedNotification($model));
         }
     }
 }

@@ -8,8 +8,10 @@ use App\Events\Game\MessageSent;
 use App\Events\Game\UnreadChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SendMessageRequest;
+use App\Jobs\SendNewMessageNotification;
 use App\Models\Game;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -84,6 +86,12 @@ class MessageController extends Controller
             : $game->black_player_id;
         $unreadCount = (int) Game::withUnreadCount($recipientId)->find($game->id)->unread_count;
         UnreadChanged::dispatch($recipientId, $game->id, $unreadCount);
+
+        $recipient = User::find($recipientId);
+        if ($recipient && ! $recipient->is_bot) {
+            SendNewMessageNotification::dispatch($game, $recipient, $user->name)
+                ->delay(now()->addSeconds(60));
+        }
 
         return response()->json([
             'data' => [
