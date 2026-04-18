@@ -5,6 +5,7 @@
   import { Board } from '$lib/game/Board';
   import type { Position, Stone } from '$lib/game/types';
   import GoBoard from './GoBoard.svelte';
+  import { playStoneSound } from '$lib/audio';
 
   let { gameId, onLeave }: { gameId: number; onLeave: () => void } = $props();
 
@@ -61,7 +62,9 @@
     currentStep = Math.max(0, currentStep - 1);
   }
   function goForward() {
-    currentStep = Math.min(totalMoves, currentStep + 1);
+    const next = Math.min(totalMoves, currentStep + 1);
+    if (next !== currentStep && snapshots[next]?.lastMove) playStoneSound();
+    currentStep = next;
   }
   function goToEnd() {
     currentStep = totalMoves;

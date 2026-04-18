@@ -10,6 +10,7 @@
   import type { Position, Stone } from '$lib/game/types';
   import GoBoard from './GoBoard.svelte';
   import Chat from './Chat.svelte';
+  import { playStoneSound } from '$lib/audio';
 
   interface DeadStonesMarked {
     by: Stone;
@@ -73,6 +74,7 @@
     const before = board;
     board = board.set(pos, myColor!);
     lastMove = pos;
+    playStoneSound();
 
     try {
       const res = await api.playMove(gameId, pos.x, pos.y);
@@ -176,6 +178,7 @@
       .listen('.game.move.played', (event: MovePlayed) => {
         console.log('[WS] game.move.played', JSON.stringify(event));
         board = applyMovePlayed(board, event);
+        if (event.color !== myColor) playStoneSound();
         lastMove = { x: event.x, y: event.y };
         if (game) {
           const captured = event.captures.length;
