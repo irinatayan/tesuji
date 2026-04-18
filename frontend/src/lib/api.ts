@@ -25,6 +25,7 @@ export interface GameResponse {
   black_player: User;
   white_player: User;
   board: (string | null)[][];
+  last_move: { x: number; y: number } | null;
   captures: { black: number; white: number };
   dead_stones: { x: number; y: number }[] | null;
   moves?: {

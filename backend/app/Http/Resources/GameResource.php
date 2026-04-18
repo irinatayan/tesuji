@@ -32,6 +32,7 @@ class GameResource extends JsonResource
                 'is_bot' => $this->whitePlayer->is_bot,
             ],
             'board' => $this->buildBoard(),
+            'last_move' => $this->buildLastMove(),
             'captures' => $this->buildCaptures(),
             'result' => $this->result,
             'score' => null,
@@ -77,6 +78,17 @@ class GameResource extends JsonResource
         }
 
         return $grid;
+    }
+
+    private function buildLastMove(): ?array
+    {
+        $last = $this->moves->last();
+
+        if ($last === null || $last->type !== 'play') {
+            return null;
+        }
+
+        return ['x' => $last->x, 'y' => $last->y];
     }
 
     private function buildCaptures(): array

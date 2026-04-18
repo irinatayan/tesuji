@@ -59,6 +59,7 @@
       const res = await api.getGame(gameId);
       game = res.data;
       board = boardFromGame(res.data);
+      lastMove = res.data.last_move;
     } catch {
       error = 'Failed to load game';
     } finally {
