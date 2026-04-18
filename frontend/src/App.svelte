@@ -22,6 +22,7 @@
     removeIncoming,
   } from '$lib/notifications/invitations.svelte';
   import { getEcho } from '$lib/echo';
+  import { onlineUsers } from '$lib/stores/online';
   import { router, navigate, initRouter, routeToPath, type Route } from '$lib/router.svelte';
 
   let showCreateForm = $state(false);
@@ -154,6 +155,25 @@
 
     return () => {
       getEcho().leave(`user.${user.id}`);
+    };
+  });
+
+  $effect(() => {
+    const user = auth.user;
+    if (!user) return;
+
+    const channel = getEcho().join('online');
+    channel
+      .here((members: { id: number }[]) => {
+        onlineUsers.clear();
+        members.forEach((m) => onlineUsers.add(m.id));
+      })
+      .joining((member: { id: number }) => onlineUsers.add(member.id))
+      .leaving((member: { id: number }) => onlineUsers.delete(member.id));
+
+    return () => {
+      getEcho().leave('online');
+      onlineUsers.clear();
     };
   });
 </script>

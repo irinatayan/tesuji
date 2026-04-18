@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
+  import OnlineDot from '$lib/ui/OnlineDot.svelte';
 
   let {
     userId,
@@ -81,7 +82,10 @@
   {#if loading}
     <p>{$_('app.loading')}</p>
   {:else if profile}
-    <h2>{profile.name}</h2>
+    <h2 class="profile-name">
+      {profile.name}
+      <OnlineDot userId={profile.id} />
+    </h2>
     <div class="stats">
       <div class="stat">
         <span class="label">{$_('profile.games')}</span><span>{profile.stats.total}</span>
@@ -155,6 +159,11 @@
   }
   h2 {
     margin: 0 0 16px;
+  }
+  .profile-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   h3 {
     margin: 24px 0 12px;
