@@ -12,6 +12,10 @@ Broadcast::channel('user.{id}', function (User $user, int $id): bool {
     return $user->id === $id;
 });
 
+Broadcast::channel('online', function (User $user): array {
+    return ['id' => $user->id, 'name' => $user->name];
+});
+
 Broadcast::channel('game.{gameId}', function (User $user, int $gameId): ?array {
     if (! Game::where('id', $gameId)->exists()) {
         return null;

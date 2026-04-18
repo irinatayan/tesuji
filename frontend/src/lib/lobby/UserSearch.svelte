@@ -2,6 +2,7 @@
   import { _ } from 'svelte-i18n';
   import { api } from '$lib/api';
   import { tick } from 'svelte';
+  import OnlineDot from '$lib/ui/OnlineDot.svelte';
 
   let { onSelect }: { onSelect: (user: { id: number; name: string }) => void } = $props();
 
@@ -102,7 +103,12 @@
       {:else}
         {#each users as user (user.id)}
           <li>
-            <button type="button" onclick={() => pick(user)}>{user.name}</button>
+            <button type="button" onclick={() => pick(user)}>
+              <span class="user-row">
+                {user.name}
+                <OnlineDot userId={user.id} />
+              </span>
+            </button>
           </li>
         {/each}
         {#if loading}
@@ -165,6 +171,11 @@
     font-size: 14px;
     color: var(--cream);
     transition: background 0.15s;
+  }
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   .results li:last-child button {
     border-bottom: none;
