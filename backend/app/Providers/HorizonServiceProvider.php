@@ -9,15 +9,16 @@ use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
-    protected function authorization(): void
-    {
-        if (! app()->environment('local')) {
-            parent::authorization();
-        }
-    }
-
     protected function gate(): void
     {
-        Gate::define('viewHorizon', fn (): bool => app()->environment('local'));
+        Gate::define('viewHorizon', function (): bool {
+            if (app()->environment('local')) {
+                return true;
+            }
+
+            $secret = env('HORIZON_SECRET');
+
+            return $secret && request()->query('secret') === $secret;
+        });
     }
 }
