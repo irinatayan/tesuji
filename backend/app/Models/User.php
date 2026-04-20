@@ -39,11 +39,11 @@ class User extends Authenticatable
 
         $channels = [];
 
-        if (($eventPrefs['telegram'] ?? true) && $this->telegram_chat_id) {
+        if (($eventPrefs['telegram'] ?? false) && $this->telegram_chat_id) {
             $channels[] = TelegramChannel::class;
         }
 
-        if ($eventPrefs['mail'] ?? true) {
+        if ($eventPrefs['mail'] ?? false) {
             $channels[] = 'mail';
         }
 

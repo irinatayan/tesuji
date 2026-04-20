@@ -26,10 +26,10 @@
 
   function defaultPrefs(): Record<EventKey, Record<string, boolean>> {
     return {
-      new_message: { telegram: true, mail: true },
-      opponent_moved: { telegram: true, mail: true },
-      invitation: { telegram: true, mail: true },
-      game_finished: { telegram: true, mail: true },
+      new_message: { telegram: false, mail: false },
+      opponent_moved: { telegram: false, mail: false },
+      invitation: { telegram: false, mail: false },
+      game_finished: { telegram: false, mail: false },
     };
   }
 
