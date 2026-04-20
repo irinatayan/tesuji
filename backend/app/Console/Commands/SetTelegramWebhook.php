@@ -15,7 +15,7 @@ class SetTelegramWebhook extends Command
 
     public function handle(): int
     {
-        $token = config('services.telegram.token');
+        $token = config('services.telegram.bot_token');
         $secret = config('services.telegram.webhook_secret');
 
         if (! $token) {
