@@ -176,6 +176,16 @@
       onlineUsers.clear();
     };
   });
+
+  $effect(() => {
+    const user = auth.user;
+    if (!user) return;
+
+    api.ping().catch(() => {});
+    const interval = setInterval(() => api.ping().catch(() => {}), 15_000);
+
+    return () => clearInterval(interval);
+  });
 </script>
 
 <div class="app">

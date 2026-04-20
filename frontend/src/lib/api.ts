@@ -155,6 +155,8 @@ export const api = {
 
   updateNotificationPreferences: (prefs: Record<string, Record<string, boolean>>) =>
     request<void>('PUT', '/profile/notifications', prefs),
+
+  ping: () => request<void>('POST', '/ping'),
 };
 
 export interface ChatMessage {

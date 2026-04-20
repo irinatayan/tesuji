@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\GameController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\PingController;
 use App\Http\Controllers\Api\TelegramController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Webhook\TelegramWebhookController;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $r) => $r->user());
+    Route::post('ping', PingController::class);
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/{user}', [UserController::class, 'show']);
