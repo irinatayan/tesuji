@@ -21,7 +21,17 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
 
             $secret = config('services.horizon.secret');
 
-            return $secret && $request->query('secret') === $secret;
+            if (! $secret) {
+                return false;
+            }
+
+            if ($request->query('secret') === $secret) {
+                session(['horizon_authorized' => true]);
+
+                return true;
+            }
+
+            return session('horizon_authorized') === true;
         });
     }
 
