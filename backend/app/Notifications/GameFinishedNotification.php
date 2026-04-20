@@ -39,7 +39,7 @@ final class GameFinishedNotification extends Notification implements ShouldQueue
         $url = config('app.frontend_url').'/game/'.$this->game->id;
 
         return new TelegramMessage(
-            "Game against <b>{$opponent}</b> is over: {$result}\n<a href=\"{$url}\">View result</a>"
+            __('messages.tg_game_finished', ['opponent' => $opponent, 'size' => $this->game->board_size, 'result' => $result])."\n{$url}"
         );
     }
 

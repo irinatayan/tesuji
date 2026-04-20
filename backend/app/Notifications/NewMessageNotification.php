@@ -45,8 +45,8 @@ final class NewMessageNotification extends Notification implements ShouldQueue
         $url = config('app.frontend_url').'/game/'.$this->game->id;
 
         $body = $this->unreadCount === 1
-            ? "<b>{$this->senderName}</b> sent you a message"
-            : "<b>{$this->unreadCount}</b> new messages from <b>{$opponent}</b>";
+            ? __('messages.tg_new_message', ['sender' => $this->senderName])
+            : __('messages.tg_new_messages', ['count' => $this->unreadCount, 'opponent' => $opponent]);
 
         return new TelegramMessage("{$body}\n{$url}");
     }

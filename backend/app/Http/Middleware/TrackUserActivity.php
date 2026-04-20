@@ -15,6 +15,11 @@ final class TrackUserActivity
     {
         if ($user = $request->user()) {
             Cache::put("user_online:{$user->id}", true, now()->addSeconds(30));
+
+            $locale = app()->getLocale();
+            if ($user->locale !== $locale) {
+                $user->update(['locale' => $locale]);
+            }
         }
 
         return $next($request);

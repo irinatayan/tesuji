@@ -35,11 +35,10 @@ final class GameTimedOutNotification extends Notification implements ShouldQueue
             ? $this->game->whitePlayer->name
             : $this->game->blackPlayer->name;
 
-        $result = $this->game->result ?? 'finished';
         $url = config('app.frontend_url').'/game/'.$this->game->id;
 
         return new TelegramMessage(
-            "Game against <b>{$opponent}</b> ended on timeout: {$result}\n<a href=\"{$url}\">View result</a>"
+            __('messages.tg_game_timeout', ['opponent' => $opponent, 'size' => $this->game->board_size])."\n{$url}"
         );
     }
 

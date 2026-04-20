@@ -30,4 +30,11 @@ return [
 
     'mail_timeout_subject' => 'Game timed out — Tesuji',
     'mail_timeout_body' => 'Your :size×:size correspondence game on Tesuji has ended due to timeout.',
+
+    'tg_opponent_moved' => 'Your turn in a game against :opponent (:size×:size)',
+    'tg_invitation' => ':from invites you to a :size×:size game',
+    'tg_new_message' => ':sender sent you a message',
+    'tg_new_messages' => ':count new messages from :opponent',
+    'tg_game_finished' => 'Your :size×:size game against :opponent has finished. Result: :result',
+    'tg_game_timeout' => 'Your :size×:size game against :opponent has ended due to timeout.',
 ];

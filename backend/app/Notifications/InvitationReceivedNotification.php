@@ -38,7 +38,7 @@ final class InvitationReceivedNotification extends Notification implements Shoul
         $url = config('app.frontend_url').'/lobby';
 
         return new TelegramMessage(
-            "<b>{$from}</b> invites you to a {$size}×{$size} game\n{$url}"
+            __('messages.tg_invitation', ['from' => $from, 'size' => $size])."\n{$url}"
         );
     }
 

@@ -30,4 +30,11 @@ return [
 
     'mail_timeout_subject' => 'Время вышло — Tesuji',
     'mail_timeout_body' => 'Ваша корреспондентская игра :size×:size на Tesuji завершилась из-за тайм-аута.',
+
+    'tg_opponent_moved' => 'Ваш ход в игре против :opponent (:size×:size)',
+    'tg_invitation' => ':from приглашает вас в игру :size×:size',
+    'tg_new_message' => ':sender отправил вам сообщение',
+    'tg_new_messages' => 'Новых сообщений: :count от :opponent',
+    'tg_game_finished' => 'Игра :size×:size против :opponent завершена. Результат: :result',
+    'tg_game_timeout' => 'Игра :size×:size против :opponent завершена по тайм-ауту.',
 ];

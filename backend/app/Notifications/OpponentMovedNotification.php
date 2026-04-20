@@ -39,7 +39,7 @@ final class OpponentMovedNotification extends Notification implements ShouldQueu
         $url = config('app.frontend_url').'/game/'.$this->game->id;
 
         return new TelegramMessage(
-            "Your turn in a game against <b>{$opponent}</b> ({$size}×{$size})\n{$url}"
+            __('messages.tg_opponent_moved', ['opponent' => $opponent, 'size' => $size])."\n{$url}"
         );
     }
 

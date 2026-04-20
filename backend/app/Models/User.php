@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Notifications\Channels\TelegramChannel;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,9 +16,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'provider', 'provider_id', 'is_bot', 'telegram_chat_id', 'notification_preferences'])]
+#[Fillable(['name', 'email', 'password', 'provider', 'provider_id', 'is_bot', 'telegram_chat_id', 'notification_preferences', 'locale'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -45,6 +46,11 @@ class User extends Authenticatable
         }
 
         return $channels;
+    }
+
+    public function preferredLocale(): string
+    {
+        return $this->locale ?? 'en';
     }
 
     public function isOnline(): bool
