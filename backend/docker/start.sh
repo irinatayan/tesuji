@@ -6,5 +6,6 @@ php artisan db:seed --class=BotUsersSeeder --force
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan telegram:webhook:set || true
 
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
