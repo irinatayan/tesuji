@@ -54,6 +54,7 @@
   let prefs = $state(defaultPrefs());
   let prefsSaving = $state(false);
   let prefsSaved = $state(false);
+  let errorMsg = $state('');
 
   const isOwnProfile = $derived(auth.user?.id === userId);
 
@@ -69,10 +70,13 @@
   async function savePreferences() {
     prefsSaving = true;
     prefsSaved = false;
+    errorMsg = '';
     try {
       await api.updateNotificationPreferences(prefs);
       prefsSaved = true;
       setTimeout(() => (prefsSaved = false), 2000);
+    } catch {
+      errorMsg = 'Failed to save preferences. Please try again.';
     } finally {
       prefsSaving = false;
     }
@@ -80,9 +84,12 @@
 
   async function connectTelegram() {
     telegramLoading = true;
+    errorMsg = '';
     try {
       const { url } = await api.telegramPair();
       window.open(url, '_blank');
+    } catch {
+      errorMsg = 'Failed to generate Telegram link. Please try again.';
     } finally {
       telegramLoading = false;
     }
@@ -90,9 +97,12 @@
 
   async function disconnectTelegram() {
     telegramLoading = true;
+    errorMsg = '';
     try {
       await api.telegramUnlink();
       if (profile) profile = { ...profile, telegram_connected: false };
+    } catch {
+      errorMsg = 'Failed to disconnect Telegram. Please try again.';
     } finally {
       telegramLoading = false;
     }
@@ -144,6 +154,10 @@
       {profile.name}
       <OnlineDot userId={profile.id} />
     </h2>
+
+    {#if errorMsg}
+      <div class="error-msg">{errorMsg}</div>
+    {/if}
 
     {#if isOwnProfile}
       <div class="telegram-section">
@@ -409,6 +423,15 @@
   .empty {
     color: #888;
     font-size: 14px;
+  }
+  .error-msg {
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    background: #fff0f0;
+    border: 1px solid #f5c6c6;
+    border-radius: 4px;
+    color: #c00;
+    font-size: 13px;
   }
   .prefs-section {
     margin-bottom: 24px;
