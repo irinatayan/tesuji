@@ -106,13 +106,13 @@ class NotificationPreferencesTest extends TestCase
         $this->assertEmpty($channels);
     }
 
-    public function test_channels_for_returns_mail_when_enabled(): void
+    public function test_channels_for_never_returns_mail(): void
     {
         $this->user->update([
             'notification_preferences' => ['game_finished' => ['telegram' => false, 'mail' => true]],
         ]);
 
         $channels = $this->user->fresh()->channelsFor('game_finished');
-        $this->assertContains('mail', $channels);
+        $this->assertNotContains('mail', $channels);
     }
 }

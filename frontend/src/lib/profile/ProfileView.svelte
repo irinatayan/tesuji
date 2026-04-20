@@ -21,15 +21,15 @@
   };
 
   const EVENTS = ['new_message', 'opponent_moved', 'invitation', 'game_finished'] as const;
-  const CHANNELS = ['telegram', 'mail'] as const;
+  const CHANNELS = ['telegram'] as const;
   type EventKey = typeof EVENTS[number];
 
   function defaultPrefs(): Record<EventKey, Record<string, boolean>> {
     return {
-      new_message: { telegram: false, mail: false },
-      opponent_moved: { telegram: false, mail: false },
-      invitation: { telegram: false, mail: false },
-      game_finished: { telegram: false, mail: false },
+      new_message: { telegram: false },
+      opponent_moved: { telegram: false },
+      invitation: { telegram: false },
+      game_finished: { telegram: false },
     };
   }
 

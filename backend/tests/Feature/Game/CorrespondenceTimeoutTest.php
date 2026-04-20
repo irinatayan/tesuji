@@ -126,9 +126,9 @@ class CorrespondenceTimeoutTest extends TestCase
     {
         Notification::fake();
 
-        $prefs = ['game_finished' => ['telegram' => false, 'mail' => true]];
-        $this->alice->update(['notification_preferences' => $prefs]);
-        $this->bob->update(['notification_preferences' => $prefs]);
+        $prefs = ['game_finished' => ['telegram' => true]];
+        $this->alice->update(['telegram_chat_id' => 111, 'notification_preferences' => $prefs]);
+        $this->bob->update(['telegram_chat_id' => 222, 'notification_preferences' => $prefs]);
 
         Game::factory()->correspondence()->create([
             'black_player_id' => $this->alice->id,
@@ -147,8 +147,8 @@ class CorrespondenceTimeoutTest extends TestCase
     {
         Notification::fake();
 
-        $this->bob->update(['notification_preferences' => [
-            'opponent_moved' => ['telegram' => false, 'mail' => true],
+        $this->bob->update(['telegram_chat_id' => 222, 'notification_preferences' => [
+            'opponent_moved' => ['telegram' => true],
         ]]);
 
         $game = Game::factory()->correspondence()->create([

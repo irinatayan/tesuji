@@ -43,10 +43,6 @@ class User extends Authenticatable
             $channels[] = TelegramChannel::class;
         }
 
-        if ($eventPrefs['mail'] ?? false) {
-            $channels[] = 'mail';
-        }
-
         return $channels;
     }
 
