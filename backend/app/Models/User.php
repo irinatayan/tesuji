@@ -47,6 +47,11 @@ class User extends Authenticatable
         return $channels;
     }
 
+    public function isOnline(): bool
+    {
+        return Cache::has("user_online:{$this->id}");
+    }
+
     public function gamesAsBlack(): HasMany
     {
         return $this->hasMany(Game::class, 'black_player_id');
