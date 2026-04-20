@@ -6,6 +6,7 @@ namespace App\Notifications;
 
 use App\Models\Game;
 use App\Models\User;
+use App\Notifications\Channels\TelegramChannel;
 use App\Notifications\Messages\TelegramMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,7 +33,7 @@ final class NewMessageNotification extends Notification implements ShouldQueue
             return [];
         }
 
-        return [\App\Notifications\Channels\TelegramChannel::class];
+        return [TelegramChannel::class];
     }
 
     public function toTelegram(User $notifiable): TelegramMessage

@@ -46,7 +46,6 @@ class User extends Authenticatable
         return $channels;
     }
 
-
     public function gamesAsBlack(): HasMany
     {
         return $this->hasMany(Game::class, 'black_player_id');

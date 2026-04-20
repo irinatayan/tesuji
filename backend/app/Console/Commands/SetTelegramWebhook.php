@@ -20,6 +20,7 @@ class SetTelegramWebhook extends Command
 
         if (! $token) {
             $this->error('TELEGRAM_BOT_TOKEN is not set.');
+
             return self::FAILURE;
         }
 
@@ -28,11 +29,12 @@ class SetTelegramWebhook extends Command
         if ($this->option('remove')) {
             $response = Http::post("{$base}/deleteWebhook");
             $this->info($response->json('description', 'Done'));
+
             return self::SUCCESS;
         }
 
         $base_url = $this->option('url') ?? config('app.url');
-        $url = rtrim($base_url, '/') . '/api/webhooks/telegram';
+        $url = rtrim($base_url, '/').'/api/webhooks/telegram';
 
         $payload = ['url' => $url];
         if ($secret) {
@@ -44,7 +46,8 @@ class SetTelegramWebhook extends Command
         if ($response->json('ok')) {
             $this->info("Webhook set: {$url}");
         } else {
-            $this->error('Failed: ' . $response->json('description'));
+            $this->error('Failed: '.$response->json('description'));
+
             return self::FAILURE;
         }
 

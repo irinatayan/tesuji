@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Notifications\Channels\TelegramChannel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -46,10 +47,10 @@ class NotificationPreferencesTest extends TestCase
     public function test_can_save_notification_preferences(): void
     {
         $prefs = [
-            'new_message'    => ['telegram' => true, 'mail' => false],
+            'new_message' => ['telegram' => true, 'mail' => false],
             'opponent_moved' => ['telegram' => true, 'mail' => true],
-            'invitation'     => ['telegram' => false, 'mail' => true],
-            'game_finished'  => ['telegram' => false, 'mail' => false],
+            'invitation' => ['telegram' => false, 'mail' => true],
+            'game_finished' => ['telegram' => false, 'mail' => false],
         ];
 
         $this->actingAs($this->user)
@@ -92,7 +93,7 @@ class NotificationPreferencesTest extends TestCase
         ]);
 
         $channels = $this->user->fresh()->channelsFor('opponent_moved');
-        $this->assertContains(\App\Notifications\Channels\TelegramChannel::class, $channels);
+        $this->assertContains(TelegramChannel::class, $channels);
         $this->assertNotContains('mail', $channels);
     }
 

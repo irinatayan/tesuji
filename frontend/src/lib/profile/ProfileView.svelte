@@ -22,7 +22,7 @@
 
   const EVENTS = ['new_message', 'opponent_moved', 'invitation', 'game_finished'] as const;
   const CHANNELS = ['telegram'] as const;
-  type EventKey = typeof EVENTS[number];
+  type EventKey = (typeof EVENTS)[number];
 
   function defaultPrefs(): Record<EventKey, Record<string, boolean>> {
     return {
@@ -202,7 +202,10 @@
                       onchange={(e) => {
                         prefs = {
                           ...prefs,
-                          [event]: { ...prefs[event], [ch]: (e.target as HTMLInputElement).checked },
+                          [event]: {
+                            ...prefs[event],
+                            [ch]: (e.target as HTMLInputElement).checked,
+                          },
                         };
                       }}
                     />
