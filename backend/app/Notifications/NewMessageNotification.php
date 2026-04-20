@@ -48,7 +48,7 @@ final class NewMessageNotification extends Notification implements ShouldQueue
             ? "<b>{$this->senderName}</b> sent you a message"
             : "<b>{$this->unreadCount}</b> new messages from <b>{$opponent}</b>";
 
-        return new TelegramMessage("{$body}\n<a href=\"{$url}\">Open game</a>");
+        return new TelegramMessage("{$body}\n{$url}");
     }
 
     public function backoff(): array
