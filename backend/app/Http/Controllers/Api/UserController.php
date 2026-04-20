@@ -81,7 +81,12 @@ class UserController extends Controller
 
     public function profile(Request $request): JsonResponse
     {
-        return $this->show($request, $request->user());
+        $user = $request->user();
+        $base = $this->show($request, $user);
+
+        return response()->json(array_merge($base->getData(true), [
+            'telegram_connected' => $user->telegram_chat_id !== null,
+        ]));
     }
 
     public function games(Request $request, User $user): JsonResponse

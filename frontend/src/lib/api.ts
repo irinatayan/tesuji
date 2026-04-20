@@ -146,6 +146,12 @@ export const api = {
 
   markMessagesRead: (gameId: number, lastReadId: number) =>
     request<void>('POST', `/games/${gameId}/messages/read`, { last_read_id: lastReadId }),
+
+  getMyProfile: () => request<any>('GET', '/profile'),
+
+  telegramPair: () => request<{ url: string }>('POST', '/telegram/pair'),
+
+  telegramUnlink: () => request<void>('DELETE', '/telegram/unlink'),
 };
 
 export interface ChatMessage {
