@@ -26,7 +26,7 @@ final class NewMessageNotification extends Notification implements ShouldQueue
     {
         // Telegram only — email notifications for chat messages are too noisy
         $prefs = $notifiable->notification_preferences ?? [];
-        $enabled = $prefs['new_message']['telegram'] ?? true;
+        $enabled = $prefs['new_message']['telegram'] ?? false;
 
         if (! $enabled || ! $notifiable->telegram_chat_id) {
             return [];

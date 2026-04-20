@@ -21,7 +21,7 @@ final class InvitationReceivedNotification extends Notification implements Shoul
     public function via(User $notifiable): array
     {
         $prefs = $notifiable->notification_preferences ?? [];
-        $enabled = $prefs['invitation']['telegram'] ?? true;
+        $enabled = $prefs['invitation']['telegram'] ?? false;
 
         if (! $enabled || ! $notifiable->telegram_chat_id) {
             return [];
