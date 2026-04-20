@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
@@ -81,7 +82,31 @@ class UserController extends Controller
 
     public function profile(Request $request): JsonResponse
     {
-        return $this->show($request, $request->user());
+        $user = $request->user();
+        $base = $this->show($request, $user);
+
+        return response()->json(array_merge($base->getData(true), [
+            'telegram_connected' => $user->telegram_chat_id !== null,
+            'notification_preferences' => $user->notification_preferences ?? [],
+        ]));
+    }
+
+    public function updatePreferences(Request $request): Response
+    {
+        $events = ['new_message', 'opponent_moved', 'invitation', 'game_finished'];
+        $channels = ['telegram', 'mail'];
+
+        $rules = [];
+        foreach ($events as $event) {
+            foreach ($channels as $channel) {
+                $rules["{$event}.{$channel}"] = ['boolean'];
+            }
+        }
+
+        $validated = $request->validate($rules);
+        $request->user()->update(['notification_preferences' => $validated]);
+
+        return response()->noContent();
     }
 
     public function games(Request $request, User $user): JsonResponse

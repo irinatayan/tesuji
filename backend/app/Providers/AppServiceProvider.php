@@ -10,6 +10,7 @@ use App\Game\Engines\GoEngine;
 use App\Game\Engines\ProcessGtpClient;
 use App\Listeners\TriggerBotConfirmDead;
 use App\Listeners\TriggerBotMove;
+use App\Notifications\Channels\TelegramChannel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(GoEngine::class, function () {
             return new GnuGoEngine(new ProcessGtpClient);
+        });
+
+        $this->app->singleton(TelegramChannel::class, function () {
+            return new TelegramChannel(config('services.telegram.bot_token', ''));
         });
     }
 
