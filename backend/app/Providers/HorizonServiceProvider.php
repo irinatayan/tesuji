@@ -16,7 +16,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
                 return true;
             }
 
-            $secret = env('HORIZON_SECRET');
+            $secret = config('services.horizon.secret');
 
             return $secret && request()->query('secret') === $secret;
         });
