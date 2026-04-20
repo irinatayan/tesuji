@@ -152,6 +152,9 @@ export const api = {
   telegramPair: () => request<{ url: string }>('POST', '/telegram/pair'),
 
   telegramUnlink: () => request<void>('DELETE', '/telegram/unlink'),
+
+  updateNotificationPreferences: (prefs: Record<string, Record<string, boolean>>) =>
+    request<void>('PUT', '/profile/notifications', prefs),
 };
 
 export interface ChatMessage {

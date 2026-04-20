@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('users/{user}', [UserController::class, 'show']);
     Route::get('users/{user}/games', [UserController::class, 'games']);
     Route::get('profile', [UserController::class, 'profile']);
+    Route::put('profile/notifications', [UserController::class, 'updatePreferences']);
 
     Route::post('invitations', [InvitationController::class, 'store']);
     Route::get('invitations/incoming', [InvitationController::class, 'incoming']);
