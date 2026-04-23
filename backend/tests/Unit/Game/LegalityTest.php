@@ -121,4 +121,20 @@ class LegalityTest extends TestCase
         // Playing somewhere that does NOT restore the old position is legal
         $this->assertTrue($board->isLegalMove(new Position(5, 5), Stone::Black, $this->rules, $hashTwoMovesAgo));
     }
+
+    public function test_top_edge_position_surrounded_on_all_three_sides_is_suicide(): void
+    {
+        // (1,0) is on the top edge — only 3 neighbours: (0,0), (2,0), (1,1).
+        // All three occupied by Black: no liberties, no captures → suicide.
+        //
+        //   col: 0  1  2
+        // row 0: B  .  B
+        // row 1: .  B  .
+        $board = Board::empty(9)
+            ->place(new Position(0, 0), Stone::Black)
+            ->place(new Position(2, 0), Stone::Black)
+            ->place(new Position(1, 1), Stone::Black);
+
+        $this->assertFalse($board->isLegalMove(new Position(1, 0), Stone::White, $this->rules));
+    }
 }

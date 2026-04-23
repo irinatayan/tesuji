@@ -231,6 +231,51 @@ class GameTest extends TestCase
         $game->apply(Move::resign(Stone::White));
     }
 
+    public function test_suicide_after_repeated_capture_sequence(): void
+    {
+        // Reproduces the sequence from game-25.sgf (moves 52–56) where White tried to
+        // play at (1,0) after Black had captured it there twice in a row.
+        //
+        // Initial:
+        //   col: 0  1  2
+        // row 0: W  .  B   ← W[aa] already on board, B[ca]
+        // row 1: .  B  .   ← B[bb]
+        //
+        // Sequence:
+        //   W plays (1,0)  → group {(0,0),(1,0)} has liberty at (0,1)
+        //   B plays (0,1)  → captures both White stones
+        //   W plays (1,0)  → liberty at (0,0) [now empty]
+        //   B plays (0,0)  → captures White at (1,0)
+        //   W tries (1,0)  → (0,0)=B, (2,0)=B, (1,1)=B → suicide, must throw
+
+        $board = Board::empty(9)
+            ->place(new Position(0, 0), Stone::White)
+            ->place(new Position(2, 0), Stone::Black)
+            ->place(new Position(1, 1), Stone::Black);
+
+        $game = Game::restore(
+            board: $board,
+            currentTurn: Stone::White,
+            phase: GamePhase::Playing,
+            ruleset: $this->rules,
+            history: [],
+            consecutivePasses: 0,
+            koHash: null,
+            proposedDeadStones: null,
+            proposedBy: null,
+            score: null,
+        );
+
+        $game = $game->apply(Move::play(Stone::White, new Position(1, 0)));
+        $game = $game->apply(Move::play(Stone::Black, new Position(0, 1)));
+        $game = $game->apply(Move::play(Stone::White, new Position(1, 0)));
+        $game = $game->apply(Move::play(Stone::Black, new Position(0, 0)));
+
+        $this->expectException(IllegalMoveException::class);
+        $this->expectExceptionMessage('suicide');
+        $game->apply(Move::play(Stone::White, new Position(1, 0)));
+    }
+
     public function test_pass_resets_ko_restriction(): void
     {
         $board = Board::empty(9)
