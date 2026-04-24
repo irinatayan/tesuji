@@ -14,8 +14,14 @@ interface Ruleset
 
     public function komi(int $boardSize): float;
 
+    /**
+     * Komi value when playing with a given handicap.
+     * Each ruleset decides how handicap affects komi (e.g. Chinese: 0.5 when handicap ≥ 2).
+     */
+    public function komiWithHandicap(int $boardSize, int $handicap): float;
+
     public function isSuicideAllowed(): bool;
 
     /** @param Position[] $deadStones */
-    public function score(Board $board, array $deadStones): Score;
+    public function score(Board $board, array $deadStones, float $komi): Score;
 }

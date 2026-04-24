@@ -24,6 +24,8 @@ final class Game extends Model
             'black_clock' => 'array',
             'white_clock' => 'array',
             'dead_stones' => 'array',
+            'handicap_stones' => 'array',
+            'komi' => 'float',
             'expires_at' => 'datetime',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',

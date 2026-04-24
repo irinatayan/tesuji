@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Game\Rules\ChineseRuleset;
 use App\Models\Game;
 
 final class SgfExporter
@@ -13,19 +12,34 @@ final class SgfExporter
     {
         $game->loadMissing(['blackPlayer', 'whitePlayer', 'moves']);
 
-        $komi = (new ChineseRuleset)->komi($game->board_size);
+        $komi = (float) $game->komi;
         $date = $game->started_at?->format('Y-m-d') ?? now()->format('Y-m-d');
 
         $sgf = '(;GM[1]FF[4]CA[UTF-8]';
         $sgf .= "SZ[{$game->board_size}]";
         $sgf .= "KM[{$komi}]";
         $sgf .= 'RU[Chinese]';
+
+        $handicap = (int) ($game->handicap ?? 0);
+        if ($handicap > 0) {
+            $sgf .= "HA[{$handicap}]";
+        }
+
         $sgf .= 'PB['.self::escape($game->blackPlayer->name).']';
         $sgf .= 'PW['.self::escape($game->whitePlayer->name).']';
         $sgf .= "DT[{$date}]";
 
         if ($game->result !== null) {
             $sgf .= 'RE['.self::escape($game->result).']';
+        }
+
+        $handicapStones = $game->handicap_stones ?? [];
+        if ($handicapStones !== []) {
+            $sgf .= 'AB';
+            foreach ($handicapStones as $stone) {
+                $coord = self::toSgfCoord((int) $stone['x'], (int) $stone['y']);
+                $sgf .= "[{$coord}]";
+            }
         }
 
         $sgf .= "\n";

@@ -27,6 +27,10 @@ class GameFactory extends Factory
             'time_control_config' => ['seconds' => 600],
             'black_clock' => ['remaining_seconds' => 600],
             'white_clock' => ['remaining_seconds' => 600],
+            'handicap' => 0,
+            'handicap_stones' => [],
+            'handicap_placement' => 'fixed',
+            'komi' => 5.5,
             'started_at' => now(),
         ];
     }

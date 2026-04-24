@@ -7,6 +7,7 @@ namespace App\Http\Resources;
 use App\Game\Board;
 use App\Game\Persistence\BoardSerializer;
 use App\Game\Position;
+use App\Game\Stone;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,10 @@ class GameResource extends JsonResource
             'ruleset' => $this->ruleset,
             'status' => $this->status,
             'current_turn' => $this->current_turn,
+            'handicap' => (int) $this->handicap,
+            'handicap_stones' => $this->handicap_stones ?? [],
+            'handicap_placement' => $this->handicap_placement ?? 'fixed',
+            'komi' => (float) $this->komi,
             'black_player' => [
                 'id' => $this->blackPlayer->id,
                 'name' => $this->blackPlayer->name,
@@ -61,9 +66,14 @@ class GameResource extends JsonResource
     {
         $lastMove = $this->moves->last();
 
-        $board = $lastMove !== null
-            ? BoardSerializer::deserialize($lastMove->board_state, $this->board_size)
-            : Board::empty($this->board_size);
+        if ($lastMove !== null) {
+            $board = BoardSerializer::deserialize($lastMove->board_state, $this->board_size);
+        } else {
+            $board = Board::empty($this->board_size);
+            foreach ($this->handicap_stones ?? [] as $pos) {
+                $board = $board->place(new Position((int) $pos['x'], (int) $pos['y']), Stone::Black);
+            }
+        }
 
         $size = $this->board_size;
         $grid = [];

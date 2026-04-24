@@ -25,9 +25,14 @@ final class GameMapper
         $lastMove = $recentMoves->first();
         $prevMove = $recentMoves->count() > 1 ? $recentMoves->last() : null;
 
-        $board = $lastMove !== null
-            ? BoardSerializer::deserialize($lastMove->board_state, $model->board_size)
-            : Board::empty($model->board_size);
+        if ($lastMove !== null) {
+            $board = BoardSerializer::deserialize($lastMove->board_state, $model->board_size);
+        } else {
+            $board = Board::empty($model->board_size);
+            foreach ($this->handicapStones($model) as $position) {
+                $board = $board->place($position, Stone::Black);
+            }
+        }
 
         $history = $model->moves->map(fn (MoveModel $m) => $this->toDomainMove($m))->all();
 
@@ -58,6 +63,7 @@ final class GameMapper
             currentTurn: $currentTurn,
             phase: $phase,
             ruleset: $ruleset,
+            komi: (float) $model->komi,
             history: $history,
             consecutivePasses: $this->countTrailingPasses($history),
             koHash: $koHash,
@@ -149,5 +155,19 @@ final class GameMapper
             'chinese' => new ChineseRuleset,
             default => throw new \InvalidArgumentException("Unknown ruleset: {$name}"),
         };
+    }
+
+    /** @return list<Position> */
+    private function handicapStones(GameModel $model): array
+    {
+        $raw = $model->handicap_stones ?? [];
+        if ($raw === []) {
+            return [];
+        }
+
+        return array_map(
+            fn (array $p) => new Position((int) $p['x'], (int) $p['y']),
+            $raw
+        );
     }
 }

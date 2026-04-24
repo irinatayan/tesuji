@@ -26,14 +26,19 @@ final class ChineseRuleset implements Ruleset
         };
     }
 
+    public function komiWithHandicap(int $boardSize, int $handicap): float
+    {
+        return $handicap >= 2 ? 0.5 : $this->komi($boardSize);
+    }
+
     public function isSuicideAllowed(): bool
     {
         return false;
     }
 
     /** @param Position[] $deadStones */
-    public function score(Board $board, array $deadStones): Score
+    public function score(Board $board, array $deadStones, float $komi): Score
     {
-        return (new AreaScorer)->score($board, $deadStones, $this->komi($board->size()));
+        return (new AreaScorer)->score($board, $deadStones, $komi);
     }
 }

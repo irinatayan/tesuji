@@ -144,6 +144,7 @@ class GameTest extends TestCase
             currentTurn: Stone::Black,
             phase: GamePhase::Playing,
             ruleset: $this->rules,
+            komi: 5.5,
             history: [],
             consecutivePasses: 0,
             koHash: null,
@@ -188,6 +189,7 @@ class GameTest extends TestCase
             currentTurn: Stone::Black,
             phase: GamePhase::Playing,
             ruleset: $this->rules,
+            komi: 5.5,
             history: [],
             consecutivePasses: 0,
             koHash: null,
@@ -258,6 +260,7 @@ class GameTest extends TestCase
             currentTurn: Stone::White,
             phase: GamePhase::Playing,
             ruleset: $this->rules,
+            komi: 5.5,
             history: [],
             consecutivePasses: 0,
             koHash: null,
@@ -276,6 +279,37 @@ class GameTest extends TestCase
         $game->apply(Move::play(Stone::White, new Position(1, 0)));
     }
 
+    public function test_game_with_handicap_stones_has_them_on_board(): void
+    {
+        $stones = [new Position(2, 2), new Position(6, 6)];
+
+        $game = Game::start(9, $this->rules, $stones);
+
+        $this->assertSame(Stone::Black, $game->board->get(new Position(2, 2)));
+        $this->assertSame(Stone::Black, $game->board->get(new Position(6, 6)));
+    }
+
+    public function test_game_with_handicap_stones_gives_white_first_turn(): void
+    {
+        $game = Game::start(9, $this->rules, [new Position(2, 2), new Position(6, 6)]);
+
+        $this->assertSame(Stone::White, $game->currentTurn);
+    }
+
+    public function test_game_without_handicap_gives_black_first_turn(): void
+    {
+        $game = Game::start(9, $this->rules);
+
+        $this->assertSame(Stone::Black, $game->currentTurn);
+    }
+
+    public function test_game_with_handicap_has_empty_history(): void
+    {
+        $game = Game::start(9, $this->rules, [new Position(2, 2), new Position(6, 6)]);
+
+        $this->assertCount(0, $game->history);
+    }
+
     public function test_pass_resets_ko_restriction(): void
     {
         $board = Board::empty(9)
@@ -292,6 +326,7 @@ class GameTest extends TestCase
             currentTurn: Stone::Black,
             phase: GamePhase::Playing,
             ruleset: $this->rules,
+            komi: 5.5,
             history: [],
             consecutivePasses: 0,
             koHash: null,

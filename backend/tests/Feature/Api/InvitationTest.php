@@ -180,6 +180,7 @@ class InvitationTest extends TestCase
             'current_turn' => 'black',
             'time_control_type' => 'absolute',
             'time_control_config' => ['seconds' => 600],
+            'komi' => 5.5,
             'started_at' => now(),
         ]);
 
@@ -202,6 +203,7 @@ class InvitationTest extends TestCase
             'current_turn' => 'black',
             'time_control_type' => 'absolute',
             'time_control_config' => ['seconds' => 600],
+            'komi' => 5.5,
             'started_at' => now(),
         ]);
 
@@ -226,6 +228,7 @@ class InvitationTest extends TestCase
             'current_turn' => 'black',
             'time_control_type' => 'absolute',
             'time_control_config' => ['seconds' => 600],
+            'komi' => 5.5,
             'started_at' => now(),
         ]);
 

@@ -7,6 +7,8 @@ namespace App\Http\Controllers\Api;
 use App\Events\Invitation\InvitationAccepted;
 use App\Events\Invitation\InvitationDeclined;
 use App\Events\Invitation\InvitationReceived;
+use App\Game\Handicap;
+use App\Game\Rules\ChineseRuleset;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateInvitationRequest;
 use App\Models\Game;
@@ -50,6 +52,8 @@ class InvitationController extends Controller
             'time_control_type' => $request->time_control_type,
             'time_control_config' => $request->time_control_config,
             'proposed_color' => $request->proposed_color,
+            'handicap' => (int) $request->input('handicap', 0),
+            'handicap_placement' => $request->input('handicap_placement', 'fixed'),
             'status' => 'pending',
             'expires_at' => now()->addDays(3),
         ]);
@@ -130,6 +134,14 @@ class InvitationController extends Controller
                 ? now()->addDays($invitation->time_control_config['days_per_move'] ?? 3)
                 : null;
 
+            $rules = new ChineseRuleset;
+            $handicap = (int) ($invitation->handicap ?? 0);
+            $handicapStones = Handicap::fixedPositions($invitation->board_size, $handicap);
+            $handicapStonesJson = array_map(
+                fn ($p) => ['x' => $p->x, 'y' => $p->y],
+                $handicapStones
+            );
+
             $game = Game::create([
                 'black_player_id' => $blackId,
                 'white_player_id' => $whiteId,
@@ -137,9 +149,13 @@ class InvitationController extends Controller
                 'ruleset' => $invitation->ruleset,
                 'board_size' => $invitation->board_size,
                 'status' => 'playing',
-                'current_turn' => 'black',
+                'current_turn' => $handicap >= 2 ? 'white' : 'black',
                 'time_control_type' => $invitation->time_control_type,
                 'time_control_config' => $invitation->time_control_config,
+                'handicap' => $handicap,
+                'handicap_stones' => $handicapStonesJson,
+                'handicap_placement' => $invitation->handicap_placement ?? 'fixed',
+                'komi' => $rules->komiWithHandicap($invitation->board_size, $handicap),
                 'started_at' => now(),
                 'expires_at' => $expiresAt,
             ]);

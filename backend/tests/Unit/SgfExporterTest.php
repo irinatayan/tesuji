@@ -153,4 +153,51 @@ class SgfExporterTest extends TestCase
         $this->assertStringContainsString('PB[Ali\\]ce]', $sgf);
         $this->assertStringContainsString('PW[Bob\\\\Jr]', $sgf);
     }
+
+    public function test_exports_handicap_ha_and_ab_tags(): void
+    {
+        $black = User::factory()->create(['name' => 'Alice']);
+        $white = User::factory()->create(['name' => 'Bob']);
+
+        $game = Game::factory()->create([
+            'black_player_id' => $black->id,
+            'white_player_id' => $white->id,
+            'board_size' => 9,
+            'status' => 'finished',
+            'result' => 'W+0.5',
+            'handicap' => 4,
+            'handicap_stones' => [
+                ['x' => 6, 'y' => 2],
+                ['x' => 2, 'y' => 6],
+                ['x' => 6, 'y' => 6],
+                ['x' => 2, 'y' => 2],
+            ],
+            'komi' => 0.5,
+        ]);
+
+        $sgf = $this->exporter->export($game);
+
+        $this->assertStringContainsString('HA[4]', $sgf);
+        $this->assertStringContainsString('KM[0.5]', $sgf);
+        $this->assertStringContainsString('AB[gc][cg][gg][cc]', $sgf);
+    }
+
+    public function test_no_handicap_does_not_emit_ha_or_ab(): void
+    {
+        $black = User::factory()->create(['name' => 'Alice']);
+        $white = User::factory()->create(['name' => 'Bob']);
+
+        $game = Game::factory()->create([
+            'black_player_id' => $black->id,
+            'white_player_id' => $white->id,
+            'board_size' => 9,
+            'status' => 'finished',
+            'result' => 'B+0.5',
+        ]);
+
+        $sgf = $this->exporter->export($game);
+
+        $this->assertStringNotContainsString('HA[', $sgf);
+        $this->assertStringNotContainsString('AB[', $sgf);
+    }
 }

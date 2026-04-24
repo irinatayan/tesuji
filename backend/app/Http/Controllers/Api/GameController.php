@@ -10,6 +10,7 @@ use App\Game\Exceptions\IllegalMoveException;
 use App\Game\Move as DomainMove;
 use App\Game\Persistence\GameMapper;
 use App\Game\Position;
+use App\Game\Rules\ChineseRuleset;
 use App\Game\Stone;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGameRequest;
@@ -79,6 +80,8 @@ class GameController extends Controller
             ? now()->addDays($request->time_control_config['days_per_move'] ?? 3)
             : null;
 
+        $rules = new ChineseRuleset;
+
         $game = Game::create([
             'black_player_id' => $blackId,
             'white_player_id' => $whiteId,
@@ -89,6 +92,7 @@ class GameController extends Controller
             'current_turn' => 'black',
             'time_control_type' => $request->time_control_type,
             'time_control_config' => $request->time_control_config,
+            'komi' => $rules->komi($request->board_size),
             'started_at' => now(),
             'expires_at' => $expiresAt,
         ]);
@@ -114,6 +118,8 @@ class GameController extends Controller
         $timeControlConfig = $request->input('time_control_config', ['main_time' => 600]);
         $mode = $request->input('mode', 'realtime');
 
+        $rules = new ChineseRuleset;
+
         $game = Game::create([
             'black_player_id' => $blackId,
             'white_player_id' => $whiteId,
@@ -124,6 +130,7 @@ class GameController extends Controller
             'current_turn' => 'black',
             'time_control_type' => $timeControlType,
             'time_control_config' => $timeControlConfig,
+            'komi' => $rules->komi($request->board_size),
             'started_at' => now(),
         ]);
 

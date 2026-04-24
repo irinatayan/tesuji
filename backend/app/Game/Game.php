@@ -17,6 +17,7 @@ final readonly class Game
         public Stone $currentTurn,
         public GamePhase $phase,
         public Ruleset $ruleset,
+        public float $komi,
         public array $history,
         public int $consecutivePasses,
         public ?string $koHash,
@@ -26,13 +27,27 @@ final readonly class Game
         public array $lastCaptures = [],
     ) {}
 
-    public static function start(int $boardSize, Ruleset $ruleset): self
+    /**
+     * Start a new game.
+     *
+     * @param  Position[]  $handicapStones  Pre-placed black stones. When non-empty,
+     *                                      White moves first (handicap convention).
+     */
+    public static function start(int $boardSize, Ruleset $ruleset, array $handicapStones = [], ?float $komi = null): self
     {
+        $board = Board::empty($boardSize);
+        foreach ($handicapStones as $position) {
+            $board = $board->place($position, Stone::Black);
+        }
+
+        $komi ??= $ruleset->komiWithHandicap($boardSize, count($handicapStones));
+
         return new self(
-            board: Board::empty($boardSize),
-            currentTurn: Stone::Black,
+            board: $board,
+            currentTurn: $handicapStones === [] ? Stone::Black : Stone::White,
             phase: GamePhase::Playing,
             ruleset: $ruleset,
+            komi: $komi,
             history: [],
             consecutivePasses: 0,
             koHash: null,
@@ -49,6 +64,7 @@ final readonly class Game
         Stone $currentTurn,
         GamePhase $phase,
         Ruleset $ruleset,
+        float $komi,
         array $history,
         int $consecutivePasses,
         ?string $koHash,
@@ -61,6 +77,7 @@ final readonly class Game
             currentTurn: $currentTurn,
             phase: $phase,
             ruleset: $ruleset,
+            komi: $komi,
             history: $history,
             consecutivePasses: $consecutivePasses,
             koHash: $koHash,
@@ -109,6 +126,7 @@ final readonly class Game
             currentTurn: $this->currentTurn,
             phase: $this->phase,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: $this->history,
             consecutivePasses: $this->consecutivePasses,
             koHash: $this->koHash,
@@ -129,13 +147,14 @@ final readonly class Game
         }
 
         $deadStones = $this->proposedDeadStones ?? [];
-        $score = $this->ruleset->score($this->board, $deadStones);
+        $score = $this->ruleset->score($this->board, $deadStones, $this->komi);
 
         return new self(
             board: $this->board,
             currentTurn: $this->currentTurn,
             phase: GamePhase::Finished,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: $this->history,
             consecutivePasses: $this->consecutivePasses,
             koHash: $this->koHash,
@@ -156,6 +175,7 @@ final readonly class Game
             currentTurn: $by,
             phase: GamePhase::Playing,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: $this->history,
             consecutivePasses: 0,
             koHash: null,
@@ -190,6 +210,7 @@ final readonly class Game
             currentTurn: $this->currentTurn->opposite(),
             phase: GamePhase::Playing,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: [...$this->history, $move],
             consecutivePasses: 0,
             koHash: $previousHash,
@@ -210,6 +231,7 @@ final readonly class Game
             currentTurn: $this->currentTurn->opposite(),
             phase: $newPhase,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: [...$this->history, $move],
             consecutivePasses: $newPasses,
             koHash: null,
@@ -226,6 +248,7 @@ final readonly class Game
             currentTurn: $this->currentTurn->opposite(),
             phase: GamePhase::Finished,
             ruleset: $this->ruleset,
+            komi: $this->komi,
             history: [...$this->history, $move],
             consecutivePasses: 0,
             koHash: null,
