@@ -35,6 +35,8 @@
   "invite.colorRandom": "Випадково",
   "invite.handicap": "Фора",
   "invite.handicapNone": "Без фори",
+  "invite.colorHint": "Колір вибирається для суперника. Камені фори отримує той, у кого чорні.",
+  "invite.handicapHint": "Камені фори отримує той, у кого чорні.",
   "invite.send": "Надіслати запрошення",
   "invite.sending": "Надсилання...",
   "invite.sent": "Запрошення надіслано!",

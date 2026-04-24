@@ -85,6 +85,7 @@
         {/each}
       </select>
     </label>
+    <p class="hint">{$_('invite.colorHint')}</p>
     {#if error}<p class="error">{error}</p>{/if}
     {#if success}<p class="success">{success}</p>{/if}
     <button type="submit" disabled={loading}>
@@ -172,6 +173,14 @@
     color: #ffcccc;
     font-size: 13px;
     margin: 0;
+  }
+  .hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--cream);
+    opacity: 0.7;
+    font-style: italic;
+    line-height: 1.4;
   }
   .success {
     color: #a8d5a2;

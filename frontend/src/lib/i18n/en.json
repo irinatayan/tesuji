@@ -35,6 +35,8 @@
   "invite.colorRandom": "Random",
   "invite.handicap": "Handicap",
   "invite.handicapNone": "None",
+  "invite.colorHint": "Pick the color for your opponent. Handicap stones go to the black player.",
+  "invite.handicapHint": "Handicap stones go to the black player.",
   "invite.send": "Send Invitation",
   "invite.sending": "Sending...",
   "invite.sent": "Invitation sent!",

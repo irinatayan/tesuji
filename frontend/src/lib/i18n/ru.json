@@ -35,6 +35,8 @@
   "invite.colorRandom": "Случайно",
   "invite.handicap": "Фора",
   "invite.handicapNone": "Без форы",
+  "invite.colorHint": "Цвет выбирается для соперника. Камни форы получает тот, у кого чёрные.",
+  "invite.handicapHint": "Камни форы получает тот, у кого чёрные.",
   "invite.send": "Отправить приглашение",
   "invite.sending": "Отправка...",
   "invite.sent": "Приглашение отправлено!",

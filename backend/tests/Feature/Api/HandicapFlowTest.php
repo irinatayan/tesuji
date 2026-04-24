@@ -33,7 +33,8 @@ class HandicapFlowTest extends TestCase
             'mode' => 'correspondence',
             'time_control_type' => 'correspondence',
             'time_control_config' => ['days_per_move' => 3],
-            'proposed_color' => 'white',
+            // proposed_color = opponent's color. Here: receiver plays black, gets handicap.
+            'proposed_color' => 'black',
         ], $overrides);
     }
 
@@ -127,8 +128,8 @@ class HandicapFlowTest extends TestCase
             ->postJson("/api/invitations/{$invitation->id}/accept")
             ->json('game_id');
 
-        // Black tries to move first — illegal (it's White's turn).
-        // `sender` proposed white color, so receiver is black.
+        // Black tries to move first — illegal (it's White's turn under handicap).
+        // proposed_color=black means opponent (receiver) plays black.
         $this->actingAs($this->receiver)
             ->postJson("/api/games/{$gameId}/moves", ['x' => 3, 'y' => 3])
             ->assertStatus(422);
@@ -144,7 +145,7 @@ class HandicapFlowTest extends TestCase
             ->postJson("/api/invitations/{$invitation->id}/accept")
             ->json('game_id');
 
-        // `sender` is white (proposed white).
+        // proposed_color=black → receiver is black → sender is white (first to move under handicap).
         $this->actingAs($this->sender)
             ->postJson("/api/games/{$gameId}/moves", ['x' => 4, 'y' => 4])
             ->assertStatus(200);
