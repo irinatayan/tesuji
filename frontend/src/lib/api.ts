@@ -116,8 +116,12 @@ export const api = {
     color: string;
   }) => request<{ data: GameResponse }>('POST', '/games', params),
 
-  createVsBotGame: (params: { board_size: number; color: string }) =>
-    request<{ data: GameResponse }>('POST', '/games/vs-bot', params),
+  createVsBotGame: (params: {
+    board_size: number;
+    color: string;
+    handicap?: number;
+    handicap_placement?: 'fixed' | 'free';
+  }) => request<{ data: GameResponse }>('POST', '/games/vs-bot', params),
 
   getGame: (id: number) => request<{ data: GameResponse }>('GET', `/games/${id}`),
 
