@@ -28,6 +28,10 @@ export interface GameResponse {
   last_move: { x: number; y: number } | null;
   captures: { black: number; white: number };
   dead_stones: { x: number; y: number }[] | null;
+  handicap: number;
+  handicap_stones: { x: number; y: number }[];
+  handicap_placement: 'fixed' | 'free';
+  komi: number;
   moves?: {
     move_number: number;
     color: 'black' | 'white';
@@ -94,6 +98,8 @@ export const api = {
     time_control_type: string;
     time_control_config: Record<string, number>;
     proposed_color: string;
+    handicap?: number;
+    handicap_placement?: 'fixed' | 'free';
   }) => request<any>('POST', '/invitations', params),
 
   acceptInvitation: (id: number) =>

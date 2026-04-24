@@ -33,6 +33,8 @@
   "invite.colorBlack": "Чёрные",
   "invite.colorWhite": "Белые",
   "invite.colorRandom": "Случайно",
+  "invite.handicap": "Фора",
+  "invite.handicapNone": "Без форы",
   "invite.send": "Отправить приглашение",
   "invite.sending": "Отправка...",
   "invite.sent": "Приглашение отправлено!",

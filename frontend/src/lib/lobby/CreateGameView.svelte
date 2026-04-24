@@ -8,9 +8,20 @@
   let opponentId = $state<number | null>(null);
   let boardSize = $state(9);
   let color = $state('black');
+  let handicap = $state(0);
   let error = $state('');
   let success = $state('');
   let loading = $state(false);
+
+  const maxHandicap = $derived(boardSize === 9 ? 5 : 9);
+  const handicapOptions = $derived([
+    0,
+    ...Array.from({ length: maxHandicap - 1 }, (_, i) => i + 2),
+  ]);
+
+  $effect(() => {
+    if (handicap > maxHandicap) handicap = 0;
+  });
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -26,6 +37,8 @@
         time_control_type: 'correspondence',
         time_control_config: { days_per_move: 3 },
         proposed_color: color,
+        handicap,
+        handicap_placement: 'fixed',
       });
       success = $_('invite.sent');
       onInvited();
@@ -62,6 +75,14 @@
         <option value="black">{$_('invite.colorBlack')}</option>
         <option value="white">{$_('invite.colorWhite')}</option>
         <option value="random">{$_('invite.colorRandom')}</option>
+      </select>
+    </label>
+    <label>
+      {$_('invite.handicap')}
+      <select bind:value={handicap}>
+        {#each handicapOptions as n}
+          <option value={n}>{n === 0 ? $_('invite.handicapNone') : n}</option>
+        {/each}
       </select>
     </label>
     {#if error}<p class="error">{error}</p>{/if}

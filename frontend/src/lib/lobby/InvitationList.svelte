@@ -14,6 +14,7 @@
     board_size: number;
     mode: string;
     time_control_type: string;
+    handicap?: number;
   };
 
   let invitations = $state<Invitation[]>([]);
@@ -63,6 +64,9 @@
           <strong>{inv.from_user.name}</strong>
           — {inv.board_size}×{inv.board_size}
           ({inv.mode})
+          {#if inv.handicap && inv.handicap >= 2}
+            <span class="handicap-badge">H{inv.handicap}</span>
+          {/if}
         </span>
         <div class="actions">
           <button onclick={() => accept(inv.id)} class="accept">{$_('invitations.accept')}</button>
@@ -105,6 +109,18 @@
   }
   .invitation strong {
     color: var(--gold);
+  }
+  .handicap-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: rgba(139, 90, 43, 0.3);
+    border: 1px solid var(--gold-dark);
+    border-radius: 10px;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
   }
   .actions {
     display: flex;
