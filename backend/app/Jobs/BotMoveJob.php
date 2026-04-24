@@ -45,14 +45,24 @@ final class BotMoveJob implements ShouldQueue
         $stone = $game->current_turn === 'black' ? Stone::Black : Stone::White;
         $lastMove = $game->moves->last();
 
-        $board = $lastMove !== null
-            ? BoardSerializer::deserialize($lastMove->board_state, $game->board_size)
-            : Board::empty($game->board_size);
+        $handicapStones = array_map(
+            fn (array $p) => new Position((int) $p['x'], (int) $p['y']),
+            $game->handicap_stones ?? []
+        );
+
+        if ($lastMove !== null) {
+            $board = BoardSerializer::deserialize($lastMove->board_state, $game->board_size);
+        } else {
+            $board = Board::empty($game->board_size);
+            foreach ($handicapStones as $pos) {
+                $board = $board->place($pos, Stone::Black);
+            }
+        }
 
         $history = $game->moves->map(fn (MoveModel $m) => $this->toDomainMove($m))->all();
 
         try {
-            $engineMove = $engine->suggestMove($board, $stone, $history);
+            $engineMove = $engine->suggestMove($board, $stone, $history, $handicapStones);
         } catch (\Throwable $e) {
             Log::error("BotMoveJob: engine failed in game {$this->gameId}: {$e->getMessage()}");
 

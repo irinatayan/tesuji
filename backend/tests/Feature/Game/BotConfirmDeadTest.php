@@ -28,7 +28,7 @@ class BotConfirmDeadTest extends TestCase
         // Bind fake engine before any game actions
         $this->app->bind(GoEngine::class, fn () => new class implements GoEngine
         {
-            public function suggestMove(Board $board, Stone $toPlay, array $history = []): EngineMove
+            public function suggestMove(Board $board, Stone $toPlay, array $history = [], array $handicapStones = []): EngineMove
             {
                 return EngineMove::pass();
             }

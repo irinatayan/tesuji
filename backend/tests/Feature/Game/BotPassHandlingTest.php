@@ -42,7 +42,7 @@ class BotPassHandlingTest extends TestCase
         // human pass → MovePassed → TriggerBotMove → BotMoveJob (sync)
         $this->app->bind(GoEngine::class, fn () => new class implements GoEngine
         {
-            public function suggestMove(Board $board, Stone $toPlay, array $history = []): EngineMove
+            public function suggestMove(Board $board, Stone $toPlay, array $history = [], array $handicapStones = []): EngineMove
             {
                 return EngineMove::pass();
             }
@@ -77,7 +77,7 @@ class BotPassHandlingTest extends TestCase
         // Bind a fake engine that always passes
         $this->app->bind(GoEngine::class, fn () => new class implements GoEngine
         {
-            public function suggestMove(Board $board, Stone $toPlay, array $history = []): EngineMove
+            public function suggestMove(Board $board, Stone $toPlay, array $history = [], array $handicapStones = []): EngineMove
             {
                 return EngineMove::pass();
             }

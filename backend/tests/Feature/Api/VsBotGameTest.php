@@ -99,4 +99,50 @@ class VsBotGameTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('data.mode', 'realtime');
     }
+
+    public function test_vs_bot_with_handicap_places_stones_and_makes_white_go_first(): void
+    {
+        Bus::fake(BotMoveJob::class);
+
+        $response = $this->actingAs($this->player)->postJson('/api/games/vs-bot', [
+            'board_size' => 9,
+            'color' => 'black',
+            'handicap' => 4,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.handicap', 4)
+            ->assertJsonPath('data.current_turn', 'white')
+            ->assertJsonPath('data.komi', 0.5);
+
+        $this->assertCount(4, $response->json('data.handicap_stones'));
+
+        // Human is black, bot is white and moves first under handicap — dispatch expected.
+        Bus::assertDispatched(BotMoveJob::class);
+    }
+
+    public function test_vs_bot_without_handicap_does_not_dispatch_when_human_is_black(): void
+    {
+        Bus::fake(BotMoveJob::class);
+
+        $response = $this->actingAs($this->player)->postJson('/api/games/vs-bot', [
+            'board_size' => 9,
+            'color' => 'black',
+            'handicap' => 0,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.current_turn', 'black');
+
+        Bus::assertNotDispatched(BotMoveJob::class);
+    }
+
+    public function test_vs_bot_rejects_handicap_1(): void
+    {
+        $this->actingAs($this->player)->postJson('/api/games/vs-bot', [
+            'board_size' => 9,
+            'color' => 'black',
+            'handicap' => 1,
+        ])->assertUnprocessable();
+    }
 }

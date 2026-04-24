@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\Game\DeadStonesMarked;
 use App\Events\Game\GameFinished;
 use App\Game\Exceptions\IllegalMoveException;
+use App\Game\Handicap;
 use App\Game\Move as DomainMove;
 use App\Game\Persistence\GameMapper;
 use App\Game\Position;
@@ -119,6 +120,13 @@ class GameController extends Controller
         $mode = $request->input('mode', 'realtime');
 
         $rules = new ChineseRuleset;
+        $handicap = (int) $request->input('handicap', 0);
+        $handicapStones = Handicap::fixedPositions($request->board_size, $handicap);
+        $handicapStonesJson = array_map(
+            fn (Position $p) => ['x' => $p->x, 'y' => $p->y],
+            $handicapStones
+        );
+        $currentTurn = $handicap >= 2 ? 'white' : 'black';
 
         $game = Game::create([
             'black_player_id' => $blackId,
@@ -127,14 +135,19 @@ class GameController extends Controller
             'ruleset' => 'chinese',
             'board_size' => $request->board_size,
             'status' => 'playing',
-            'current_turn' => 'black',
+            'current_turn' => $currentTurn,
             'time_control_type' => $timeControlType,
             'time_control_config' => $timeControlConfig,
-            'komi' => $rules->komi($request->board_size),
+            'handicap' => $handicap,
+            'handicap_stones' => $handicapStonesJson,
+            'handicap_placement' => $request->input('handicap_placement', 'fixed'),
+            'komi' => $rules->komiWithHandicap($request->board_size, $handicap),
             'started_at' => now(),
         ]);
 
-        if ($blackId === $bot->id) {
+        // Bot moves first if it holds the color whose turn it is now.
+        $botPlayerId = $currentTurn === 'black' ? $blackId : $whiteId;
+        if ($botPlayerId === $bot->id) {
             BotMoveJob::dispatch($game->id);
         }
 
