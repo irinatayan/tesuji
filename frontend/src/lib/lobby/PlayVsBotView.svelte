@@ -56,7 +56,7 @@
       </select>
     </label>
     <label>
-      {$_('invite.color')}
+      {$_('invite.colorLabelYours')}
       <select bind:value={color}>
         <option value="black">{$_('invite.colorBlack')}</option>
         <option value="white">{$_('invite.colorWhite')}</option>
@@ -71,9 +71,7 @@
         {/each}
       </select>
     </label>
-    {#if handicap >= 2}
-      <p class="hint">{$_('invite.handicapHint')}</p>
-    {/if}
+    <p class="hint">{$_('invite.handicapRule')}</p>
     {#if error}<p class="error">{error}</p>{/if}
     <button type="submit" disabled={loading}>
       {loading ? $_('bot.creating') : $_('bot.start')}

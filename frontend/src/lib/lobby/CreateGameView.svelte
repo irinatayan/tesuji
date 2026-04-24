@@ -70,7 +70,7 @@
       </select>
     </label>
     <label>
-      {$_('invite.color')}
+      {$_('invite.colorLabelOpponent')}
       <select bind:value={color}>
         <option value="black">{$_('invite.colorBlack')}</option>
         <option value="white">{$_('invite.colorWhite')}</option>
@@ -85,7 +85,7 @@
         {/each}
       </select>
     </label>
-    <p class="hint">{$_('invite.colorHint')}</p>
+    <p class="hint">{$_('invite.handicapRule')}</p>
     {#if error}<p class="error">{error}</p>{/if}
     {#if success}<p class="success">{success}</p>{/if}
     <button type="submit" disabled={loading}>
