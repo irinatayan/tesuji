@@ -34,9 +34,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('games/vs-bot', [GameController::class, 'createVsBot']);
     Route::get('games/{game}', [GameController::class, 'show']);
     Route::get('games/{game}/sgf', [GameController::class, 'sgf']);
-    Route::post('games/{game}/moves', [GameController::class, 'move']);
-    Route::post('games/{game}/pass', [GameController::class, 'pass']);
-    Route::post('games/{game}/resign', [GameController::class, 'resign']);
+    Route::middleware('throttle:moves')->group(function () {
+        Route::post('games/{game}/moves', [GameController::class, 'move']);
+        Route::post('games/{game}/pass', [GameController::class, 'pass']);
+        Route::post('games/{game}/resign', [GameController::class, 'resign']);
+    });
     Route::post('games/{game}/dead-stones', [GameController::class, 'markDead']);
     Route::post('games/{game}/dead-stones/confirm', [GameController::class, 'confirmDead']);
     Route::post('games/{game}/dead-stones/dispute', [GameController::class, 'disputeDead']);
@@ -52,8 +54,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('webhooks/telegram', [TelegramWebhookController::class, 'handle']);
 
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('register', [AuthController::class, 'register'])->middleware('throttle:register');
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('google', [AuthController::class, 'googleRedirect']);
     Route::get('google/callback', [AuthController::class, 'googleCallback']);
