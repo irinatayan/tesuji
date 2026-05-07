@@ -45,12 +45,15 @@
 
   const isSpectator = $derived(myColor === null);
   const isMyTurn = $derived(game?.current_turn === myColor && game?.status === 'playing');
-  const isTimedOut = $derived(
-    game?.time_control_type === 'absolute' &&
+
+  function clockExpired(): boolean {
+    return (
+      game?.time_control_type === 'absolute' &&
       game?.status === 'playing' &&
       expiresAt !== null &&
-      new Date(expiresAt) < new Date(),
-  );
+      new Date(expiresAt) < new Date()
+    );
+  }
 
   function boardFromGame(g: GameResponse): Board {
     let b = Board.empty(g.board_size);
@@ -82,7 +85,7 @@
   }
 
   async function handleMove(pos: Position) {
-    if (!isMyTurn || isTimedOut) return;
+    if (!isMyTurn || clockExpired()) return;
     if (!isLegal(board, pos, myColor!)) return;
 
     moveError = '';
@@ -95,6 +98,9 @@
       const res = await api.playMove(gameId, pos.x, pos.y);
       game = res.data;
       board = boardFromGame(res.data);
+      blackClock = res.data.black_clock;
+      whiteClock = res.data.white_clock;
+      expiresAt = res.data.expires_at;
     } catch (err) {
       board = before;
       lastMove = null;
@@ -106,10 +112,14 @@
   }
 
   async function handlePass() {
-    if (!isMyTurn || isTimedOut) return;
+    if (!isMyTurn || clockExpired()) return;
     moveError = '';
     try {
-      await api.pass(gameId);
+      const res = await api.pass(gameId);
+      game = res.data;
+      blackClock = res.data.black_clock;
+      whiteClock = res.data.white_clock;
+      expiresAt = res.data.expires_at;
     } catch {
       moveError = 'Error';
     }
@@ -380,7 +390,7 @@
         {#if !isSpectator}
           {#if game.status === 'playing'}
             <div class="actions">
-              <button onclick={handlePass} disabled={!isMyTurn || isTimedOut}
+              <button onclick={handlePass} disabled={!isMyTurn || clockExpired()}
                 >{$_('game.pass')}</button
               >
               <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
