@@ -77,6 +77,10 @@ final class GameMapper
     {
         $board = $game->board;
 
+        $turnStartedAt = $model->time_control_type === 'absolute'
+            ? ($model->moves()->latest('move_number')->value('played_at') ?? $model->started_at)
+            : null;
+
         MoveModel::create([
             'game_id' => $model->id,
             'move_number' => $moveNumber,
@@ -116,9 +120,7 @@ final class GameMapper
         }
 
         if ($model->time_control_type === 'absolute') {
-            $turnStartedAt = $model->moves()->latest('move_number')->value('played_at')
-                ?? $model->started_at;
-            $elapsedMs = (int) now()->diffInMilliseconds($turnStartedAt);
+            $elapsedMs = max(0, now()->getTimestampMs() - \Carbon\Carbon::parse($turnStartedAt)->getTimestampMs());
 
             $blackRemaining = $model->black_clock['remaining_ms'] ?? 0;
             $whiteRemaining = $model->white_clock['remaining_ms'] ?? 0;
