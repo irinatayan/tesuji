@@ -115,6 +115,29 @@ final class GameMapper
                 : null;
         }
 
+        if ($model->time_control_type === 'absolute') {
+            $turnStartedAt = $model->moves()->latest('move_number')->value('played_at')
+                ?? $model->started_at;
+            $elapsedMs = (int) now()->diffInMilliseconds($turnStartedAt);
+
+            $blackRemaining = $model->black_clock['remaining_ms'] ?? 0;
+            $whiteRemaining = $model->white_clock['remaining_ms'] ?? 0;
+
+            if ($move->color === Stone::Black) {
+                $blackRemaining = max(0, $blackRemaining - $elapsedMs);
+            } else {
+                $whiteRemaining = max(0, $whiteRemaining - $elapsedMs);
+            }
+
+            $update['black_clock'] = ['remaining_ms' => $blackRemaining];
+            $update['white_clock'] = ['remaining_ms' => $whiteRemaining];
+            $update['expires_at'] = $newStatus === 'playing'
+                ? now()->addMilliseconds(
+                    $move->color === Stone::Black ? $whiteRemaining : $blackRemaining
+                )
+                : null;
+        }
+
         if ($game->phase === GamePhase::Finished && $move->type === MoveType::Resign) {
             $winner = $move->color === Stone::Black ? 'W' : 'B';
             $update['result'] = $winner.'+R';
