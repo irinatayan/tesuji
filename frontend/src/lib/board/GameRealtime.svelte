@@ -10,7 +10,9 @@
   import type { Position, Stone } from '$lib/game/types';
   import GoBoard from './GoBoard.svelte';
   import Chat from './Chat.svelte';
+  import GameClock from './GameClock.svelte';
   import { playStoneSound } from '$lib/audio';
+  import type { GameClock as GameClockData } from '$lib/api';
 
   interface DeadStonesMarked {
     by: Stone;
@@ -28,6 +30,9 @@
   let lastMove = $state<Position | null>(null);
   let chatCollapsed = $state(window.innerWidth < 720);
   let chatUnread = $state(0);
+  let blackClock = $state<GameClockData | null>(null);
+  let whiteClock = $state<GameClockData | null>(null);
+  let expiresAt = $state<string | null>(null);
   let spectators = $state<{ id: number; name: string }[]>([]);
   let showSpectators = $state(false);
 
@@ -60,6 +65,9 @@
       game = res.data;
       board = boardFromGame(res.data);
       lastMove = res.data.last_move;
+      blackClock = res.data.black_clock;
+      whiteClock = res.data.white_clock;
+      expiresAt = res.data.expires_at;
     } catch {
       error = 'Failed to load game';
     } finally {
@@ -176,32 +184,54 @@
       .leaving((member: { id: number; name: string }) => {
         spectators = spectators.filter((s) => s.id !== member.id);
       })
-      .listen('.game.move.played', (event: MovePlayed) => {
-        console.log('[WS] game.move.played', JSON.stringify(event));
-        board = applyMovePlayed(board, event);
-        if (event.color !== myColor) playStoneSound();
-        lastMove = { x: event.x, y: event.y };
-        if (game) {
-          const captured = event.captures.length;
-          game = {
-            ...game,
-            current_turn: event.color === 'black' ? 'white' : 'black',
-            captures: {
-              black: game.captures.black + (event.color === 'black' ? captured : 0),
-              white: game.captures.white + (event.color === 'white' ? captured : 0),
-            },
-          };
-        }
-      })
-      .listen('.game.move.passed', (event: { color: Stone; status: string }) => {
-        if (game) {
-          game = {
-            ...game,
-            current_turn: event.color === 'black' ? 'white' : 'black',
-            status: event.status as GameResponse['status'],
-          };
-        }
-      })
+      .listen(
+        '.game.move.played',
+        (event: MovePlayed & {
+          black_clock?: GameClockData;
+          white_clock?: GameClockData;
+          expires_at?: string;
+        }) => {
+          console.log('[WS] game.move.played', JSON.stringify(event));
+          board = applyMovePlayed(board, event);
+          if (event.color !== myColor) playStoneSound();
+          lastMove = { x: event.x, y: event.y };
+          if (event.black_clock !== undefined) blackClock = event.black_clock;
+          if (event.white_clock !== undefined) whiteClock = event.white_clock;
+          if (event.expires_at !== undefined) expiresAt = event.expires_at ?? null;
+          if (game) {
+            const captured = event.captures.length;
+            game = {
+              ...game,
+              current_turn: event.color === 'black' ? 'white' : 'black',
+              captures: {
+                black: game.captures.black + (event.color === 'black' ? captured : 0),
+                white: game.captures.white + (event.color === 'white' ? captured : 0),
+              },
+            };
+          }
+        },
+      )
+      .listen(
+        '.game.move.passed',
+        (event: {
+          color: Stone;
+          status: string;
+          black_clock?: GameClockData;
+          white_clock?: GameClockData;
+          expires_at?: string;
+        }) => {
+          if (event.black_clock !== undefined) blackClock = event.black_clock;
+          if (event.white_clock !== undefined) whiteClock = event.white_clock;
+          if (event.expires_at !== undefined) expiresAt = event.expires_at ?? null;
+          if (game) {
+            game = {
+              ...game,
+              current_turn: event.color === 'black' ? 'white' : 'black',
+              status: event.status as GameResponse['status'],
+            };
+          }
+        },
+      )
       .listen('.game.player.resigned', (event: { color: Stone }) => {
         if (game) {
           const winner = event.color === 'black' ? 'white' : 'black';
@@ -242,11 +272,27 @@
           <span class="stone">⚫</span>
           <span class="player-name">{game.black_player.name}</span>
           <span class="captures">×{game.captures.black}</span>
+          {#if game.time_control_type === 'absolute' || (game.time_control_type === 'correspondence' && game.current_turn === 'black')}
+            <GameClock
+              timeControlType={game.time_control_type}
+              clock={blackClock}
+              {expiresAt}
+              isActive={game.current_turn === 'black' && game.status === 'playing'}
+            />
+          {/if}
         </div>
         <div class="player-row">
           <span class="stone">⚪</span>
           <span class="player-name">{game.white_player.name}</span>
           <span class="captures">×{game.captures.white}</span>
+          {#if game.time_control_type === 'absolute' || (game.time_control_type === 'correspondence' && game.current_turn === 'white')}
+            <GameClock
+              timeControlType={game.time_control_type}
+              clock={whiteClock}
+              {expiresAt}
+              isActive={game.current_turn === 'white' && game.status === 'playing'}
+            />
+          {/if}
         </div>
       </div>
       {#if spectators.length > 0}
