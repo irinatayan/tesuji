@@ -7,6 +7,7 @@
   let boardSize = $state(9);
   let color = $state('black');
   let handicap = $state(0);
+  let mainTime = $state(600);
   let error = $state('');
   let loading = $state(false);
 
@@ -30,6 +31,8 @@
         color,
         handicap,
         handicap_placement: 'fixed',
+        time_control_type: 'absolute',
+        time_control_config: { main_time: mainTime },
       });
       onCreated(res.data.id);
     } catch (err) {
@@ -61,6 +64,16 @@
         <option value="black">{$_('invite.colorBlack')}</option>
         <option value="white">{$_('invite.colorWhite')}</option>
         <option value="random">{$_('invite.colorRandom')}</option>
+      </select>
+    </label>
+    <label>
+      {$_('invite.timeControl')}
+      <select bind:value={mainTime}>
+        <option value={300}>{$_('time.min5')}</option>
+        <option value={600}>{$_('time.min10')}</option>
+        <option value={1200}>{$_('time.min20')}</option>
+        <option value={1800}>{$_('time.min30')}</option>
+        <option value={3600}>{$_('time.min60')}</option>
       </select>
     </label>
     <label>

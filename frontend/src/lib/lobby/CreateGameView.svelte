@@ -9,6 +9,9 @@
   let boardSize = $state(9);
   let color = $state('black');
   let handicap = $state(0);
+  let mode = $state<'realtime' | 'correspondence'>('correspondence');
+  let mainTime = $state(600);
+  let daysPerMove = $state(3);
   let error = $state('');
   let success = $state('');
   let loading = $state(false);
@@ -33,9 +36,10 @@
       await api.sendInvitation({
         to_user_id: opponentId,
         board_size: boardSize,
-        mode: 'correspondence',
-        time_control_type: 'correspondence',
-        time_control_config: { days_per_move: 3 },
+        mode,
+        time_control_type: mode === 'realtime' ? 'absolute' : 'correspondence',
+        time_control_config:
+          mode === 'realtime' ? { main_time: mainTime } : { days_per_move: daysPerMove },
         proposed_color: color,
         handicap,
         handicap_placement: 'fixed',
@@ -61,6 +65,37 @@
       {$_('invite.opponent')}
       <UserSearch onSelect={(user) => (opponentId = user.id)} />
     </label>
+    <label>
+      {$_('invite.mode')}
+      <select bind:value={mode}>
+        <option value="realtime">{$_('invite.modeRealtime')}</option>
+        <option value="correspondence">{$_('invite.modeCorrespondence')}</option>
+      </select>
+    </label>
+    {#if mode === 'realtime'}
+      <label>
+        {$_('invite.timeControl')}
+        <select bind:value={mainTime}>
+          <option value={300}>{$_('time.min5')}</option>
+          <option value={600}>{$_('time.min10')}</option>
+          <option value={1200}>{$_('time.min20')}</option>
+          <option value={1800}>{$_('time.min30')}</option>
+          <option value={3600}>{$_('time.min60')}</option>
+        </select>
+      </label>
+    {:else}
+      <label>
+        {$_('invite.daysPerMove')}
+        <select bind:value={daysPerMove}>
+          <option value={1}>{$_('time.day1')}</option>
+          <option value={2}>{$_('time.day2')}</option>
+          <option value={3}>{$_('time.day3')}</option>
+          <option value={5}>{$_('time.day5')}</option>
+          <option value={7}>{$_('time.day7')}</option>
+          <option value={14}>{$_('time.day14')}</option>
+        </select>
+      </label>
+    {/if}
     <label>
       {$_('invite.boardSize')}
       <select bind:value={boardSize}>

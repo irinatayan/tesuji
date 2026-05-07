@@ -105,5 +105,23 @@
   "bot.title": "Play vs Bot",
   "bot.start": "Start Game",
   "bot.creating": "Creating…",
-  "bot.createFailed": "Failed to create game"
+  "bot.createFailed": "Failed to create game",
+
+  "invite.mode": "Game mode",
+  "invite.modeRealtime": "Realtime",
+  "invite.modeCorrespondence": "Correspondence",
+  "invite.timeControl": "Time per game",
+  "invite.daysPerMove": "Days per move",
+
+  "time.min5": "5 min",
+  "time.min10": "10 min",
+  "time.min20": "20 min",
+  "time.min30": "30 min",
+  "time.min60": "60 min",
+  "time.day1": "1 day",
+  "time.day2": "2 days",
+  "time.day3": "3 days",
+  "time.day5": "5 days",
+  "time.day7": "7 days",
+  "time.day14": "14 days"
 }

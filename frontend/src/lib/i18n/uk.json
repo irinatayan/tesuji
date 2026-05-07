@@ -105,5 +105,23 @@
   "bot.title": "Гра з ботом",
   "bot.start": "Почати гру",
   "bot.creating": "Створення…",
-  "bot.createFailed": "Не вдалося створити гру"
+  "bot.createFailed": "Не вдалося створити гру",
+
+  "invite.mode": "Режим гри",
+  "invite.modeRealtime": "Реалтайм",
+  "invite.modeCorrespondence": "Кореспонденція",
+  "invite.timeControl": "Час на гру",
+  "invite.daysPerMove": "Днів на хід",
+
+  "time.min5": "5 хв",
+  "time.min10": "10 хв",
+  "time.min20": "20 хв",
+  "time.min30": "30 хв",
+  "time.min60": "60 хв",
+  "time.day1": "1 день",
+  "time.day2": "2 дні",
+  "time.day3": "3 дні",
+  "time.day5": "5 днів",
+  "time.day7": "7 днів",
+  "time.day14": "14 днів"
 }
