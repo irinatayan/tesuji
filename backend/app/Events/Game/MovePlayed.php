@@ -23,6 +23,9 @@ final class MovePlayed implements ShouldBroadcast, ShouldQueue
         public readonly string $color,
         public readonly array $captures,
         public readonly string $positionHash,
+        public readonly ?array $blackClock = null,
+        public readonly ?array $whiteClock = null,
+        public readonly ?string $expiresAt = null,
     ) {}
 
     public function broadcastWith(): array
@@ -35,6 +38,9 @@ final class MovePlayed implements ShouldBroadcast, ShouldQueue
             'color' => $this->color,
             'captures' => $this->captures,
             'position_hash' => $this->positionHash,
+            'black_clock' => $this->blackClock,
+            'white_clock' => $this->whiteClock,
+            'expires_at' => $this->expiresAt,
         ];
     }
 

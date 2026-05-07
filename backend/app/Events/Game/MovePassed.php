@@ -20,7 +20,23 @@ final class MovePassed implements ShouldBroadcast, ShouldQueue
         public readonly int $moveNumber,
         public readonly string $color,
         public readonly string $status,
+        public readonly ?array $blackClock = null,
+        public readonly ?array $whiteClock = null,
+        public readonly ?string $expiresAt = null,
     ) {}
+
+    public function broadcastWith(): array
+    {
+        return [
+            'game_id' => $this->gameId,
+            'move_number' => $this->moveNumber,
+            'color' => $this->color,
+            'status' => $this->status,
+            'black_clock' => $this->blackClock,
+            'white_clock' => $this->whiteClock,
+            'expires_at' => $this->expiresAt,
+        ];
+    }
 
     public function broadcastOn(): PresenceChannel
     {

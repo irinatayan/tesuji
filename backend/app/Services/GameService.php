@@ -64,6 +64,10 @@ final class GameService
             $domainGame->lastCaptures
         );
 
+        $blackClock = $model->black_clock ?: null;
+        $whiteClock = $model->white_clock ?: null;
+        $expiresAt = $model->expires_at?->toISOString();
+
         match ($move->type) {
             MoveType::Play => event(new MovePlayed(
                 gameId: $model->id,
@@ -73,12 +77,18 @@ final class GameService
                 color: $color,
                 captures: $captures,
                 positionHash: $lastMove->position_hash,
+                blackClock: $blackClock,
+                whiteClock: $whiteClock,
+                expiresAt: $expiresAt,
             )),
             MoveType::Pass => event(new MovePassed(
                 gameId: $model->id,
                 moveNumber: $moveNumber,
                 color: $color,
                 status: $model->status,
+                blackClock: $blackClock,
+                whiteClock: $whiteClock,
+                expiresAt: $expiresAt,
             )),
             MoveType::Resign => $this->dispatchResignEvents($model, $color),
         };
