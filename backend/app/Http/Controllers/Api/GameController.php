@@ -77,9 +77,10 @@ class GameController extends Controller
             ? [$request->user()->id, $opponent->id]
             : [$opponent->id, $request->user()->id];
 
-        $expiresAt = $request->time_control_type === 'correspondence'
-            ? now()->addDays($request->time_control_config['days_per_move'] ?? 3)
-            : null;
+        [$blackClock, $whiteClock, $expiresAt] = $this->initClocks(
+            $request->time_control_type,
+            $request->time_control_config,
+        );
 
         $rules = new ChineseRuleset;
 
@@ -95,6 +96,8 @@ class GameController extends Controller
             'time_control_config' => $request->time_control_config,
             'komi' => $rules->komi($request->board_size),
             'started_at' => now(),
+            'black_clock' => $blackClock,
+            'white_clock' => $whiteClock,
             'expires_at' => $expiresAt,
         ]);
 
@@ -118,6 +121,8 @@ class GameController extends Controller
         $timeControlType = $request->input('time_control_type', 'absolute');
         $timeControlConfig = $request->input('time_control_config', ['main_time' => 600]);
         $mode = $request->input('mode', 'realtime');
+
+        [$blackClock, $whiteClock, $expiresAt] = $this->initClocks($timeControlType, $timeControlConfig);
 
         $rules = new ChineseRuleset;
         $handicap = (int) $request->input('handicap', 0);
@@ -143,6 +148,9 @@ class GameController extends Controller
             'handicap_placement' => $request->input('handicap_placement', 'fixed'),
             'komi' => $rules->komiWithHandicap($request->board_size, $handicap),
             'started_at' => now(),
+            'black_clock' => $blackClock,
+            'white_clock' => $whiteClock,
+            'expires_at' => $expiresAt,
         ]);
 
         // Bot moves first if it holds the color whose turn it is now.
@@ -351,5 +359,25 @@ class GameController extends Controller
         }
 
         return null;
+    }
+
+    /** @return array{?array, ?array, ?\Illuminate\Support\Carbon} */
+    private function initClocks(string $type, array $config): array
+    {
+        if ($type === 'absolute') {
+            $mainTimeMs = ($config['main_time'] ?? 600) * 1000;
+
+            return [
+                ['remaining_ms' => $mainTimeMs],
+                ['remaining_ms' => $mainTimeMs],
+                now()->addMilliseconds($mainTimeMs),
+            ];
+        }
+
+        return [
+            null,
+            null,
+            now()->addDays($config['days_per_move'] ?? 3),
+        ];
     }
 }

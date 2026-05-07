@@ -132,9 +132,10 @@ class InvitationController extends Controller
                 ? [$invitation->to_user_id, $invitation->from_user_id]
                 : [$invitation->from_user_id, $invitation->to_user_id];
 
-            $expiresAt = $invitation->time_control_type === 'correspondence'
-                ? now()->addDays($invitation->time_control_config['days_per_move'] ?? 3)
-                : null;
+            [$blackClock, $whiteClock, $expiresAt] = $this->initClocks(
+                $invitation->time_control_type,
+                $invitation->time_control_config,
+            );
 
             $rules = new ChineseRuleset;
             $handicap = (int) ($invitation->handicap ?? 0);
@@ -159,6 +160,8 @@ class InvitationController extends Controller
                 'handicap_placement' => $invitation->handicap_placement ?? 'fixed',
                 'komi' => $rules->komiWithHandicap($invitation->board_size, $handicap),
                 'started_at' => now(),
+                'black_clock' => $blackClock,
+                'white_clock' => $whiteClock,
                 'expires_at' => $expiresAt,
             ]);
 
@@ -195,5 +198,25 @@ class InvitationController extends Controller
         ));
 
         return response()->json(['message' => __('messages.invitation_declined')]);
+    }
+
+    /** @return array{?array, ?array, ?\Illuminate\Support\Carbon} */
+    private function initClocks(string $type, array $config): array
+    {
+        if ($type === 'absolute') {
+            $mainTimeMs = ($config['main_time'] ?? 600) * 1000;
+
+            return [
+                ['remaining_ms' => $mainTimeMs],
+                ['remaining_ms' => $mainTimeMs],
+                now()->addMilliseconds($mainTimeMs),
+            ];
+        }
+
+        return [
+            null,
+            null,
+            now()->addDays($config['days_per_move'] ?? 3),
+        ];
     }
 }
