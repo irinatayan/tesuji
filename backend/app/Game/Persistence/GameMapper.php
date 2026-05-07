@@ -15,6 +15,7 @@ use App\Game\Rules\Ruleset;
 use App\Game\Stone;
 use App\Models\Game as GameModel;
 use App\Models\Move as MoveModel;
+use Carbon\Carbon;
 
 final class GameMapper
 {
@@ -120,7 +121,7 @@ final class GameMapper
         }
 
         if ($model->time_control_type === 'absolute') {
-            $elapsedMs = max(0, now()->getTimestampMs() - \Carbon\Carbon::parse($turnStartedAt)->getTimestampMs());
+            $elapsedMs = max(0, now()->getTimestampMs() - Carbon::parse($turnStartedAt)->getTimestampMs());
 
             $blackRemaining = $model->black_clock['remaining_ms'] ?? 0;
             $whiteRemaining = $model->white_clock['remaining_ms'] ?? 0;

@@ -167,6 +167,32 @@ class AbsoluteTimeControlTest extends TestCase
         $this->assertNull($game->expires_at);
     }
 
+    public function test_move_attempt_on_expired_clock_ends_game(): void
+    {
+        $game = Game::factory()->create([
+            'black_player_id' => $this->alice->id,
+            'white_player_id' => $this->bob->id,
+            'mode' => 'realtime',
+            'status' => 'playing',
+            'current_turn' => 'black',
+            'time_control_type' => 'absolute',
+            'time_control_config' => ['main_time' => 300],
+            'black_clock' => ['remaining_ms' => 0],
+            'white_clock' => ['remaining_ms' => 300_000],
+            'expires_at' => now()->subSecond(),
+        ]);
+
+        $response = $this->actingAs($this->alice)->postJson("/api/games/{$game->id}/moves", [
+            'x' => 0, 'y' => 0,
+        ]);
+
+        $response->assertOk()->assertJsonPath('data.status', 'finished');
+
+        $game->refresh();
+        $this->assertEquals('finished', $game->status);
+        $this->assertEquals('W+T', $game->result);
+    }
+
     public function test_absolute_game_times_out_via_job(): void
     {
         $game = Game::factory()->create([

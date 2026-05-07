@@ -45,6 +45,12 @@
 
   const isSpectator = $derived(myColor === null);
   const isMyTurn = $derived(game?.current_turn === myColor && game?.status === 'playing');
+  const isTimedOut = $derived(
+    game?.time_control_type === 'absolute' &&
+      game?.status === 'playing' &&
+      expiresAt !== null &&
+      new Date(expiresAt) < new Date(),
+  );
 
   function boardFromGame(g: GameResponse): Board {
     let b = Board.empty(g.board_size);
@@ -76,7 +82,7 @@
   }
 
   async function handleMove(pos: Position) {
-    if (!isMyTurn) return;
+    if (!isMyTurn || isTimedOut) return;
     if (!isLegal(board, pos, myColor!)) return;
 
     moveError = '';
@@ -100,7 +106,7 @@
   }
 
   async function handlePass() {
-    if (!isMyTurn) return;
+    if (!isMyTurn || isTimedOut) return;
     moveError = '';
     try {
       await api.pass(gameId);
@@ -186,11 +192,13 @@
       })
       .listen(
         '.game.move.played',
-        (event: MovePlayed & {
-          black_clock?: GameClockData;
-          white_clock?: GameClockData;
-          expires_at?: string;
-        }) => {
+        (
+          event: MovePlayed & {
+            black_clock?: GameClockData;
+            white_clock?: GameClockData;
+            expires_at?: string;
+          },
+        ) => {
           console.log('[WS] game.move.played', JSON.stringify(event));
           board = applyMovePlayed(board, event);
           if (event.color !== myColor) playStoneSound();
@@ -372,7 +380,9 @@
         {#if !isSpectator}
           {#if game.status === 'playing'}
             <div class="actions">
-              <button onclick={handlePass} disabled={!isMyTurn}>{$_('game.pass')}</button>
+              <button onclick={handlePass} disabled={!isMyTurn || isTimedOut}
+                >{$_('game.pass')}</button
+              >
               <button onclick={handleResign} class="resign">{$_('game.resign')}</button>
             </div>
           {:else if game.status === 'scoring'}

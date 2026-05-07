@@ -16,6 +16,7 @@ use App\Game\Persistence\GameMapper;
 use App\Game\Position;
 use App\Models\Game;
 use App\Notifications\GameFinishedNotification;
+use App\Notifications\GameTimedOutNotification;
 use App\Notifications\OpponentMovedNotification;
 use Illuminate\Support\Facades\DB;
 
@@ -32,9 +33,26 @@ final class GameService
     {
         $domainGame = null;
         $moveNumber = null;
+        $timedOut = false;
 
-        DB::transaction(function () use ($model, $move, &$domainGame, &$moveNumber): void {
+        DB::transaction(function () use ($model, $move, &$domainGame, &$moveNumber, &$timedOut): void {
             DB::statement('SELECT pg_advisory_xact_lock(?)', [$model->id]);
+
+            $model->refresh();
+
+            if ($model->time_control_type === 'absolute' && $model->expires_at?->isPast()) {
+                $timedOut = true;
+                $loser = $model->current_turn;
+                $winner = $loser === 'black' ? 'W' : 'B';
+                $model->update([
+                    'status' => 'finished',
+                    'result' => $winner.'+T',
+                    'finished_at' => now(),
+                    'expires_at' => null,
+                ]);
+
+                return;
+            }
 
             $game = $this->mapper->restore($model);
             $domainGame = $game->apply($move);
@@ -44,6 +62,15 @@ final class GameService
         });
 
         $model->refresh();
+
+        if ($timedOut) {
+            event(new GameFinished(gameId: $model->id, result: $model->result, score: null));
+            $model->loadMissing(['blackPlayer', 'whitePlayer']);
+            $model->blackPlayer->notify(new GameTimedOutNotification($model));
+            $model->whitePlayer->notify(new GameTimedOutNotification($model));
+
+            return $model;
+        }
 
         $this->dispatchMoveEvent($model, $domainGame, $move, $moveNumber);
 
