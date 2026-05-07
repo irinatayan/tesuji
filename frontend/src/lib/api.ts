@@ -16,9 +16,14 @@ export interface User {
   is_bot?: boolean;
 }
 
+export interface GameClock {
+  remaining_ms: number;
+}
+
 export interface GameResponse {
   id: number;
   board_size: number;
+  mode: 'realtime' | 'correspondence';
   status: 'playing' | 'scoring' | 'finished';
   current_turn: 'black' | 'white' | null;
   result: string | null;
@@ -32,6 +37,11 @@ export interface GameResponse {
   handicap_stones: { x: number; y: number }[];
   handicap_placement: 'fixed' | 'free';
   komi: number;
+  time_control_type: 'absolute' | 'byoyomi' | 'correspondence';
+  time_control_config: { main_time?: number; days_per_move?: number };
+  black_clock: GameClock | null;
+  white_clock: GameClock | null;
+  expires_at: string | null;
   moves?: {
     move_number: number;
     color: 'black' | 'white';
