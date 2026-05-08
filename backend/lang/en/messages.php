@@ -33,6 +33,11 @@ return [
 
     'tg_opponent_moved' => 'Your turn in a game against :opponent (:size×:size)',
     'tg_invitation' => ':from invites you to a :size×:size game',
+    'tg_invitation_details' => ':mode · :time',
+    'tg_mode_realtime' => 'Realtime',
+    'tg_mode_correspondence' => 'Correspondence',
+    'tg_time_absolute' => ':duration per side for the whole game',
+    'tg_time_correspondence' => ':days day per move (play at your own pace)|:days days per move (play at your own pace)',
     'tg_new_message' => ':sender sent you a message',
     'tg_new_messages' => ':count new messages from :opponent',
     'tg_game_finished' => 'Your :size×:size game against :opponent has finished. Result: :result',

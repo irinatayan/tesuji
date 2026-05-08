@@ -33,13 +33,39 @@ final class InvitationReceivedNotification extends Notification implements Shoul
 
     public function toTelegram(User $notifiable): TelegramMessage
     {
-        $from = $this->invitation->fromUser->name;
-        $size = $this->invitation->board_size;
+        $inv = $this->invitation;
         $url = config('app.frontend_url').'/lobby';
 
-        return new TelegramMessage(
-            __('messages.tg_invitation', ['from' => $from, 'size' => $size])."\n{$url}"
-        );
+        $mode = __('messages.tg_mode_'.$inv->mode);
+        $time = $this->formatTime($inv->time_control_type, $inv->time_control_config);
+
+        $text = __('messages.tg_invitation', ['from' => $inv->fromUser->name, 'size' => $inv->board_size])
+            ."\n".__('messages.tg_invitation_details', ['mode' => $mode, 'time' => $time])
+            ."\n{$url}";
+
+        return new TelegramMessage($text);
+    }
+
+    private function formatTime(string $type, array $config): string
+    {
+        if ($type === 'absolute') {
+            $seconds = $config['main_time'] ?? 0;
+            $hours = intdiv($seconds, 3600);
+            $minutes = intdiv($seconds % 3600, 60);
+            $duration = $hours > 0
+                ? ($minutes > 0 ? "{$hours}h {$minutes}min" : "{$hours}h")
+                : "{$minutes}min";
+
+            return __('messages.tg_time_absolute', ['duration' => $duration]);
+        }
+
+        if ($type === 'correspondence') {
+            $days = $config['days_per_move'] ?? 3;
+
+            return trans_choice('messages.tg_time_correspondence', $days, ['days' => $days]);
+        }
+
+        return '';
     }
 
     public function backoff(): array

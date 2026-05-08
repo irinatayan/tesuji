@@ -33,6 +33,11 @@ return [
 
     'tg_opponent_moved' => 'Ваш ход в игре против :opponent (:size×:size)',
     'tg_invitation' => ':from приглашает вас в игру :size×:size',
+    'tg_invitation_details' => ':mode · :time',
+    'tg_mode_realtime' => 'Реалтайм',
+    'tg_mode_correspondence' => 'Заочная',
+    'tg_time_absolute' => ':duration на всю игру с момента принятия',
+    'tg_time_correspondence' => ':days день на каждый ход — играете в своём темпе|:days дня на каждый ход — играете в своём темпе|:days дней на каждый ход — играете в своём темпе',
     'tg_new_message' => ':sender отправил вам сообщение',
     'tg_new_messages' => 'Новых сообщений: :count от :opponent',
     'tg_game_finished' => 'Игра :size×:size против :opponent завершена. Результат: :result',
