@@ -8,4 +8,6 @@ php artisan route:cache
 php artisan view:cache
 php artisan telegram:webhook:set || true
 
+php artisan schedule:work &
+
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
