@@ -42,6 +42,8 @@ export interface GameResponse {
   black_clock: GameClock | null;
   white_clock: GameClock | null;
   expires_at: string | null;
+  turn_started_at: number | null;
+  server_time: number;
   moves?: {
     move_number: number;
     color: 'black' | 'white';

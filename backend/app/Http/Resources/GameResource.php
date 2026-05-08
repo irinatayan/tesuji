@@ -48,6 +48,8 @@ class GameResource extends JsonResource
             'expires_at' => $this->expires_at?->toISOString(),
             'started_at' => $this->started_at?->toISOString(),
             'finished_at' => $this->finished_at?->toISOString(),
+            'turn_started_at' => $this->resolveTurnStartedAt(),
+            'server_time' => (int) now()->getPreciseTimestamp(3),
             'dead_stones' => $this->dead_stones,
             'moves' => $this->when(
                 $this->status === 'finished',
@@ -65,6 +67,17 @@ class GameResource extends JsonResource
                 fn () => (int) $this->resource->unread_count,
             ),
         ];
+    }
+
+    private function resolveTurnStartedAt(): ?int
+    {
+        if ($this->status !== 'playing') {
+            return null;
+        }
+
+        $ts = ($this->last_move_at ?? $this->started_at)?->getPreciseTimestamp(3);
+
+        return $ts !== null ? (int) $ts : null;
     }
 
     private function buildBoard(): array

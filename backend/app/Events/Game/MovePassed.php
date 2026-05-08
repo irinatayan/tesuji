@@ -23,6 +23,7 @@ final class MovePassed implements ShouldBroadcast, ShouldQueue
         public readonly ?array $blackClock = null,
         public readonly ?array $whiteClock = null,
         public readonly ?string $expiresAt = null,
+        public readonly ?int $turnStartedAt = null,
     ) {}
 
     public function broadcastWith(): array
@@ -35,6 +36,8 @@ final class MovePassed implements ShouldBroadcast, ShouldQueue
             'black_clock' => $this->blackClock,
             'white_clock' => $this->whiteClock,
             'expires_at' => $this->expiresAt,
+            'turn_started_at' => $this->turnStartedAt,
+            'server_time' => (int) now()->getPreciseTimestamp(3),
         ];
     }
 

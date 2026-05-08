@@ -84,7 +84,9 @@ final class GameService
     private function dispatchMoveEvent(Game $model, DomainGame $domainGame, DomainMove $move, int $moveNumber): void
     {
         $color = strtolower($move->color->name);
-        $lastMove = $model->moves()->latest('move_number')->first();
+        // reorder() clears the relation's default orderBy('move_number') asc,
+        // otherwise latest() appends a second clause and the asc one wins → move 1 is returned.
+        $lastMove = $model->moves()->reorder()->latest('move_number')->first();
 
         $captures = array_map(
             fn (Position $p) => ['x' => $p->x, 'y' => $p->y],
@@ -94,6 +96,12 @@ final class GameService
         $blackClock = $model->black_clock ?: null;
         $whiteClock = $model->white_clock ?: null;
         $expiresAt = $model->expires_at?->toISOString();
+        // last_move_at is set to now() in persistMove and refreshed on the model. Using it
+        // directly avoids re-querying the moves table from queue workers (BotMoveJob), where
+        // freshly-inserted rows may not yet be visible from a re-issued query.
+        $turnStartedAt = $model->last_move_at !== null
+            ? (int) $model->last_move_at->getPreciseTimestamp(3)
+            : null;
 
         match ($move->type) {
             MoveType::Play => event(new MovePlayed(
@@ -107,6 +115,7 @@ final class GameService
                 blackClock: $blackClock,
                 whiteClock: $whiteClock,
                 expiresAt: $expiresAt,
+                turnStartedAt: $turnStartedAt,
             )),
             MoveType::Pass => event(new MovePassed(
                 gameId: $model->id,
@@ -116,6 +125,7 @@ final class GameService
                 blackClock: $blackClock,
                 whiteClock: $whiteClock,
                 expiresAt: $expiresAt,
+                turnStartedAt: $turnStartedAt,
             )),
             MoveType::Resign => $this->dispatchResignEvents($model, $color),
         };

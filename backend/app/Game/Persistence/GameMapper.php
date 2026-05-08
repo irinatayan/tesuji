@@ -79,7 +79,7 @@ final class GameMapper
         $board = $game->board;
 
         $turnStartedAt = $model->time_control_type === 'absolute'
-            ? ($model->moves()->latest('move_number')->value('played_at') ?? $model->started_at)
+            ? ($model->moves()->reorder()->latest('move_number')->value('played_at') ?? $model->started_at)
             : null;
 
         MoveModel::create([
