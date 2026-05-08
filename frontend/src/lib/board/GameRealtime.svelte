@@ -13,6 +13,7 @@
   import GameClock from './GameClock.svelte';
   import { playStoneSound } from '$lib/audio';
   import type { GameClock as GameClockData } from '$lib/api';
+  import { applyServerTime } from '$lib/stores/time.svelte';
 
   interface DeadStonesMarked {
     by: Stone;
@@ -33,6 +34,9 @@
   let blackClock = $state<GameClockData | null>(null);
   let whiteClock = $state<GameClockData | null>(null);
   let expiresAt = $state<string | null>(null);
+  // turn_started_at (epoch ms) — start of the current active player's turn,
+  // set from server's last_move_at or started_at. Used with serverNow for countdown.
+  let turnStartedAt = $state<number | null>(null);
   let spectators = $state<{ id: number; name: string }[]>([]);
   let showSpectators = $state(false);
 
@@ -71,12 +75,14 @@
   async function loadGame() {
     try {
       const res = await api.getGame(gameId);
+      applyServerTime(res.data.server_time);
       game = res.data;
       board = boardFromGame(res.data);
       lastMove = res.data.last_move;
       blackClock = res.data.black_clock;
       whiteClock = res.data.white_clock;
       expiresAt = res.data.expires_at;
+      turnStartedAt = res.data.turn_started_at;
     } catch {
       error = 'Failed to load game';
     } finally {
@@ -96,11 +102,13 @@
 
     try {
       const res = await api.playMove(gameId, pos.x, pos.y);
+      applyServerTime(res.data.server_time);
       game = res.data;
       board = boardFromGame(res.data);
       blackClock = res.data.black_clock;
       whiteClock = res.data.white_clock;
       expiresAt = res.data.expires_at;
+      turnStartedAt = res.data.turn_started_at;
     } catch (err) {
       board = before;
       lastMove = null;
@@ -116,10 +124,12 @@
     moveError = '';
     try {
       const res = await api.pass(gameId);
+      applyServerTime(res.data.server_time);
       game = res.data;
       blackClock = res.data.black_clock;
       whiteClock = res.data.white_clock;
       expiresAt = res.data.expires_at;
+      turnStartedAt = res.data.turn_started_at;
     } catch {
       moveError = 'Error';
     }
@@ -185,9 +195,14 @@
     );
   }
 
+  function handleVisibilityChange() {
+    if (document.visibilityState === 'visible') loadGame();
+  }
+
   onMount(async () => {
     await loadGame();
 
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     channel = getEcho().join(`game.${gameId}`);
 
     channel
@@ -207,15 +222,18 @@
             black_clock?: GameClockData;
             white_clock?: GameClockData;
             expires_at?: string;
+            turn_started_at?: number;
+            server_time?: number;
           },
         ) => {
-          console.log('[WS] game.move.played', JSON.stringify(event));
+          if (event.server_time !== undefined) applyServerTime(event.server_time);
           board = applyMovePlayed(board, event);
           if (event.color !== myColor) playStoneSound();
           lastMove = { x: event.x, y: event.y };
           if (event.black_clock !== undefined) blackClock = event.black_clock;
           if (event.white_clock !== undefined) whiteClock = event.white_clock;
           if (event.expires_at !== undefined) expiresAt = event.expires_at ?? null;
+          if (event.turn_started_at !== undefined) turnStartedAt = event.turn_started_at;
           if (game) {
             const captured = event.captures.length;
             game = {
@@ -237,10 +255,14 @@
           black_clock?: GameClockData;
           white_clock?: GameClockData;
           expires_at?: string;
+          turn_started_at?: number;
+          server_time?: number;
         }) => {
+          if (event.server_time !== undefined) applyServerTime(event.server_time);
           if (event.black_clock !== undefined) blackClock = event.black_clock;
           if (event.white_clock !== undefined) whiteClock = event.white_clock;
           if (event.expires_at !== undefined) expiresAt = event.expires_at ?? null;
+          if (event.turn_started_at !== undefined) turnStartedAt = event.turn_started_at;
           if (game) {
             game = {
               ...game,
@@ -270,6 +292,7 @@
   });
 
   onDestroy(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     getEcho().leave(`game.${gameId}`);
   });
 </script>
@@ -294,6 +317,7 @@
             <GameClock
               timeControlType={game.time_control_type}
               clock={blackClock}
+              {turnStartedAt}
               {expiresAt}
               isActive={game.current_turn === 'black' && game.status === 'playing'}
             />
@@ -307,6 +331,7 @@
             <GameClock
               timeControlType={game.time_control_type}
               clock={whiteClock}
+              {turnStartedAt}
               {expiresAt}
               isActive={game.current_turn === 'white' && game.status === 'playing'}
             />

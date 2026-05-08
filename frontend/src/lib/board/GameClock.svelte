@@ -1,14 +1,17 @@
 <script lang="ts">
   import type { GameClock } from '$lib/api';
+  import { time } from '$lib/stores/time.svelte';
 
   let {
     timeControlType,
     clock,
+    turnStartedAt,
     expiresAt,
     isActive,
   }: {
     timeControlType: 'absolute' | 'byoyomi' | 'correspondence';
     clock: GameClock | null;
+    turnStartedAt: number | null;
     expiresAt: string | null;
     isActive: boolean;
   } = $props();
@@ -18,9 +21,9 @@
 
   $effect(() => {
     if (timeControlType === 'absolute') {
-      updateAbsolute();
-      if (isActive && expiresAt) {
-        const interval = setInterval(updateAbsolute, 1000);
+      tickAbsolute();
+      if (isActive && turnStartedAt !== null) {
+        const interval = setInterval(tickAbsolute, 250);
         return () => clearInterval(interval);
       }
     } else if (timeControlType === 'correspondence') {
@@ -28,13 +31,18 @@
     }
   });
 
-  function updateAbsolute() {
+  function tickAbsolute() {
+    const snapshot = clock?.remaining_ms ?? 0;
     let remainingMs: number;
-    if (isActive && expiresAt) {
-      remainingMs = Math.max(0, new Date(expiresAt).getTime() - Date.now());
+
+    if (isActive && turnStartedAt !== null) {
+      const serverNow = Date.now() + time.offset;
+      const elapsed = Math.max(0, serverNow - turnStartedAt);
+      remainingMs = Math.max(0, snapshot - elapsed);
     } else {
-      remainingMs = clock?.remaining_ms ?? 0;
+      remainingMs = snapshot;
     }
+
     const totalSec = Math.floor(remainingMs / 1000);
     const min = Math.floor(totalSec / 60);
     const sec = totalSec % 60;
@@ -84,7 +92,12 @@
     animation: pulse 1s ease-in-out infinite;
   }
   @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 </style>
