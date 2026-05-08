@@ -31,15 +31,47 @@ final class GameTimedOutNotification extends Notification implements ShouldQueue
 
     public function toTelegram(User $notifiable): TelegramMessage
     {
-        $opponent = $this->game->black_player_id === $notifiable->id
-            ? $this->game->whitePlayer->name
-            : $this->game->blackPlayer->name;
+        $game = $this->game;
+        $isBlack = $game->black_player_id === $notifiable->id;
+        $opponent = $isBlack ? $game->whitePlayer->name : $game->blackPlayer->name;
 
-        $url = config('app.frontend_url').'/game/'.$this->game->id;
+        $notifiableColor = $isBlack ? 'B' : 'W';
+        $winnerLetter = str_starts_with($game->result ?? '', 'W') ? 'W' : 'B';
+        $iWon = $notifiableColor === $winnerLetter;
 
-        return new TelegramMessage(
-            __('messages.tg_game_timeout', ['opponent' => $opponent, 'size' => $this->game->board_size])."\n{$url}"
-        );
+        $outcome = $iWon
+            ? __('messages.tg_timeout_won', ['opponent' => $opponent])
+            : __('messages.tg_timeout_lost', ['opponent' => $opponent]);
+
+        $time = $this->formatTime($game->time_control_type, $game->time_control_config);
+        $mode = __('messages.tg_mode_'.$game->mode);
+        $details = __('messages.tg_invitation_details', ['mode' => $mode, 'time' => $time]);
+
+        $url = config('app.frontend_url').'/game/'.$game->id;
+
+        return new TelegramMessage("{$outcome}\n{$game->board_size}×{$game->board_size} · {$details}\n{$url}");
+    }
+
+    private function formatTime(string $type, array $config): string
+    {
+        if ($type === 'absolute') {
+            $seconds = $config['main_time'] ?? 0;
+            $hours = intdiv($seconds, 3600);
+            $minutes = intdiv($seconds % 3600, 60);
+            $duration = $hours > 0
+                ? ($minutes > 0 ? "{$hours}h {$minutes}min" : "{$hours}h")
+                : "{$minutes}min";
+
+            return __('messages.tg_time_absolute', ['duration' => $duration]);
+        }
+
+        if ($type === 'correspondence') {
+            $days = $config['days_per_move'] ?? 3;
+
+            return trans_choice('messages.tg_time_correspondence', $days, ['days' => $days]);
+        }
+
+        return '';
     }
 
     public function backoff(): array

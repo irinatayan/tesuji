@@ -42,4 +42,6 @@ return [
     'tg_new_messages' => ':count new messages from :opponent',
     'tg_game_finished' => 'Your :size×:size game against :opponent has finished. Result: :result',
     'tg_game_timeout' => 'Your :size×:size game against :opponent has ended due to timeout.',
+    'tg_timeout_won' => 'You won — :opponent ran out of time',
+    'tg_timeout_lost' => 'You lost — your time ran out (game against :opponent)',
 ];

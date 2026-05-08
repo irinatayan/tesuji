@@ -42,4 +42,6 @@ return [
     'tg_new_messages' => 'Новых сообщений: :count от :opponent',
     'tg_game_finished' => 'Игра :size×:size против :opponent завершена. Результат: :result',
     'tg_game_timeout' => 'Игра :size×:size против :opponent завершена по тайм-ауту.',
+    'tg_timeout_won' => 'Вы выиграли — у :opponent вышло время',
+    'tg_timeout_lost' => 'Вы проиграли — ваше время вышло (игра против :opponent)',
 ];
