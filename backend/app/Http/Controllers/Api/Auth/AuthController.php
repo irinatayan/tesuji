@@ -56,12 +56,16 @@ class AuthController extends Controller
 
     public function googleRedirect(): SymfonyRedirectResponse
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        return Socialite::driver('google')->setHttpClient(
+            new \GuzzleHttp\Client(['timeout' => 10, 'connect_timeout' => 5])
+        )->stateless()->redirect();
     }
 
     public function googleCallback(): RedirectResponse
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        $googleUser = Socialite::driver('google')->setHttpClient(
+            new \GuzzleHttp\Client(['timeout' => 10, 'connect_timeout' => 5])
+        )->stateless()->user();
 
         $user = $this->findOrCreateUser($googleUser);
         $token = $user->createToken('google-oauth')->plainTextToken;
